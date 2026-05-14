@@ -7802,6 +7802,96 @@ function updateJuzSelectInfo() {
 </head>
 <body>
 
+<!-- ============================================================
+     LOGIN SCREEN
+============================================================ -->
+<div id="loginScreen">
+    <div class="login-logo-wrap">
+        <div class="login-logo-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <div class="login-app-name">El<span>Fashih</span></div>
+        <div class="login-app-tagline">Teman Penghafal Qur'an Juz 1–30</div>
+    </div>
+
+    <div class="login-card">
+        <div class="login-title">Masuk ke Akun</div>
+        <div class="login-subtitle">Progres hafalan tersimpan & tidak tercampur antar pengguna</div>
+
+        <!-- Method Tabs -->
+        <div class="login-method-tabs">
+            <button class="login-method-tab active" onclick="switchLoginMethod('gmail')">
+                <i class="fa-solid fa-envelope" style="margin-right:4px"></i> Gmail
+            </button>
+            <button class="login-method-tab" onclick="switchLoginMethod('phone')">
+                <i class="fa-solid fa-phone" style="margin-right:4px"></i> No. Telepon
+            </button>
+            <button class="login-method-tab" onclick="switchLoginMethod('username')">
+                <i class="fa-solid fa-user" style="margin-right:4px"></i> Username
+            </button>
+        </div>
+
+        <!-- Error box -->
+        <div class="login-error" id="loginError"></div>
+
+        <!-- Gmail Form -->
+        <div id="loginFormGmail">
+            <div class="login-input-group">
+                <label class="login-input-label">Alamat Gmail</label>
+                <input type="email" class="login-input" id="inputGmail" placeholder="contoh@gmail.com" autocomplete="email" />
+                <div class="login-input-hint">Username dibuat otomatis dari nama Gmail Anda</div>
+            </div>
+        </div>
+
+        <!-- Phone Form -->
+        <div id="loginFormPhone" style="display:none">
+            <div class="login-input-group">
+                <label class="login-input-label">Nomor Telepon (WhatsApp/HP)</label>
+                <input type="tel" class="login-input" id="inputPhone" placeholder="08xxxxxxxxxx atau +628xxxxxxxx" autocomplete="tel" />
+                <div class="login-input-hint">Nomor digunakan sebagai identitas unik, tidak ada SMS dikirim</div>
+            </div>
+        </div>
+
+        <!-- Username Form -->
+        <div id="loginFormUsername" style="display:none">
+            <div class="login-input-group">
+                <label class="login-input-label">Username</label>
+                <input type="text" class="login-input" id="inputUsername" placeholder="huruf, angka, tanpa spasi (min. 3 karakter)" autocomplete="username" />
+                <div class="login-input-hint">Buat username baru atau masukkan username yang sudah ada</div>
+            </div>
+        </div>
+
+        <button class="login-btn-primary" onclick="doLogin()">
+            <i class="fa-solid fa-right-to-bracket" style="margin-right:8px"></i> Masuk / Daftar
+        </button>
+
+        <div class="login-divider"><span>atau lanjutkan tanpa akun</span></div>
+
+        <button class="login-btn-guest" onclick="loginAsGuest()">
+            <i class="fa-solid fa-user-secret" style="margin-right:8px"></i> Mode Tamu
+        </button>
+        <div class="login-guest-note">
+            ⚠️ Mode tamu: progres hafalan tidak disimpan, quiz dibatasi.<br>
+            Data hilang saat browser ditutup.
+        </div>
+    </div>
+</div>
+
+<!-- ACCOUNT MODAL -->
+<div class="modal-overlay" id="accountModal">
+    <div class="modal-panel" style="max-height:90vh;overflow-y:auto">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="fa-solid fa-circle-user" style="color:var(--accent-teal);margin-right:8px"></i>
+                Akun Saya
+            </div>
+            <button class="modal-close" onclick="closeAccountModal()">&times;</button>
+        </div>
+
+        <div id="accountModalContent"></div>
+    </div>
+</div>
+
 <!-- DASHBOARD VIEW -->
 <div id="dashboardView" class="active">
     <div class="dash-header">
@@ -7822,6 +7912,11 @@ function updateJuzSelectInfo() {
                 <strong id="dashDateDay">—</strong>
                 <span id="dashDateFull">—</span>
             </div>
+            <!-- User Button -->
+            <button class="user-btn" onclick="openAccountModal()" id="dashUserBtn" title="Akun Saya">
+                <div class="user-avatar" id="dashUserAvatar">?</div>
+                <span class="user-name-label" id="dashUserName">—</span>
+            </button>
         </div>
     </div>
 
@@ -8932,6 +9027,60 @@ function updateJuzSelectInfo() {
     .dpr-btn-ghost:active { border-color: rgba(14,145,128,0.4); color: var(--accent-teal); }
     .dpr-btn-icon   { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; padding: 0; }
 }
+
+/* =============================================
+   LOGIN SCREEN & MODALS
+============================================= */
+#loginScreen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(160deg, #0a1510 0%, #1a2e1a 40%, #0d1f1a 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px 20px; overflow-y: auto;
+    transition: opacity 0.35s ease;
+}
+#loginScreen.hidden { opacity: 0; pointer-events: none; }
+.login-logo-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 28px; }
+.login-logo-icon { width: 68px; height: 68px; border-radius: 20px; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px rgba(14,145,128,0.4); }
+.login-app-name { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: #fff; }
+.login-app-name span { background: linear-gradient(135deg, #7fffca, #0E9180); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.login-app-tagline { font-size: 12px; color: rgba(255,255,255,0.45); text-align: center; }
+.login-card { width: 100%; max-width: 390px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 24px; padding: 26px 22px; backdrop-filter: blur(20px); }
+.login-title { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 5px; text-align: center; }
+.login-subtitle { font-size: 12px; color: rgba(255,255,255,0.45); text-align: center; margin-bottom: 22px; line-height: 1.5; }
+.login-method-tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; margin-bottom: 18px; }
+.login-method-tab { flex: 1; padding: 8px 4px; border-radius: 9px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; background: transparent; color: rgba(255,255,255,0.4); font-family: var(--ui-font); transition: all 0.2s; text-align: center; }
+.login-method-tab.active { background: rgba(14,145,128,0.4); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+.login-input-group { margin-bottom: 13px; }
+.login-input-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.55); margin-bottom: 6px; display: block; }
+.login-input { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; color: #fff; font-size: 14px; font-family: var(--ui-font); outline: none; transition: border-color 0.2s; }
+.login-input::placeholder { color: rgba(255,255,255,0.28); }
+.login-input:focus { border-color: rgba(14,145,128,0.65); background: rgba(255,255,255,0.1); }
+.login-input-hint { font-size: 10px; color: rgba(255,255,255,0.32); margin-top: 5px; }
+.login-btn-primary { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); border: none; border-radius: 12px; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--ui-font); box-shadow: 0 4px 18px rgba(14,145,128,0.4); transition: opacity 0.2s; margin-bottom: 12px; }
+.login-btn-primary:hover { opacity: 0.9; }
+.login-divider { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.12); }
+.login-divider span { font-size: 10px; color: rgba(255,255,255,0.32); white-space: nowrap; }
+.login-btn-guest { width: 100%; padding: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; color: rgba(255,255,255,0.65); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--ui-font); transition: all 0.2s; text-align: center; }
+.login-btn-guest:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.login-guest-note { font-size: 10px; color: rgba(255,255,255,0.28); text-align: center; margin-top: 10px; line-height: 1.6; }
+.login-error { background: rgba(219,35,80,0.18); border: 1px solid rgba(219,35,80,0.4); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #ff7096; margin-bottom: 14px; display: none; line-height: 1.4; }
+.login-error.show { display: block; }
+/* User btn in header */
+.user-btn { display: flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 50px; background: rgba(14,145,128,0.1); border: 1px solid rgba(14,145,128,0.22); cursor: pointer; transition: all 0.2s; font-family: var(--ui-font); }
+.user-btn:hover { background: rgba(14,145,128,0.2); }
+.user-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.user-name-label { font-size: 11px; font-weight: 700; color: var(--text-primary); max-width: 85px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guest-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; background: rgba(217,152,26,0.2); color: var(--accent-gold); border-radius: 50px; border: 1px solid rgba(217,152,26,0.35); }
+/* Account modal extras */
+.account-modal-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: #fff; margin: 0 auto 14px; box-shadow: 0 4px 16px rgba(14,145,128,0.3); }
+.account-info-row { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.account-info-icon { color: var(--accent-teal); flex-shrink: 0; width: 20px; text-align: center; font-size: 14px; }
+.account-info-text { font-size: 13px; color: var(--text-primary); font-weight: 600; }
+.account-info-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+.guest-restriction-banner { background: rgba(217,152,26,0.08); border: 1px solid rgba(217,152,26,0.28); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; }
+.guest-restriction-title { font-size: 12px; font-weight: 700; color: var(--accent-gold); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.guest-restriction-list { font-size: 11px; color: var(--text-secondary); line-height: 1.9; }
 </style>
 
 <!-- ============================================================
@@ -9228,6 +9377,408 @@ function copyRekening() {
         }, 2000);
     });
 }
+</script>
+
+<script>
+// =============================================
+// AUTH / LOGIN SYSTEM
+// =============================================
+
+const AUTH_KEY     = 'elfashih_auth';        // {uid, username, method, loginTime}
+const USERS_KEY    = 'elfashih_users';       // {uid: {username, method, id, created}}
+const IS_GUEST     = '__guest__';
+
+// --- Fitur yang dibatasi untuk tamu ---
+const GUEST_RESTRICTED = ['hafalan', 'murojaah', 'quiz_save', 'schedule'];
+
+let _currentUser = null; // {uid, username, method, isGuest}
+
+/* ---- Inisialisasi sesi ---- */
+function authInit() {
+    const saved = (() => { try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }})();
+    if (saved && saved.uid) {
+        _currentUser = saved;
+        _applySession();
+    } else {
+        // Tampilkan layar login
+        document.getElementById('loginScreen').style.display = 'flex';
+    }
+}
+
+/* ---- Terapkan sesi yang sudah ada ---- */
+function _applySession() {
+    document.getElementById('loginScreen').classList.add('hidden');
+    setTimeout(() => { document.getElementById('loginScreen').style.display = 'none'; }, 400);
+    _updateUserBadge();
+    _patchStorageKeys();
+}
+
+/* ---- Update badge nama di dashboard ---- */
+function _updateUserBadge() {
+    const nameEl   = document.getElementById('dashUserName');
+    const avatarEl = document.getElementById('dashUserAvatar');
+    if (!_currentUser) return;
+    if (_currentUser.isGuest) {
+        if (nameEl) nameEl.textContent = 'Tamu';
+        if (avatarEl) avatarEl.textContent = '👤';
+    } else {
+        const name = _currentUser.username || '?';
+        if (nameEl) nameEl.textContent = name;
+        if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
+    }
+}
+
+/* ---- Patch localStorage agar tiap user punya namespace sendiri ---- */
+function _patchStorageKeys() {
+    if (!_currentUser || _currentUser.isGuest) return; // tamu pakai key default (ephemeral)
+    const uid = _currentUser.uid;
+    const prefix = `u_${uid}_`;
+
+    // Override fungsi hafalan agar pakai key berprefix
+    const origGetHafalanAll = window.getHafalanAll;
+    const origSetHafalanStatus = window.setHafalanStatus;
+
+    window.getHafalanAll = function() {
+        try { return JSON.parse(localStorage.getItem(prefix + 'elfashih_hafalan') || '{}'); } catch { return {}; }
+    };
+    window.setHafalanStatus = function(surah, ayah, status) {
+        const all = window.getHafalanAll();
+        const k = surah + ':' + ayah;
+        if (status === 'belum') delete all[k];
+        else all[k] = status;
+        localStorage.setItem(prefix + 'elfashih_hafalan', JSON.stringify(all));
+    };
+
+    // Leitner
+    window.getLeitnerAll = function() {
+        try { return JSON.parse(localStorage.getItem(prefix + 'elfashih_leitner') || '{}'); } catch { return {}; }
+    };
+    window.saveLeitnerAll = function(data) {
+        try { localStorage.setItem(prefix + 'elfashih_leitner', JSON.stringify(data)); } catch {}
+    };
+
+    // Jadwal
+    try { schedules = JSON.parse(localStorage.getItem(prefix + 'elfashih_schedules') || '[]'); } catch {}
+    window._origSaveSchedules = window.saveSchedules;
+    window.saveSchedules = function() {
+        try { localStorage.setItem(prefix + 'elfashih_schedules', JSON.stringify(schedules)); } catch {}
+    };
+
+    // Streak
+    window._getStreak = function() {
+        try { return JSON.parse(localStorage.getItem(prefix + 'elfashih_streak') || '{"count":0,"lastDate":""}'); } catch { return {count:0,lastDate:''}; }
+    };
+    window._saveStreak = function(data) {
+        try { localStorage.setItem(prefix + 'elfashih_streak', JSON.stringify(data)); } catch {}
+    };
+
+    // Quiz scores
+    window.saveQuizScore = function(score, mode, total) {
+        let scores = [];
+        try { scores = JSON.parse(localStorage.getItem(prefix + 'elfashih_quiz_scores') || '[]'); } catch {}
+        scores.unshift({ score, mode, total, date: new Date().toISOString() });
+        try { localStorage.setItem(prefix + 'elfashih_quiz_scores', JSON.stringify(scores.slice(0, 50))); } catch {}
+    };
+    window.getQuizScores = function() {
+        try { return JSON.parse(localStorage.getItem(prefix + 'elfashih_quiz_scores') || '[]'); } catch { return []; }
+    };
+}
+
+/* ---- Generate UID dari identitas ---- */
+function _genUID(method, id) {
+    // Simple deterministic UID dari method + id
+    let hash = 0;
+    const str = method + ':' + id.toLowerCase().trim();
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return 'u' + Math.abs(hash).toString(36);
+}
+
+/* ---- Validasi input ---- */
+function _validateInput(method, value) {
+    value = value.trim();
+    if (!value) return { ok: false, msg: 'Field tidak boleh kosong.' };
+    if (method === 'gmail') {
+        if (!/^[^\s@]+@(gmail\.com|googlemail\.com)$/i.test(value))
+            return { ok: false, msg: 'Masukkan alamat Gmail yang valid (contoh: nama@gmail.com).' };
+    } else if (method === 'phone') {
+        const cleaned = value.replace(/[\s\-\(\)]/g, '');
+        if (!/^(\+62|0)8\d{7,13}$/.test(cleaned))
+            return { ok: false, msg: 'Nomor telepon tidak valid. Gunakan format: 08xxx atau +628xxx.' };
+    } else if (method === 'username') {
+        if (value.length < 3) return { ok: false, msg: 'Username minimal 3 karakter.' };
+        if (value.length > 24) return { ok: false, msg: 'Username maksimal 24 karakter.' };
+        if (!/^[a-zA-Z0-9_\.]+$/.test(value)) return { ok: false, msg: 'Username hanya boleh huruf, angka, titik, dan underscore.' };
+    }
+    return { ok: true };
+}
+
+/* ---- Derive username dari email/phone ---- */
+function _deriveUsername(method, value) {
+    if (method === 'gmail') {
+        return value.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').slice(0, 20) || 'user';
+    } else if (method === 'phone') {
+        const c = value.replace(/\D/g, '');
+        return 'hp_' + c.slice(-6);
+    }
+    return value;
+}
+
+/* ---- Do Login ---- */
+let _activeLoginMethod = 'gmail';
+function switchLoginMethod(method) {
+    _activeLoginMethod = method;
+    ['gmail', 'phone', 'username'].forEach(m => {
+        document.getElementById('loginForm' + m.charAt(0).toUpperCase() + m.slice(1)).style.display = m === method ? '' : 'none';
+        document.querySelectorAll('.login-method-tab')[['gmail','phone','username'].indexOf(m)].classList.toggle('active', m === method);
+    });
+    document.getElementById('loginError').classList.remove('show');
+}
+
+function doLogin() {
+    const method = _activeLoginMethod;
+    let rawValue = '';
+    if (method === 'gmail')    rawValue = document.getElementById('inputGmail').value;
+    if (method === 'phone')    rawValue = document.getElementById('inputPhone').value;
+    if (method === 'username') rawValue = document.getElementById('inputUsername').value;
+
+    const errEl = document.getElementById('loginError');
+    errEl.classList.remove('show');
+
+    const validation = _validateInput(method, rawValue);
+    if (!validation.ok) {
+        errEl.textContent = validation.msg;
+        errEl.classList.add('show');
+        return;
+    }
+
+    const cleanValue = rawValue.trim();
+    const uid = _genUID(method, cleanValue);
+    const username = method === 'username' ? cleanValue : _deriveUsername(method, cleanValue);
+
+    // Simpan/update user registry
+    let users = {};
+    try { users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); } catch {}
+    if (!users[uid]) {
+        users[uid] = { username, method, id: cleanValue, created: new Date().toISOString() };
+    }
+    try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); } catch {}
+
+    // Simpan sesi
+    _currentUser = { uid, username: users[uid].username, method, isGuest: false, loginTime: new Date().toISOString() };
+    try { localStorage.setItem(AUTH_KEY, JSON.stringify(_currentUser)); } catch {}
+
+    _applySession();
+    showToast(`✅ Ahlan, ${_currentUser.username}! Progres hafalan tersinkron.`);
+    setTimeout(updateDashboard, 300);
+}
+
+function loginAsGuest() {
+    _currentUser = { uid: IS_GUEST, username: 'Tamu', method: 'guest', isGuest: true };
+    // Jangan simpan ke localStorage — sesi tamu hilang saat tutup tab
+    _applySession();
+    showToast('👤 Mode Tamu aktif — progres tidak disimpan');
+    setTimeout(updateDashboard, 300);
+}
+
+/* ---- Guard untuk fitur yang perlu login ---- */
+function requireLogin(featureName, callback) {
+    if (_currentUser && !_currentUser.isGuest) {
+        callback();
+        return;
+    }
+    // Tamu: tampilkan prompt login
+    _showLoginPromptForGuest(featureName);
+}
+
+function _showLoginPromptForGuest(featureName) {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML = `
+        <div style="background:var(--bg-card);border-radius:24px;padding:28px 22px;max-width:340px;width:100%;text-align:center;border:1px solid var(--border);">
+            <div style="font-size:40px;margin-bottom:12px">🔒</div>
+            <div style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:8px">Perlu Login</div>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6">
+                Fitur <strong>${featureName}</strong> memerlukan akun agar data tidak tercampur antar pengguna.
+            </div>
+            <button onclick="this.closest('[style]').remove();reShowLogin();" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--accent-green),var(--accent-teal));border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:var(--ui-font);">
+                <i class="fa-solid fa-right-to-bracket" style="margin-right:8px"></i> Masuk Sekarang
+            </button>
+            <button onclick="this.closest('[style]').remove();" style="width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:var(--ui-font);">
+                Lanjut sebagai Tamu
+            </button>
+        </div>`;
+    document.body.appendChild(modal);
+}
+
+function reShowLogin() {
+    // Reset current user dan tampilkan layar login lagi
+    _currentUser = null;
+    try { localStorage.removeItem(AUTH_KEY); } catch {}
+    const ls = document.getElementById('loginScreen');
+    ls.style.display = 'flex';
+    ls.classList.remove('hidden');
+}
+
+/* ---- Account Modal ---- */
+function openAccountModal() {
+    const modal = document.getElementById('accountModal');
+    const content = document.getElementById('accountModalContent');
+    if (!_currentUser) return;
+
+    if (_currentUser.isGuest) {
+        content.innerHTML = `
+            <div style="text-align:center;margin-bottom:18px">
+                <div class="account-modal-avatar" style="background:rgba(217,152,26,0.25);box-shadow:0 4px 16px rgba(217,152,26,0.2)">👤</div>
+                <div style="font-size:17px;font-weight:700;color:var(--text-primary)">Mode Tamu</div>
+                <div class="guest-badge" style="display:inline-block;margin-top:6px">TAMU</div>
+            </div>
+            <div class="guest-restriction-banner">
+                <div class="guest-restriction-title"><i class="fa-solid fa-triangle-exclamation"></i> Fitur Dibatasi di Mode Tamu</div>
+                <div class="guest-restriction-list">
+                    ❌ Progres hafalan tidak tersimpan<br>
+                    ❌ Murojaah / Leitner tidak disimpan<br>
+                    ❌ Skor Quiz tidak disimpan<br>
+                    ❌ Jadwal & pengingat tidak disimpan<br>
+                    ✅ Baca Mushaf & murottal tetap bisa
+                </div>
+            </div>
+            <button class="modal-btn-primary" onclick="closeAccountModal();reShowLogin();" style="width:100%;margin-bottom:8px">
+                <i class="fa-solid fa-right-to-bracket" style="margin-right:8px"></i> Masuk dengan Akun
+            </button>
+            <button class="modal-btn-secondary" onclick="closeAccountModal()" style="width:100%">Tutup</button>
+        `;
+    } else {
+        // Hitung stats hafalan user
+        const hafalanData = window.getHafalanAll();
+        const total = Object.keys(hafalanData).length;
+        const lancar = Object.values(hafalanData).filter(s => s === 'lancar').length;
+        const proses = Object.values(hafalanData).filter(s => s === 'proses').length;
+        const initial = (_currentUser.username || '?').charAt(0).toUpperCase();
+        const methodIcon = { gmail: '✉️', phone: '📱', username: '👤' }[_currentUser.method] || '👤';
+
+        content.innerHTML = `
+            <div style="text-align:center;margin-bottom:18px">
+                <div class="account-modal-avatar">${initial}</div>
+                <div style="font-size:17px;font-weight:700;color:var(--text-primary)">${_currentUser.username}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">${methodIcon} Login via ${_currentUser.method}</div>
+            </div>
+            <div class="account-info-row">
+                <div class="account-info-icon"><i class="fa-solid fa-check-circle"></i></div>
+                <div>
+                    <div class="account-info-text">${lancar} Ayat Lancar · ${proses} Proses</div>
+                    <div class="account-info-sub">${total} ayat tercatat dalam progres hafalan</div>
+                </div>
+            </div>
+            <div class="account-info-row">
+                <div class="account-info-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div>
+                    <div class="account-info-text">Data Terisolasi</div>
+                    <div class="account-info-sub">Progres Anda tidak tercampur dengan pengguna lain</div>
+                </div>
+            </div>
+            <div class="account-info-row">
+                <div class="account-info-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div>
+                    <div class="account-info-text">Sesi Aktif</div>
+                    <div class="account-info-sub">Login: ${new Date(_currentUser.loginTime || Date.now()).toLocaleString('id-ID')}</div>
+                </div>
+            </div>
+            <div style="margin-top:16px">
+                <button class="modal-btn-secondary" onclick="confirmLogout()" style="width:100%;margin-bottom:8px;color:var(--accent-pink);border-color:rgba(219,35,80,0.4)">
+                    <i class="fa-solid fa-right-from-bracket" style="margin-right:8px"></i> Keluar / Ganti Akun
+                </button>
+                <button class="modal-btn-secondary" onclick="closeAccountModal()" style="width:100%">Tutup</button>
+            </div>
+        `;
+    }
+    modal.classList.add('visible');
+}
+
+function closeAccountModal() {
+    document.getElementById('accountModal').classList.remove('visible');
+}
+
+function confirmLogout() {
+    closeAccountModal();
+    const panel = document.createElement('div');
+    panel.style.cssText = 'position:fixed;inset:0;z-index:8001;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;';
+    panel.innerHTML = `
+        <div style="background:var(--bg-card);border-radius:24px;padding:26px 22px;max-width:320px;width:100%;text-align:center;border:1px solid var(--border);">
+            <div style="font-size:36px;margin-bottom:10px">👋</div>
+            <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:8px">Keluar Akun?</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6">
+                Progres Anda tetap tersimpan. Anda bisa masuk lagi kapan saja dengan identitas yang sama.
+            </div>
+            <button onclick="doLogout();this.closest('[style]').remove();" style="width:100%;padding:12px;background:linear-gradient(135deg,#db2350,#9b0f35);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;font-family:var(--ui-font);">
+                Ya, Keluar
+            </button>
+            <button onclick="this.closest('[style]').remove();" style="width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:var(--ui-font);">
+                Batal
+            </button>
+        </div>`;
+    document.body.appendChild(panel);
+}
+
+function doLogout() {
+    _currentUser = null;
+    try { localStorage.removeItem(AUTH_KEY); } catch {}
+    // Reload halaman agar semua state kembali bersih
+    location.reload();
+}
+
+/* ---- Guard untuk hafalan: jika tamu, tampilkan prompt ---- */
+// Override handleHafalanBtnClick agar tamu tidak bisa ubah status
+const _origHandleHafalanBtnClick = window.handleHafalanBtnClick;
+document.addEventListener('DOMContentLoaded', () => {
+    // Patch after DOMContentLoaded so the original is already defined
+    if (typeof handleHafalanBtnClick === 'function') {
+        const orig = handleHafalanBtnClick;
+        window.handleHafalanBtnClick = function(e, surah, ayah) {
+            if (_currentUser && _currentUser.isGuest) {
+                e.stopPropagation();
+                _showLoginPromptForGuest('Progress Hafalan');
+                return;
+            }
+            orig(e, surah, ayah);
+        };
+    }
+    // Patch openMurojaahView untuk tamu
+    if (typeof openMurojaahView === 'function') {
+        const origMrj = openMurojaahView;
+        window.openMurojaahView = function() {
+            if (_currentUser && _currentUser.isGuest) {
+                _showLoginPromptForGuest('Murojaah Terjadwal');
+                return;
+            }
+            origMrj();
+        };
+    }
+    // Patch finishQuiz save untuk tamu
+    if (typeof saveQuizScore === 'function') {
+        const origQS = saveQuizScore;
+        window.saveQuizScore = function(...args) {
+            if (_currentUser && _currentUser.isGuest) return; // tamu tidak simpan skor
+            origQS(...args);
+        };
+    }
+    // Patch openScheduleModal untuk tamu
+    if (typeof openScheduleModal === 'function') {
+        const origSched = openScheduleModal;
+        window.openScheduleModal = function() {
+            if (_currentUser && _currentUser.isGuest) {
+                _showLoginPromptForGuest('Jadwal & Pengingat');
+                return;
+            }
+            origSched();
+        };
+    }
+
+    // Jalankan auth
+    authInit();
+});
 </script>
 
 </body>

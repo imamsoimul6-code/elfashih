@@ -1,0 +1,39 @@
+{
+  "name": "ElFashih - Teman Penghafal Qur'an",
+  "short_name": "ElFashih",
+  "description": "Aplikasi hafalan Al-Quran Juz 1 — Al-Fatihah & Al-Baqarah",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#064e3b",
+  "theme_color": "#065f46",
+  "orientation": "portrait-primary",
+  "lang": "id",
+  "categories": ["education", "lifestyle"],
+  "icons": [
+    {
+      "src": "/static/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/pwa/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "ElFashih - Teman Penghafal Qur'an",
+      "url": "/?view=mushaf",
+      "description": "Langsung buka tampilan Mushaf"
+    }
+  ]
+}

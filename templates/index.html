@@ -2432,7 +2432,13 @@ function hideDashboard() {
 }
 function openJuz(juz) {
     hideDashboard();
-    if (juz !== activeJuz) switchJuz(juz);
+    if (juz !== activeJuz) {
+        switchJuz(juz);
+    } else {
+        // Juz sudah aktif tapi konten perlu dirender ulang (misal dari dashboard)
+        renderContent();
+        scrollToActiveTab(juz);
+    }
 }
 
 function updateDashboard() {

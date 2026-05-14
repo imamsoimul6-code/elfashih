@@ -9212,6 +9212,30 @@ function updateJuzSelectInfo() {
             <span style="color:#a78bfa">Quiz</span>
         </button>
     </div>
+
+    <!-- Divider + User Info + Logout di Drawer -->
+    <div style="border-top:1px solid var(--border);margin:10px 0 6px;padding-top:10px">
+        <!-- Info user singkat -->
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:6px;background:var(--bg-card);border-radius:var(--radius-md);border:1px solid var(--border)">
+            <div id="drawerUserAvatar" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent-green),var(--accent-teal));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">?</div>
+            <div style="flex:1;min-width:0">
+                <div id="drawerUserName" style="font-size:12px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
+                <div id="drawerUserSub" style="font-size:10px;color:var(--text-muted)">—</div>
+            </div>
+            <button onclick="openAccountModal();closeBNavMore()" style="font-size:10px;padding:4px 10px;border-radius:50px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);cursor:pointer;font-family:var(--ui-font);font-weight:600;white-space:nowrap">
+                Detail
+            </button>
+        </div>
+
+        <!-- Tombol Logout -->
+        <button onclick="closeBNavMore();confirmLogout()"
+            style="width:100%;display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--radius-md);border:1.5px solid rgba(219,35,80,0.3);background:rgba(219,35,80,0.06);color:var(--accent-pink);cursor:pointer;font-family:var(--ui-font);font-size:13px;font-weight:700;transition:all .2s"
+            onmouseenter="this.style.background='rgba(219,35,80,0.12)'"
+            onmouseleave="this.style.background='rgba(219,35,80,0.06)'">
+            <i class="fa-solid fa-right-from-bracket" style="font-size:16px"></i>
+            <span>Keluar / Ganti Akun</span>
+        </button>
+    </div>
 </div>
 
 <!-- MODAL DUKUNG PENGEMBANG -->
@@ -9413,18 +9437,30 @@ function _applySession() {
     _patchStorageKeys();
 }
 
-/* ---- Update badge nama di dashboard ---- */
+/* ---- Update badge nama di dashboard & drawer ---- */
 function _updateUserBadge() {
     const nameEl   = document.getElementById('dashUserName');
     const avatarEl = document.getElementById('dashUserAvatar');
+    const drawerName   = document.getElementById('drawerUserName');
+    const drawerAvatar = document.getElementById('drawerUserAvatar');
+    const drawerSub    = document.getElementById('drawerUserSub');
     if (!_currentUser) return;
+
     if (_currentUser.isGuest) {
-        if (nameEl) nameEl.textContent = 'Tamu';
+        if (nameEl)   nameEl.textContent = 'Tamu';
         if (avatarEl) avatarEl.textContent = '👤';
+        if (drawerName)   drawerName.textContent = 'Mode Tamu';
+        if (drawerSub)    drawerSub.textContent  = 'Progres tidak disimpan';
+        if (drawerAvatar) drawerAvatar.textContent = '👤';
     } else {
         const name = _currentUser.username || '?';
-        if (nameEl) nameEl.textContent = name;
-        if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
+        const initial = name.charAt(0).toUpperCase();
+        const methodLabel = { gmail: '✉️ Gmail', phone: '📱 No. Telepon', username: '👤 Username' }[_currentUser.method] || '👤';
+        if (nameEl)   nameEl.textContent = name;
+        if (avatarEl) avatarEl.textContent = initial;
+        if (drawerName)   drawerName.textContent = name;
+        if (drawerSub)    drawerSub.textContent  = 'Login via ' + methodLabel;
+        if (drawerAvatar) drawerAvatar.textContent = initial;
     }
 }
 

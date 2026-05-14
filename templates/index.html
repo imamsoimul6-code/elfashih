@@ -9039,6 +9039,63 @@ function updateJuzSelectInfo() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
             <span style="color:#a78bfa">Quiz</span>
         </button>
+
+        <button class="drawer-item" onclick="openDonateModal(); closeBNavMore()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span style="color:#f472b6">Dukung</span>
+        </button>
+    </div>
+</div>
+
+<!-- MODAL DUKUNG PENGEMBANG -->
+<div class="modal-overlay" id="donateModal" onclick="if(event.target===this)closeDonateModal()">
+    <div class="modal-panel" style="max-width:380px">
+        <div class="modal-header">
+            <div class="modal-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f472b6" stroke="none" style="vertical-align:-3px;margin-right:6px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                Dukung Pengembang
+            </div>
+            <button class="modal-close" onclick="closeDonateModal()">&times;</button>
+        </div>
+
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:18px;line-height:1.6;text-align:center">
+            Sumbangan anda sangat berarti bagi pengembangan aplikasi ini,<br>
+            <strong style="color:var(--accent-green)">Jazakumullah !</strong>
+        </p>
+
+        <!-- Saweria -->
+        <a href="https://saweria.co/elFashih" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#ff6b35,#ff9a3c);border-radius:var(--radius-md);color:#fff;text-decoration:none;margin-bottom:14px;font-weight:600;font-size:14px;box-shadow:0 4px 14px rgba(255,107,53,0.35);transition:opacity .2s"
+           onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <div>
+                <div style="font-size:13px;opacity:.85;font-weight:400">Dukung lewat Saweria</div>
+                <div style="font-size:15px">saweria.co/elFashih</div>
+            </div>
+        </a>
+
+        <!-- Bank BRI -->
+        <div style="border:1.5px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;background:var(--bg-secondary)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <span style="font-weight:700;font-size:14px;color:var(--text-primary)">Transfer Bank BRI</span>
+            </div>
+            <div style="display:grid;gap:6px;font-size:13px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span style="color:var(--text-muted)">No. Rekening</span>
+                    <span style="font-weight:700;color:var(--text-primary);font-size:15px;letter-spacing:.5px" id="rekening-number">667601029194536</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span style="color:var(--text-muted)">Atas Nama</span>
+                    <span style="font-weight:600;color:var(--text-primary)">Imam Soimul Fajri</span>
+                </div>
+            </div>
+            <button onclick="copyRekening()" style="margin-top:12px;width:100%;padding:9px;background:var(--accent-teal);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" id="copyRekeningBtn">
+                <i class="fa-regular fa-copy"></i> Salin Nomor Rekening
+            </button>
+        </div>
+
+        <button class="modal-btn-secondary" onclick="closeDonateModal()" style="margin-top:14px;width:100%">Tutup</button>
     </div>
 </div>
 
@@ -9127,6 +9184,32 @@ function syncUIStates() {
     if (bnavLoop) bnavLoop.classList.toggle('active', !!window.isRepeatAyah);
 }
 setInterval(syncUIStates, 1000);
+
+// =============================================
+// DUKUNG PENGEMBANG
+// =============================================
+function openDonateModal() {
+    document.getElementById('donateModal').classList.add('visible');
+}
+function closeDonateModal() {
+    document.getElementById('donateModal').classList.remove('visible');
+}
+function copyRekening() {
+    const btn = document.getElementById('copyRekeningBtn');
+    navigator.clipboard.writeText('667601029194536').then(() => {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
+        btn.style.background = 'var(--accent-green)';
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fa-regular fa-copy"></i> Salin Nomor Rekening';
+            btn.style.background = 'var(--accent-teal)';
+        }, 2000);
+    }).catch(() => {
+        btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Gagal menyalin';
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fa-regular fa-copy"></i> Salin Nomor Rekening';
+        }, 2000);
+    });
+}
 </script>
 
 </body>

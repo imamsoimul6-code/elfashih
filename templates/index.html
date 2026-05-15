@@ -6296,14 +6296,14 @@ function initSpeechRecognition() {
                             return;
                         }
                         const now = Date.now();
-                        if (!_lastAlarmTime || now - _lastAlarmTime > 3000) {
+                        if (!_lastAlarmTime || now - _lastAlarmTime > 8000) {
                             _lastAlarmTime = now;
                             _tasmiAccum = '';
                             triggerError();
                         }
-                    }, 1500);
+                    }, 3000);
                 } else {
-                    // partial → user masih membaca. Pasang silence timer 3s → nudge halus
+                    // partial → user masih membaca. Pasang silence timer 6s → nudge halus
                     _silenceTimer = setTimeout(() => {
                         if (!isTasmiMode || !_tasmiAccum) return;
                         const r2 = _accumulationSufficient(_tasmiAccum);
@@ -6313,12 +6313,12 @@ function initSpeechRecognition() {
                             setTimeout(() => advanceTasmi(), 150);
                         } else {
                             const now = Date.now();
-                            if (!_lastAlarmTime || now - _lastAlarmTime > 3000) {
+                            if (!_lastAlarmTime || now - _lastAlarmTime > 8000) {
                                 _lastAlarmTime = now;
                                 triggerNudge(); // beep lembut — jangan clear akumulasi
                             }
                         }
-                    }, 3000);
+                    }, 6000);
                 }
             }, 400);
 
@@ -6348,7 +6348,7 @@ function initSpeechRecognition() {
                     } else {
                         // Coverage turun setelah kata baru masuk — evaluasi penuh
                         const now = Date.now();
-                        if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
+                        if (!_lastAlarmTime || now - _lastAlarmTime > 8000) {
                             _lastAlarmTime = now;
                             handleTasmiResult(_tasmiAccum);
                             _tasmiAccum = '';
@@ -6371,16 +6371,16 @@ function initSpeechRecognition() {
                         // Masih partial/fail setelah diam lama → nudge halus
                         // Jangan clear akumulasi agar user bisa lanjut
                         const now = Date.now();
-                        if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
+                        if (!_lastAlarmTime || now - _lastAlarmTime > 10000) {
                             _lastAlarmTime = now;
                             triggerNudge();
                         }
                     }
-                }, 4000);
+                }, 8000);
 
             } else {
                 // result === 'fail' — coverage cukup tapi kata tidak cocok.
-                // Beri 2.5 detik window untuk self-correct sebelum alarm.
+                // Beri 5 detik window untuk self-correct sebelum alarm.
                 _tasmiEvalTimer = setTimeout(() => {
                     if (!isTasmiMode || !_tasmiAccum) return;
                     const r2 = _accumulationSufficient(_tasmiAccum);
@@ -6393,12 +6393,12 @@ function initSpeechRecognition() {
                     }
                     // Masih fail → alarm dengan cooldown 4 detik
                     const now = Date.now();
-                    if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
+                    if (!_lastAlarmTime || now - _lastAlarmTime > 10000) {
                         _lastAlarmTime = now;
                         _tasmiAccum = '';
                         triggerError();
                     }
-                }, 2500);
+                }, 5000);
             }
         }
     };
@@ -6518,10 +6518,12 @@ function _accumulationSufficient(transcript) {
 
     // Ayat pendek (≤3 kata): threshold lebih rendah karena STT sering miss 1 kata
     const shortAyah = expWords.length <= 3;
-    const passThresh = shortAyah ? 0.60 : 0.65;
-    const failThresh = shortAyah ? 0.45 : 0.50;
+    // LEBIH TOLERAN: pass saat 55% kata cocok (down dari 65%)
+    // fail hanya jika < 30% (down dari 50%) — kebanyakan kasus jadi 'partial' bukan 'fail'
+    const passThresh = shortAyah ? 0.52 : 0.55;
+    const failThresh = shortAyah ? 0.28 : 0.30;
 
-    if (coverage >= passThresh && avgSim >= 0.58) return 'pass';
+    if (coverage >= passThresh && avgSim >= 0.50) return 'pass';
     if (coverage < failThresh) return 'partial';
     return 'fail';
 }
@@ -6624,8 +6626,9 @@ function handleTasmiResult(transcript) {
     const matchRatio  = matched / expWords.length;
     const avgSim      = matched ? totalSim / matched : 0;
     const shortAyah   = expWords.length <= 3;
-    const passThresh  = shortAyah ? 0.60 : 0.65;
-    const passed      = matchRatio >= passThresh && avgSim >= 0.57;
+    // Selaras dengan _accumulationSufficient yang baru
+    const passThresh  = shortAyah ? 0.52 : 0.55;
+    const passed      = matchRatio >= passThresh && avgSim >= 0.48;
 
     _updateMatchBar(matchRatio);
     _showLiveResult(passed);
@@ -6635,7 +6638,7 @@ function handleTasmiResult(transcript) {
         setTimeout(() => advanceTasmi(), 150);
     } else {
         const now = Date.now();
-        if (!_lastAlarmTime || now - _lastAlarmTime > 3500) {
+        if (!_lastAlarmTime || now - _lastAlarmTime > 8000) {
             _lastAlarmTime = now;
             triggerError();
         }
@@ -8716,6 +8719,16 @@ function updateJuzSelectInfo() {
         </button>
     </div>
 
+    <!-- DUKUNG PENGEMBANG — di bawah Buka Mushaf -->
+    <div style="padding:10px 14px 0">
+        <button onclick="openDonateModal()"
+            style="width:100%;display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 16px;border-radius:14px;border:none;cursor:pointer;font-family:var(--ui-font);background:linear-gradient(135deg,#f472b6,#fb923c);color:#fff;font-size:13px;font-weight:800;letter-spacing:.2px;box-shadow:0 3px 14px rgba(244,114,182,.30);transition:opacity .2s"
+            onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            ❤️ Dukung Pengembang
+        </button>
+    </div>
+
     <div class="dash-body">
         <!-- Greeting + Streak -->
         <div class="dash-greeting" style="animation:slideUp 0.4s ease both">
@@ -9448,7 +9461,8 @@ function updateJuzSelectInfo() {
 
 <!-- MODAL SETOR HAFALAN -->
 <div class="modal-overlay" id="tasmiModal">
-    <div class="modal-panel" style="padding-bottom:90px">
+    <div class="modal-panel" style="padding:0;display:flex;flex-direction:column;max-height:88vh;overflow:hidden">
+        <div style="overflow-y:auto;flex:1;padding:20px 24px 8px">
         <div class="modal-header">
             <div class="modal-title"><i class="fa-solid fa-microphone" style="color:var(--accent-gold)"></i> Setor Hafalan</div>
             <button class="modal-close" onclick="closeTasmiModal()">&times;</button>
@@ -9517,11 +9531,12 @@ function updateJuzSelectInfo() {
             </div>
         </div>
 
-        <div class="modal-btn-row">
-            <button class="modal-btn-gold" onclick="startTasmiFromModal()">
-                <i class="fa-solid fa-microphone"></i> Mulai Setor Hafalan
-            </button>
-        </div>
+    </div><!-- end scrollable -->
+    <!-- Tombol sticky di bawah modal, tidak tertutup nav -->
+    <div style="padding:12px 24px max(env(safe-area-inset-bottom,0px),16px);border-top:1px solid rgba(184,144,42,0.12);background:#fff;flex-shrink:0">
+        <button class="modal-btn-gold" onclick="startTasmiFromModal()" style="width:100%">
+            <i class="fa-solid fa-microphone"></i> Mulai Setor Hafalan
+        </button>
     </div>
 </div>
 

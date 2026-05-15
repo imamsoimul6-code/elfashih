@@ -5418,35 +5418,36 @@ const MUQATTAAT_WORDS = {
 function normalizeArabic(s) {
     if (!s) return '';
     let t = s;
-
-    // 1. Hapus tashkil / harakat & tatweel & tanda baca Quran lainnya
+    // 1. Hapus tashkil, harakat, tatweel, tanda Quran
     t = t.replace(/[\u064B-\u065F\u0610-\u061A\u06D6-\u06FF\u0670\u0640]/g, '');
-    // Hapus juga tanda Quran tambahan yang mungkin ada di teks mushaf
     t = t.replace(/[\u0615\u0653\u0654\u0655\u0656\u0657\u0658\u0659\u065A\u065B\u065C\u065D\u065E\u065F]/g, '');
-
-    // 2. Standarisasi alef & huruf umum DULU (sebelum map muqatta'at)
-    // PENTING: U+0671 (ٱ Wasla) dipakai di teks mushaf Utsmani (quran-madina-html)
-    //          harus dinormalisasi ke alef biasa agar MUQATTAAT_WORDS bisa match
-    t = t.replace(/[\u0622\u0623\u0625\u0627\u0671]/g, '\u0627'); // ا semua varian + ٱ wasla → ا
-    t = t.replace(/\u0629/g, '\u0647');                             // ة → ه
-    t = t.replace(/\u0649/g, '\u064A');                             // ى → ي
-    t = t.replace(/\u0624/g, '\u0648');                             // ؤ → و
-    t = t.replace(/\u0626/g, '\u064A');                             // ئ → ي
-
-    // 3. Ganti nama huruf yang dieja STT → huruf tunggal
-    //    (STT kadang mengembalikan "الف لام ميم" untuk "الم")
-    //    Urutan: kata lebih panjang dulu agar tidak salah potong
+    // 2. Standarisasi alef & huruf umum
+    t = t.replace(/[\u0622\u0623\u0625\u0627\u0671]/g, '\u0627'); // semua varian alef + wasla
+    t = t.replace(/\u0629/g, '\u0647');   // ة → ه
+    t = t.replace(/\u0649/g, '\u064A');   // ى → ي
+    t = t.replace(/\u0624/g, '\u0648');   // ؤ → و
+    t = t.replace(/\u0626/g, '\u064A');   // ئ → ي
+    t = t.replace(/\u0623\u0648/g, '\u0627\u0648'); // normalize أو → او
+    // 3. Hapus ال (alif lam) dari awal kata — STT sering miss/tambah artikel
+    //    Ini optional tapi membantu saat STT bilang "الرحمن" vs "رحمن"
+    //    JANGAN hapus jika kata pendek (≤2 huruf) karena bisa jadi kata "ال" sendiri
+    // Tidak kita hapus ال untuk hindari over-normalization — biarkan matchWords yang handle
+    // 4. Ganti nama huruf yang dieja STT → huruf tunggal
     for (const [name, letter] of Object.entries(MUQATTAAT_MAP)) {
         t = t.replace(new RegExp(name, 'g'), letter);
     }
-
-    // 4. Hapus non-Arab
+    // 5. Hapus non-Arab
     t = t.replace(/[^\u0600-\u06FF\s]/g, '');
-
-    // 5. Normalisasi spasi
+    // 6. Normalisasi spasi
     t = t.replace(/\s+/g, ' ').trim();
-
     return t;
+}
+
+// Normalisasi LUNAK: hapus ال dari awal kata agar bisa fuzzy match
+// Contoh: "الرحمن" → "رحمن", "الله" tetap "الله" (≤4 char — biarkan)
+function stripArticle(w) {
+    if (w.startsWith('\u0627\u0644') && w.length > 4) return w.slice(2);
+    return w;
 }
 
 // Perluas kata muqatta'at dalam teks:
@@ -5489,14 +5490,30 @@ function wordSim(a, b) {
 }
 
 // Cocokkan got-words ke exp-words, kembalikan {matched, totalSim}
-function matchWords(expWords, gotWords, threshold = 0.55) {
+function matchWords(expWords, gotWords, threshold = 0.52) {
     let matched = 0, totalSim = 0;
     const usedGot = new Set();
     for (const expW of expWords) {
         let best = 0, bIdx = -1;
+        const expStripped = stripArticle(expW);
         for (let gi = 0; gi < gotWords.length; gi++) {
             if (usedGot.has(gi)) continue;
-            const s = wordSim(expW, gotWords[gi]);
+            const gotW = gotWords[gi];
+            const gotStripped = stripArticle(gotW);
+            // Exact match (setelah strip artikel)
+            let s = 0;
+            if (expW === gotW || expStripped === gotStripped) {
+                s = 1.0;
+            } else {
+                // Prefix match: STT sering potong akhir kata
+                // Jika 4+ karakter awal sama → bonus similarity
+                const prefLen = Math.min(4, Math.min(expW.length, gotW.length));
+                const prefMatch = expW.slice(0,prefLen) === gotW.slice(0,prefLen)
+                               || expStripped.slice(0,prefLen) === gotStripped.slice(0,prefLen);
+                // Levenshtein similarity
+                s = Math.max(wordSim(expW, gotW), wordSim(expStripped, gotStripped));
+                if (prefMatch && s >= 0.45) s = Math.max(s, 0.75); // bonus prefix
+            }
             if (s > best) { best = s; bIdx = gi; }
         }
         if (best >= threshold && bIdx !== -1) {
@@ -5507,6 +5524,7 @@ function matchWords(expWords, gotWords, threshold = 0.55) {
     }
     return { matched, totalSim };
 }
+
 
 function initSpeechRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -5519,13 +5537,24 @@ function initSpeechRecognition() {
 
     recognition.onresult = (e) => {
         let finalText = '';
+        let interimText = '';
         for (let i = e.resultIndex; i < e.results.length; i++) {
             if (e.results[i].isFinal) {
-                // Ambil SEMUA alternatif, gabung, agar tidak ada kata yang luput
                 for (let k = 0; k < e.results[i].length; k++) {
                     finalText += e.results[i][k].transcript + ' ';
                 }
+            } else {
+                interimText += e.results[i][0].transcript + ' ';
             }
+        }
+
+        // Tampilkan interim transcript secara real-time di kotak live
+        const liveSpan = document.getElementById('tasmiInterimSpan');
+        if (liveSpan) {
+            const displayText = (interimText || finalText || _tasmiAccum).trim();
+            liveSpan.textContent = displayText || 'Mendengarkan...';
+            liveSpan.style.color = interimText ? 'var(--text-muted)' : 'var(--text-primary)';
+            liveSpan.style.fontStyle = interimText ? 'italic' : 'normal';
         }
 
         if (!finalText.trim()) return;
@@ -5706,6 +5735,12 @@ function toggleTasmiMode() {
 }
 function activateTasmi() {
     if (!recognition) { showToast('Browser tidak mendukung Speech Recognition'); return; }
+    // Tampilkan banner peringatan dulu sebelum mulai
+    const banner = document.getElementById('tasmiBetaBanner');
+    if (banner && !sessionStorage.getItem('tasmiBannerShown')) {
+        banner.style.display = 'flex';
+        return; // tunggu user klik "Mengerti, Mulai"
+    }
     isTasmiMode = true;
     currentPlayIndex = tasmiStartIndex;
     highlightWords(tasmiStartIndex);
@@ -5722,6 +5757,17 @@ function activateTasmi() {
         if (_tasmiAudioCtx.state === 'suspended') _tasmiAudioCtx.resume();
     } catch(e) {}
 }
+function confirmStartTasmi() {
+    sessionStorage.setItem('tasmiBannerShown', '1');
+    const banner = document.getElementById('tasmiBetaBanner');
+    if (banner) banner.style.display = 'none';
+    activateTasmi();
+}
+function closeTasmiBanner() {
+    const banner = document.getElementById('tasmiBetaBanner');
+    if (banner) banner.style.display = 'none';
+}
+
 function deactivateTasmi() {
     isTasmiMode = false;
     clearTimeout(_tasmiEvalTimer);
@@ -5732,6 +5778,9 @@ function deactivateTasmi() {
     try { recognition.stop(); } catch(e) {}
     document.getElementById('tasmiStatus').style.display = 'none';
     document.getElementById('transcriptDisplay').textContent = 'Menunggu suara...';
+    const liveSpan = document.getElementById('tasmiInterimSpan');
+    if (liveSpan) { liveSpan.textContent = 'Mulai membaca...'; liveSpan.style.color = 'var(--text-muted)'; liveSpan.style.fontStyle = 'italic'; }
+    _updateMatchBar(0);
     removeHighlight();
 }
 function updateTasmiProgressUI() {
@@ -5751,19 +5800,49 @@ function _accumulationSufficient(transcript) {
     if (isBismillahAyah()) {
         const bismWords = expandMuqattaat(normalizeArabic(BISMILLAH_TEXT)).split(' ').filter(Boolean);
         const { matched: bMatch } = matchWords(bismWords, gotWords.slice(0, bismWords.length + 2));
-        if (bMatch >= Math.ceil(bismWords.length * 0.6)) gotWords = gotWords.slice(bMatch);
+        if (bMatch >= Math.ceil(bismWords.length * 0.55)) gotWords = gotWords.slice(bMatch);
         if (!gotWords.length) return 'partial';
     }
 
-    const { matched } = matchWords(expWords, gotWords);
+    const { matched, totalSim } = matchWords(expWords, gotWords);
     const coverage = matched / expWords.length;
+    const avgSim   = matched ? totalSim / matched : 0;
 
-    if (coverage < 0.60) return 'partial';
-    if (coverage >= 0.70) return 'pass';
+    // Update match bar UI secara real-time
+    _updateMatchBar(coverage);
+
+    // Ayat pendek (≤3 kata): threshold lebih rendah karena STT sering miss 1 kata
+    const shortAyah = expWords.length <= 3;
+    const passThresh = shortAyah ? 0.60 : 0.65;
+    const failThresh = shortAyah ? 0.45 : 0.50;
+
+    if (coverage >= passThresh && avgSim >= 0.58) return 'pass';
+    if (coverage < failThresh) return 'partial';
     return 'fail';
 }
 
-// Helper: tampilkan info debug di panel bawah status bar
+function _updateMatchBar(coverage) {
+    const bar = document.getElementById('tasmiMatchBar');
+    const pct = document.getElementById('tasmiMatchPct');
+    if (!bar || !pct) return;
+    const p = Math.round(Math.min(coverage, 1) * 100);
+    bar.style.width = p + '%';
+    pct.textContent = p + '%';
+    // Warna: merah<50%, kuning 50-65%, hijau≥65%
+    if (p >= 65) {
+        bar.style.background = '#22c55e';
+        pct.style.color = '#16a34a';
+    } else if (p >= 45) {
+        bar.style.background = '#f59e0b';
+        pct.style.color = '#d97706';
+    } else {
+        bar.style.background = '#ef4444';
+        pct.style.color = '#ef4444';
+    }
+}
+
+
+
 function showTasmiDebug(heard, expWords, gotWords, matched, ratio, avgSim, passed, isMuq) {
     const el = document.getElementById('tasmiDebug');
     if (!el) return;
@@ -5808,67 +5887,65 @@ function handleTasmiResult(transcript) {
     let gotWords = getGotWords(transcript);
     if (!gotWords.length) return;
 
-    // ── Bismillah opsional di awal surah ──────────────────────────────────────
+    // ── Bismillah opsional ──────────────────────────────────
     if (isBismillahAyah()) {
         const bismWords = expandMuqattaat(normalizeArabic(BISMILLAH_TEXT)).split(' ').filter(Boolean);
         const { matched: bMatch } = matchWords(bismWords, gotWords.slice(0, bismWords.length + 2));
-        if (bMatch >= Math.ceil(bismWords.length * 0.6)) {
-            gotWords = gotWords.slice(bMatch);
-        }
+        if (bMatch >= Math.ceil(bismWords.length * 0.55)) gotWords = gotWords.slice(bMatch);
         if (!gotWords.length) return;
     }
-    // ─────────────────────────────────────────────────────────────────────────
 
-    // ── Jalur khusus: ayat muqatta'at (الم، يس، طه، حم، ص، ق، ن, dll) ────────
+    // ── Jalur khusus: ayat muqatta'at ──────────────────────
     if (isMuqattaatOnlyAyah()) {
         const rawNorm = normalizeArabic(transcript);
-        const ayahNorm = normalizeArabic(a.text).trim();
         const directMatch = Object.keys(MUQATTAAT_WORDS).some(variant => {
             const varLetters = MUQATTAAT_WORDS[variant];
             if (JSON.stringify(varLetters) !== JSON.stringify(expWords)) return false;
             return rawNorm.includes(normalizeArabic(variant));
         });
-        const { matched, totalSim } = matchWords(expWords, gotWords, 0.55);
+        const { matched, totalSim } = matchWords(expWords, gotWords, 0.50);
         const ratio  = expWords.length ? matched / expWords.length : 0;
         const avgSim = matched ? totalSim / matched : 0;
-        const wordMatch = ratio >= 0.45 && avgSim >= 0.55;
-        const passed = directMatch || wordMatch;
-        showTasmiDebug(normalizeArabic(transcript), expWords, gotWords, matched, ratio, avgSim, passed, true);
-        if (passed) {
-            triggerCorrect();
-            setTimeout(() => advanceTasmi(), 150);
-        } else {
-            triggerError();
-        }
+        _updateMatchBar(ratio);
+        const passed = directMatch || (ratio >= 0.40 && avgSim >= 0.50);
+        _showLiveResult(passed);
+        if (passed) { triggerCorrect(); setTimeout(() => advanceTasmi(), 150); }
+        else { triggerError(); }
         return;
     }
-    // ─────────────────────────────────────────────────────────────────────────
 
+    // ── Evaluasi normal ─────────────────────────────────────
     const { matched, totalSim } = matchWords(expWords, gotWords);
-    const matchRatio = matched / expWords.length;
-    const shortAyah  = expWords.length <= 5;
-    const avgSim     = matched ? totalSim / matched : 0;
+    const matchRatio  = matched / expWords.length;
+    const avgSim      = matched ? totalSim / matched : 0;
+    const shortAyah   = expWords.length <= 3;
+    const passThresh  = shortAyah ? 0.60 : 0.65;
+    const passed      = matchRatio >= passThresh && avgSim >= 0.57;
 
-    // Threshold: ayat pendek (≤5 kata) → ≥60% & avgSim ≥60%;
-    //            ayat panjang          → ≥55% & avgSim ≥58%
-    const passed = shortAyah
-        ? (matchRatio >= 0.60 && avgSim >= 0.60)
-        : (matchRatio >= 0.55 && avgSim >= 0.58);
-
-    showTasmiDebug(normalizeArabic(transcript), expWords, gotWords, matched, matchRatio * expWords.length | 0, avgSim, passed, false);
+    _updateMatchBar(matchRatio);
+    _showLiveResult(passed);
 
     if (passed) {
         triggerCorrect();
         setTimeout(() => advanceTasmi(), 150);
     } else {
-        // Alarm hanya jika cooldown sudah lewat (4 detik) agar tidak bertubi-tubi
         const now = Date.now();
-        if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
+        if (!_lastAlarmTime || now - _lastAlarmTime > 3500) {
             _lastAlarmTime = now;
             triggerError();
         }
     }
 }
+
+// Flash warna background liveBox sesuai hasil
+function _showLiveResult(passed) {
+    const box = document.getElementById('tasmiLiveBox');
+    if (!box) return;
+    box.style.background = passed ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.12)';
+    setTimeout(() => { box.style.background = 'rgba(0,0,0,0.05)'; }, 900);
+}
+
+
 
 function advanceTasmi() {
     currentPlayIndex++;
@@ -5881,9 +5958,12 @@ function advanceTasmi() {
     }
 }
 function triggerCorrect() {
-    // Flash hijau pada elemen ayat yang sedang aktif
     document.querySelectorAll('.char-active').forEach(el => el.classList.add('tasmi-correct'));
     setTimeout(() => document.querySelectorAll('.tasmi-correct').forEach(el => el.classList.remove('tasmi-correct')), 1100);
+    // Reset live box display
+    const liveSpan = document.getElementById('tasmiInterimSpan');
+    if (liveSpan) { liveSpan.textContent = 'Mulai membaca...'; liveSpan.style.color = 'var(--text-muted)'; liveSpan.style.fontStyle = 'italic'; }
+    _updateMatchBar(0);
 }
 function triggerError() {
     document.querySelectorAll('.char-active').forEach(el => el.classList.add('tasmi-error'));
@@ -9794,5 +9874,35 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
+<!-- TASMI BETA BANNER MODAL -->
+<div id="tasmiBetaBanner" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--surface);border-radius:24px;max-width:360px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.35);overflow:hidden;font-family:var(--ui-font)">
+        <!-- Header oranye -->
+        <div style="background:linear-gradient(135deg,#f59e0b,#ef4444);padding:22px 20px 18px;text-align:center">
+            <div style="font-size:36px;margin-bottom:6px">🚧</div>
+            <div style="color:white;font-size:15px;font-weight:900;letter-spacing:0.3px">FITUR DALAM PENGEMBANGAN</div>
+        </div>
+        <!-- Body -->
+        <div style="padding:20px 22px 24px">
+            <p style="text-align:center;background:rgba(245,158,11,0.1);border:1.5px solid rgba(245,158,11,0.3);border-radius:14px;padding:14px 16px;font-size:13.5px;font-weight:700;color:#b45309;line-height:1.7;margin:0 0 16px">
+                ⚠️ Tingkat akurasi koreksi fitur Tasmi' ini masih <u>sangat lemah</u>.<br>
+                Setorkan ayat secara <strong>santai dan pelan</strong> agar deteksi lebih akurat.
+            </p>
+            <ul style="font-size:12.5px;color:var(--text-secondary);line-height:2;padding-left:18px;margin:0 0 20px">
+                <li>Baca <strong>1 ayat</strong> dengan jeda yang cukup</li>
+                <li>Ucapkan tiap kata dengan <strong>jelas & pelan</strong></li>
+                <li>Pastikan <strong>tidak ada suara lain</strong> di sekitar</li>
+                <li>Koreksi salah/benar bisa <strong>tidak 100% tepat</strong></li>
+            </ul>
+            <button onclick="confirmStartTasmi()" style="width:100%;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#059669,#0d9488);color:white;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--ui-font);margin-bottom:10px;letter-spacing:0.3px">
+                ✅ Mengerti, Mulai Tasmi'
+            </button>
+            <button onclick="closeTasmiBanner()" style="width:100%;padding:10px;border-radius:14px;border:1.5px solid rgba(0,0,0,0.12);background:transparent;color:var(--text-secondary);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--ui-font)">
+                Batal
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

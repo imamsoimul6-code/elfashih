@@ -32,50 +32,65 @@
        Palette: Black/Forest-Green/Teal/Gold/Pink/Blue/Charcoal
     ============================================= */
     :root {
-        /* Brand palette */
-        --clr-black:        #000000;
-        --clr-green-dark:   #477E10;
-        --clr-white:        #FBFCFA;
-        --clr-teal:         #0E9180;
-        --clr-orange:       #D9981A;
-        --clr-pink:         #DB2350;
-        --clr-blue:         #0331E0;
-        --clr-gray-dark:    #203228;
-        --clr-gray:         #969D8F;
-        --clr-brown:        #6C4631;
-
-        /* Semantic tokens — Light/Bright Theme */
-        --bg-primary:       #f0f5ef;
-        --bg-secondary:     #e8f0e6;
+        /* ── New ELfashih Design System ── */
+        /* Warm Parchment + Forest Green + Gold */
+        --bg-primary:       #f5f0e8;
+        --bg-secondary:     #ede8df;
         --bg-card:          #ffffff;
-        --bg-glass:         rgba(240,245,239,0.95);
-        --accent-green:     #477E10;
-        --accent-green-lt:  #5a9e14;
-        --accent-green-dk:  #2e5209;
-        --accent-green-glow:rgba(71,126,16,0.15);
-        --accent-teal:      #0E9180;
-        --accent-teal-lt:   #12b39f;
-        --accent-gold:      #D9981A;
-        --accent-pink:      #DB2350;
-        --accent-blue:      #0331E0;
-        --text-primary:     #0a1510;
-        --text-secondary:   #3a5240;
-        --text-muted:       #7a9080;
-        --border:           rgba(71,126,16,0.18);
-        --border-hover:     rgba(14,145,128,0.50);
+        --bg-glass:         rgba(245,240,232,0.97);
+
+        /* Brand */
+        --accent-green:     #2d6a1f;
+        --accent-green-lt:  #3a8528;
+        --accent-green-dk:  #1e4a14;
+        --accent-green-glow:rgba(45,106,31,0.12);
+        --accent-teal:      #0d8a7a;
+        --accent-teal-lt:   #10a890;
+        --accent-gold:      #b8902a;
+        --accent-gold-lt:   #d4a830;
+        --accent-pink:      #c0392b;
+        --accent-blue:      #1a3a9e;
+
+        /* Text */
+        --text-primary:     #1a1208;
+        --text-secondary:   #4a3a20;
+        --text-muted:       #8a7a60;
+
+        /* Borders */
+        --border:           rgba(184,144,42,0.18);
+        --border-hover:     rgba(13,138,122,0.45);
+
+        /* Fonts */
         --arabic-font:      'Amiri Quran', serif;
         --ui-font:          'Cairo', 'Outfit', sans-serif;
+
+        /* Radii */
         --radius-sm:        10px;
         --radius-md:        16px;
         --radius-lg:        22px;
         --radius-xl:        30px;
-        --shadow-card:      0 4px 20px rgba(0,0,0,0.10);
-        --shadow-glow:      0 0 30px rgba(14,145,128,0.12);
+
+        /* Shadows */
+        --shadow-card:      0 2px 16px rgba(45,106,31,0.08), 0 1px 4px rgba(0,0,0,0.06);
+        --shadow-glow:      0 0 30px rgba(13,138,122,0.10);
+        --shadow-gold:      0 4px 20px rgba(184,144,42,0.18);
+
+        /* Legacy compat */
+        --clr-black:        #1a1208;
+        --clr-green-dark:   #2d6a1f;
+        --clr-white:        #f5f0e8;
+        --clr-teal:         #0d8a7a;
+        --clr-orange:       #b8902a;
+        --clr-pink:         #c0392b;
+        --clr-blue:         #1a3a9e;
+        --clr-gray-dark:    #4a3a20;
+        --clr-gray:         #8a7a60;
+        --clr-brown:        #7a5a3a;
         --sidebar-w:        0px;
-        /* Glossy effects */
         --gloss-white:      rgba(255,255,255,0.70);
         --gloss-border:     rgba(255,255,255,0.80);
-        /* mushaf sizing */
+
+        /* Mushaf sizing — tidak diubah */
         --mf-content-w:     min(98vw, 600px);
         --mf-font-size:     clamp(15px, calc(var(--mf-content-w)*0.044), 26px);
         --mf-line-height:   2.05;
@@ -2302,7 +2317,702 @@
     body.paper-mode .drawer-item  { background: rgba(245,220,160,0.3) !important; border-color: rgba(139,90,43,0.15) !important; color: #7a5030 !important; }
 
     } /* end @media (max-width: 768px) */
-    </style>
+    
+    /* ══════════════════════════════════════════════
+       ELFASHIH REDESIGN — Override Block
+    ══════════════════════════════════════════════ */
+
+    /* ── Body & Layout ── */
+    body {
+        background: var(--bg-primary);
+        font-family: var(--ui-font);
+    }
+
+    /* ── TOPBAR — Redesign ── */
+    .topbar {
+        background: #ffffff;
+        border-bottom: 1.5px solid rgba(184,144,42,0.15);
+        box-shadow: 0 2px 12px rgba(45,106,31,0.08);
+        padding: 0;
+    }
+    .topbar-row1 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px 8px;
+        gap: 10px;
+    }
+    .topbar-surah-name {
+        font-family: var(--arabic-font);
+        font-size: 17px;
+        color: var(--text-primary);
+        font-weight: 700;
+        line-height: 1.3;
+    }
+    /* Topbar actions — hide on mobile, moved to drawer */
+    .topbar-actions { display: none !important; }
+
+    /* ── JUZ TABS — Redesign ── */
+    .topbar-row2 {
+        background: #f9f6f0;
+        border-top: 1px solid rgba(184,144,42,0.12);
+        padding: 6px 8px;
+    }
+    .juz-tab {
+        font-family: var(--ui-font);
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--text-muted);
+        background: transparent;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.18s;
+        white-space: nowrap;
+    }
+    .juz-tab:hover { background: rgba(184,144,42,0.1); color: var(--accent-gold); }
+    .juz-tab.active {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(45,106,31,0.25);
+    }
+    .tab-scroll-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-size: 18px;
+        padding: 4px 6px;
+        cursor: pointer;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+    .tab-scroll-btn:hover { background: rgba(184,144,42,0.12); color: var(--accent-gold); }
+
+    /* ── TOOLBAR — Redesign ── */
+    .toolbar {
+        background: #ffffff;
+        border-bottom: 1px solid rgba(184,144,42,0.12);
+        padding: 8px 14px;
+        gap: 8px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    }
+    .tool-btn {
+        font-family: var(--ui-font);
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 20px;
+        padding: 7px 14px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.18s;
+    }
+    .tool-btn-primary {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+        color: #fff;
+        box-shadow: 0 2px 10px rgba(45,106,31,0.28);
+    }
+    .tool-btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .tool-btn-ghost {
+        background: rgba(45,106,31,0.07);
+        color: var(--text-secondary);
+        border: 1px solid rgba(184,144,42,0.18);
+    }
+    .tool-btn-ghost:hover { background: rgba(45,106,31,0.13); color: var(--text-primary); }
+    .tool-btn.active, .tool-btn-ghost.active {
+        background: rgba(13,138,122,0.12);
+        color: var(--accent-teal);
+        border-color: rgba(13,138,122,0.35);
+    }
+
+    /* ── BOTTOM NAV — Redesign ── */
+    #bottomNav {
+        background: #ffffff;
+        border-top: 1.5px solid rgba(184,144,42,0.14);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+        padding: 6px 4px max(env(safe-area-inset-bottom,0px),8px);
+        height: auto;
+        min-height: 62px;
+    }
+    .bnav-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        padding: 6px 10px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        font-family: var(--ui-font);
+        font-size: 9.5px;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 14px;
+        transition: all 0.18s;
+        min-width: 44px;
+    }
+    .bnav-btn:hover { background: rgba(184,144,42,0.08); color: var(--accent-gold); }
+    .bnav-btn.active { color: var(--accent-teal); }
+    .bnav-btn.active svg { stroke: var(--accent-teal); }
+
+    /* Center play button */
+    .bnav-play {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
+        border-radius: 50% !important;
+        width: 52px !important;
+        height: 52px !important;
+        min-width: 52px !important;
+        padding: 0 !important;
+        margin-top: -14px;
+        box-shadow: 0 4px 16px rgba(45,106,31,0.35);
+        position: relative;
+        color: #fff !important;
+    }
+    .bnav-play-inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        font-size: 18px;
+        color: #fff;
+    }
+    .bnav-play:hover { opacity: 0.88; transform: scale(1.05); }
+
+    /* ── MORE DRAWER — Redesign ── */
+    #moreDrawer {
+        background: #ffffff;
+        border-radius: 28px 28px 0 0;
+        border-top: 2px solid rgba(184,144,42,0.15);
+        padding: 12px 16px 32px;
+        box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
+    }
+    .drawer-handle {
+        width: 36px;
+        height: 4px;
+        background: rgba(184,144,42,0.25);
+        border-radius: 99px;
+        margin: 0 auto 16px;
+    }
+    .drawer-title {
+        font-family: var(--ui-font);
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin: 14px 0 10px;
+    }
+    .drawer-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    .drawer-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 6px;
+        border-radius: 16px;
+        border: 1.5px solid rgba(184,144,42,0.12);
+        background: #faf7f2;
+        color: var(--text-secondary);
+        font-family: var(--ui-font);
+        font-size: 10.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.18s;
+        min-height: 70px;
+    }
+    .drawer-item:hover {
+        background: rgba(45,106,31,0.06);
+        border-color: rgba(45,106,31,0.25);
+        color: var(--accent-green);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(45,106,31,0.10);
+    }
+    .drawer-item.active {
+        background: rgba(13,138,122,0.08);
+        border-color: rgba(13,138,122,0.35);
+        color: var(--accent-teal);
+    }
+    .dpr-btn {
+        font-family: var(--ui-font);
+        font-size: 12.5px;
+        font-weight: 700;
+        border-radius: 20px;
+        padding: 9px 16px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.18s;
+    }
+    .dpr-btn-primary {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+        color: #fff;
+        box-shadow: 0 2px 10px rgba(45,106,31,0.25);
+        flex: 1;
+    }
+    .dpr-btn-ghost {
+        background: rgba(45,106,31,0.06);
+        color: var(--text-secondary);
+        border: 1px solid rgba(184,144,42,0.18);
+    }
+    .drawer-play-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 4px;
+        align-items: center;
+    }
+
+    /* ── DASHBOARD — Full Redesign ── */
+    #dashboardView {
+        background: var(--bg-primary);
+    }
+    .dash-header {
+        background: linear-gradient(160deg, var(--accent-green) 0%, var(--accent-teal) 100%);
+        padding: 20px 18px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .dash-header::before {
+        content: '';
+        position: absolute;
+        top: -30px; right: -30px;
+        width: 140px; height: 140px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
+    }
+    .dash-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20px; left: 20px;
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+    }
+    .dash-logo-name {
+        color: #fff;
+        font-size: 20px;
+        font-weight: 900;
+        letter-spacing: -0.3px;
+        font-family: var(--ui-font);
+    }
+    .dash-logo-sub {
+        color: rgba(255,255,255,0.72);
+        font-size: 11px;
+        font-weight: 600;
+        font-family: var(--ui-font);
+    }
+    .dash-date strong { color: rgba(255,255,255,0.9); font-size: 13px; }
+    .dash-date span   { color: rgba(255,255,255,0.65); font-size: 10px; }
+    .user-btn {
+        background: rgba(255,255,255,0.18) !important;
+        border: 1.5px solid rgba(255,255,255,0.3) !important;
+        color: #fff !important;
+        backdrop-filter: blur(8px);
+    }
+    .user-name-label { color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 700; }
+    .user-avatar {
+        background: rgba(255,255,255,0.25);
+        color: #fff;
+        font-weight: 900;
+        font-size: 13px;
+    }
+    .offline-badge { font-size: 10px; font-weight: 700; }
+    .offline-badge.online {
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 3px 10px;
+        border-radius: 99px;
+    }
+
+    /* Greeting section */
+    .dash-greeting {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        padding: 18px 20px;
+        margin: -14px 14px 14px;
+        box-shadow: var(--shadow-card);
+        position: relative;
+        z-index: 2;
+        border: 1px solid rgba(184,144,42,0.10);
+    }
+    .dash-greeting-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 3px;
+    }
+    .dash-greeting-sub {
+        font-size: 12.5px;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+    .dash-streak {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 8px;
+        background: rgba(184,144,42,0.1);
+        border: 1px solid rgba(184,144,42,0.2);
+        color: var(--accent-gold);
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    /* Progress card */
+    .dash-progress-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        padding: 18px 20px;
+        margin: 0 14px 14px;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(184,144,42,0.10);
+    }
+    .dash-progress-pct {
+        font-size: 26px;
+        font-weight: 900;
+        color: var(--accent-teal);
+        line-height: 1;
+    }
+    .dash-progress-label { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+    .dash-mini-stat-num { font-size: 20px; font-weight: 900; }
+    .dash-mini-stat-num.lancar { color: #16a34a; }
+    .dash-mini-stat-num.proses { color: #d97706; }
+    .dash-mini-stat-num.belum  { color: var(--text-muted); }
+    .dash-mini-stat-label { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+    .dash-mini-stats { display: flex; gap: 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .dash-mini-stat { text-align: center; flex: 1; }
+
+    /* Section titles */
+    .dash-section-title {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 0 14px;
+        margin: 0 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    /* Juz select */
+    .dash-juz-select-row {
+        display: flex;
+        gap: 8px;
+        padding: 0 14px;
+        margin-bottom: 10px;
+    }
+    .dash-juz-select {
+        flex: 1;
+        background: #fff;
+        border: 1.5px solid rgba(184,144,42,0.2);
+        border-radius: var(--radius-sm);
+        padding: 10px 12px;
+        font-family: var(--ui-font);
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .dash-juz-select:focus { border-color: var(--accent-teal); }
+    .dash-juz-go-btn {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 10px 16px;
+        font-family: var(--ui-font);
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: opacity 0.18s;
+        white-space: nowrap;
+        box-shadow: 0 2px 10px rgba(45,106,31,0.25);
+    }
+    .dash-juz-go-btn:hover { opacity: 0.88; }
+    .dash-juz-select-info {
+        padding: 0 14px;
+        margin-bottom: 14px;
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+    .dash-juz-bar { height: 4px; background: var(--bg-secondary); border-radius: 99px; overflow: hidden; }
+    .dash-juz-fill { height: 100%; background: linear-gradient(90deg, var(--accent-green), var(--accent-teal)); border-radius: 99px; }
+
+    /* Quick actions */
+    .dash-quick-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 0 14px;
+        margin-bottom: 14px;
+    }
+    .dash-quick-btn {
+        background: #fff;
+        border: 1px solid rgba(184,144,42,0.12);
+        border-radius: var(--radius-md);
+        padding: 14px 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.18s;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+    .dash-quick-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-card);
+        border-color: rgba(13,138,122,0.25);
+    }
+    .dash-quick-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .dash-quick-title { font-size: 12.5px; font-weight: 800; color: var(--text-primary); }
+    .dash-quick-desc  { font-size: 10.5px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+
+    /* Sticky mushaf button */
+    .dash-mushaf-sticky {
+        padding: 12px 14px 4px;
+        position: sticky;
+        top: 0;
+        background: var(--bg-primary);
+        z-index: 5;
+    }
+    .dash-mushaf-btn {
+        width: 100%;
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 14px 20px;
+        font-family: var(--ui-font);
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 18px rgba(45,106,31,0.30);
+        transition: all 0.18s;
+        letter-spacing: 0.2px;
+    }
+    .dash-mushaf-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── AUDIO PLAYER — Redesign ── */
+    .audio-player {
+        background: #fff;
+        border-top: 1.5px solid rgba(184,144,42,0.14);
+        box-shadow: 0 -2px 16px rgba(0,0,0,0.07);
+        padding: 8px 16px;
+    }
+    .player-thumb {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(45,106,31,0.25);
+    }
+    .player-play {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
+        box-shadow: 0 2px 12px rgba(45,106,31,0.30) !important;
+        border: none !important;
+    }
+    .player-surah-name { font-weight: 800; color: var(--text-primary); font-size: 13px; }
+    .player-ayat-num  { color: var(--text-muted); font-size: 11px; font-weight: 600; }
+    .player-btn {
+        background: rgba(45,106,31,0.07) !important;
+        border: 1px solid rgba(184,144,42,0.18) !important;
+        color: var(--text-secondary) !important;
+        border-radius: 50% !important;
+    }
+    .player-btn:hover { background: rgba(45,106,31,0.14) !important; }
+
+    /* ── MODALS — Redesign ── */
+    .modal-panel {
+        background: #fff;
+        border-radius: 28px 28px 0 0 !important;
+        border: none !important;
+        border-top: 2px solid rgba(184,144,42,0.15) !important;
+        box-shadow: 0 -8px 40px rgba(0,0,0,0.12) !important;
+        padding: 24px !important;
+    }
+    .modal-header {
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(184,144,42,0.12);
+    }
+    .modal-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+    .modal-close {
+        width: 32px; height: 32px;
+        background: var(--bg-secondary) !important;
+        border: 1px solid rgba(184,144,42,0.18) !important;
+        color: var(--text-muted) !important;
+        border-radius: 50% !important;
+        font-size: 18px !important;
+        transition: all 0.18s;
+    }
+    .modal-close:hover { background: rgba(192,57,43,0.08) !important; color: var(--accent-pink) !important; }
+    .modal-select {
+        background: var(--bg-secondary) !important;
+        border: 1.5px solid rgba(184,144,42,0.18) !important;
+        border-radius: var(--radius-sm) !important;
+        color: var(--text-primary) !important;
+        font-weight: 700 !important;
+    }
+    .modal-select:focus { border-color: var(--accent-teal) !important; }
+    .modal-btn-primary {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
+        box-shadow: 0 3px 14px rgba(45,106,31,0.30) !important;
+        border-radius: var(--radius-md) !important;
+        font-weight: 800 !important;
+    }
+    .modal-btn-gold {
+        background: linear-gradient(135deg, var(--accent-gold), #d4a830) !important;
+        box-shadow: 0 3px 14px rgba(184,144,42,0.30) !important;
+        border-radius: var(--radius-md) !important;
+        color: #fff !important;
+        font-weight: 800 !important;
+        border: none !important;
+        padding: 13px !important;
+        flex: 1;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        font-family: var(--ui-font); font-size: 14px; cursor: pointer;
+    }
+    .from-mushaf-btn {
+        background: rgba(139,92,246,0.08) !important;
+        border: 1.5px solid rgba(139,92,246,0.2) !important;
+        border-radius: var(--radius-sm) !important;
+    }
+
+    /* ── QUIZ VIEW — Redesign ── */
+    .quiz-header {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+        padding: 16px 18px;
+    }
+    .quiz-header-title { color: #fff; font-size: 16px; font-weight: 800; }
+    .quiz-header-sub   { color: rgba(255,255,255,0.7); font-size: 11px; }
+    .quiz-back-btn {
+        background: rgba(255,255,255,0.2) !important;
+        border: 1px solid rgba(255,255,255,0.3) !important;
+        color: #fff !important;
+        border-radius: 50% !important;
+        width: 34px; height: 34px;
+    }
+    .quiz-score-badge {
+        background: rgba(255,255,255,0.18);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff;
+        font-weight: 800;
+        font-size: 12px;
+        padding: 5px 12px;
+        border-radius: 99px;
+    }
+    .quiz-mode-card {
+        background: #fff;
+        border: 2px solid rgba(184,144,42,0.15);
+        border-radius: var(--radius-md);
+        transition: all 0.18s;
+    }
+    .quiz-mode-card:hover, .quiz-mode-card.selected {
+        border-color: var(--accent-teal);
+        background: rgba(13,138,122,0.05);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(13,138,122,0.12);
+    }
+    .quiz-start-btn {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
+        border-radius: var(--radius-md) !important;
+        box-shadow: 0 4px 16px rgba(45,106,31,0.28) !important;
+        font-weight: 800 !important;
+    }
+
+    /* ── SCROLLBARS ── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent-gold), var(--accent-teal)); }
+
+    /* ── LOADING SCREEN ── */
+    #loading {
+        background: linear-gradient(160deg, var(--accent-green) 0%, var(--accent-teal) 100%) !important;
+    }
+
+    /* ── TOAST ── */
+    .toast-msg {
+        background: var(--text-primary) !important;
+        color: #fff !important;
+        border-radius: var(--radius-md) !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+    }
+
+    /* ── ERROR SCREEN ── */
+    .error-screen-btn, #retryBtn {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
+        border: none !important;
+        font-weight: 800 !important;
+    }
+
+    /* ── DASHBOARD BODY PADDING ── */
+    .dash-body { padding: 0 0 20px; }
+    .dash-body .dash-section-title { margin-top: 18px; }
+
+    /* ── LOGIN SCREEN ── */
+    #loginContainer, .login-card {
+        background: var(--bg-primary) !important;
+    }
+    .login-card {
+        border: 1px solid rgba(184,144,42,0.15) !important;
+        box-shadow: var(--shadow-card) !important;
+    }
+    .login-btn-google {
+        background: #fff !important;
+        border: 1.5px solid rgba(184,144,42,0.2) !important;
+        font-weight: 800 !important;
+        box-shadow: var(--shadow-card) !important;
+    }
+    .login-btn-guest {
+        background: rgba(45,106,31,0.07) !important;
+        border: 1.5px solid rgba(45,106,31,0.2) !important;
+        color: var(--accent-green) !important;
+        font-weight: 800 !important;
+    }
+
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    .dash-progress-card  { animation: slideUp 0.4s 0.1s ease both; }
+    .dash-juz-select-row { animation: slideUp 0.4s 0.15s ease both; }
+    .dash-quick-grid     { animation: slideUp 0.4s 0.2s ease both; }
+</style>
 
 <script defer>
 // =============================================
@@ -8006,23 +8716,17 @@ function updateJuzSelectInfo() {
         </button>
     </div>
 
-    <!-- DUKUNG PENGEMBANG — di bawah Buka Mushaf -->
-    <div style="padding: 10px 16px 0;">
-        <button onclick="openDonateModal()"
-            style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;border-radius:14px;border:none;cursor:pointer;font-family:var(--ui-font);background:linear-gradient(135deg,#f472b6,#fb923c);color:#fff;font-size:14px;font-weight:700;letter-spacing:.3px;box-shadow:0 4px 16px rgba(244,114,182,.35);transition:opacity .2s"
-            onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            Dukung Pengembang
-        </button>
-    </div>
-
     <div class="dash-body">
-        <!-- Greeting -->
-        <div class="dash-greeting">
-            <div class="dash-greeting-title" id="dashGreetTitle">Assalamu'alaikum 👋</div>
-            <div class="dash-greeting-sub">Semangat menghafal hari ini!</div>
-            <div class="dash-streak" id="dashStreakBadge">
-                🔥 <span id="dashStreakNum">0</span> hari streak
+        <!-- Greeting + Streak -->
+        <div class="dash-greeting" style="animation:slideUp 0.4s ease both">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div>
+                    <div class="dash-greeting-title" id="dashGreetTitle">Assalamu'alaikum 👋</div>
+                    <div class="dash-greeting-sub">Semangat menghafal hari ini!</div>
+                </div>
+                <div class="dash-streak" id="dashStreakBadge">
+                    🔥 <span id="dashStreakNum">0</span> hari
+                </div>
             </div>
         </div>
 
@@ -8528,8 +9232,18 @@ function updateJuzSelectInfo() {
 <div class="topbar" id="topbar">
     <!-- Baris 1: nama surah + tombol aksi -->
     <div class="topbar-row1">
-        <div class="topbar-title">
-            <div class="topbar-surah-name" id="topbarSurahName">الْفَاتِحَة</div>
+        <div style="display:flex;align-items:center;gap:8px">
+            <button onclick="showDashboard()" style="width:32px;height:32px;border-radius:50%;background:rgba(45,106,31,0.08);border:1px solid rgba(184,144,42,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all 0.18s" title="Beranda">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+            <div class="topbar-title">
+                <div class="topbar-surah-name" id="topbarSurahName">الْفَاتِحَة</div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+            <button onclick="openAccountModal()" style="width:32px;height:32px;border-radius:50%;background:rgba(45,106,31,0.08);border:1px solid rgba(184,144,42,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s" title="Akun">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
         </div>
         <div class="topbar-actions">
             <button onclick="openDonateModal()" title="Dukung Pengembang"
@@ -9217,12 +9931,12 @@ function updateJuzSelectInfo() {
 <div id="moreDrawer">
     <div class="drawer-handle"></div>
 
-    <!-- Dukung Pengembang — paling atas, menonjol -->
+    <!-- Dukung Pengembang — elegan di atas drawer -->
     <button onclick="openDonateModal(); closeBNavMore()"
-        style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:13px 16px;margin-bottom:14px;border-radius:14px;border:none;cursor:pointer;font-family:var(--ui-font);background:linear-gradient(135deg,#f472b6,#fb923c);color:#fff;font-size:14px;font-weight:700;letter-spacing:.3px;box-shadow:0 4px 16px rgba(244,114,182,.4);transition:opacity .2s"
+        style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;margin-bottom:14px;border-radius:16px;border:none;cursor:pointer;font-family:var(--ui-font);background:linear-gradient(135deg,#b8902a,#d4a830);color:#fff;font-size:13px;font-weight:800;letter-spacing:.3px;box-shadow:0 3px 14px rgba(184,144,42,0.32);transition:all 0.18s"
         onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        Dukung Pengembang
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        ❤️ Dukung Pengembang
     </button>
     <div class="drawer-play-row">
         <button class="dpr-btn dpr-btn-primary" id="drawerPlayAllBtn" onclick="togglePlayAll(); updateBNavPlay()">

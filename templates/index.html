@@ -8,9 +8,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ELfashih">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <meta name="description" content="Aplikasi hafalan Al-Quran Juz 1 s.d. Juz 30">
     <!-- Cache control — selalu ambil versi terbaru -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -1048,7 +1045,7 @@
     ============================================= */
     .modal-overlay {
         display: none; position: fixed; inset: 0;
-        background: rgba(0,0,0,0.7); z-index: 700;
+        background: rgba(0,0,0,0.7); z-index: 400;
         align-items: flex-end; justify-content: center;
     }
     .modal-overlay.visible { display: flex; }
@@ -1493,12 +1490,12 @@
     ============================================= */
     #dashboardView {
         display: none;
-        position: fixed; top: 0; left: 0; right: 0; bottom: 62px;
+        position: fixed; inset: 0;
         background: var(--bg-primary);
-        z-index: 40;
+        z-index: 50;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 16px;
+        padding-bottom: 30px;
     }
     #dashboardView.active { display: block; }
 
@@ -2254,9 +2251,10 @@
     }
 
     /* =============================================
-       BOTTOM NAV: selalu tampil
+       DESKTOP: bottom nav & drawer tersembunyi
     ============================================= */
-    /* @media min-width dihapus — nav tampil di semua ukuran */
+    #bottomNav         { display: none; }
+    #moreDrawer        { display: none; }
     #moreDrawerOverlay { display: none !important; }
 
     /* =============================================
@@ -2431,21 +2429,13 @@
     }
 
     /* ── BOTTOM NAV — Redesign ── */
-    @media (max-width: 768px) {
     #bottomNav {
-        display: flex !important;
-        background: #ffffff !important;
-        border-top: 1.5px solid rgba(184,144,42,0.14) !important;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.07) !important;
-        padding: 6px 4px max(env(safe-area-inset-bottom,0px),8px) !important;
-        height: auto !important;
-        min-height: 62px !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        z-index: 510 !important;
-    }
+        background: #ffffff;
+        border-top: 1.5px solid rgba(184,144,42,0.14);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+        padding: 6px 4px max(env(safe-area-inset-bottom,0px),8px);
+        height: auto;
+        min-height: 62px;
     }
     .bnav-btn {
         display: flex;
@@ -3365,9 +3355,9 @@ async function startCacheDownload() {
     const pctEl  = document.getElementById('cachePctText');
     const statEl = document.getElementById('cacheStatusText');
     const steps  = [
-        { juz: 1, url: 'https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F1%2Fquran-uthmani', label: 'Juz 1 — Al-Fatihah & Al-Baqarah...' },
-        { juz: 2, url: 'https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F2%2Fquran-uthmani', label: 'Juz 2 — Al-Baqarah 142–252...' },
-        { juz: 3, url: 'https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F3%2Fquran-uthmani', label: 'Juz 3 — Al-Baqarah & Ali Imran 1–91...' },
+        { juz: 1, url: 'https://corsproxy.io/?https://api.alquran.cloud/v1/juz/1/quran-uthmani', label: 'Juz 1 — Al-Fatihah & Al-Baqarah...' },
+        { juz: 2, url: 'https://corsproxy.io/?https://api.alquran.cloud/v1/juz/2/quran-uthmani', label: 'Juz 2 — Al-Baqarah 142–252...' },
+        { juz: 3, url: 'https://corsproxy.io/?https://api.alquran.cloud/v1/juz/3/quran-uthmani', label: 'Juz 3 — Al-Baqarah & Ali Imran 1–91...' },
         { juz: 4, url: null, label: 'Juz 4 — Ali Imran 92–200 & An-Nisa 1–23...' },
         { juz: 5, url: null, label: 'Juz 5 — An-Nisa 24–147...' },
     ];
@@ -3379,17 +3369,25 @@ async function startCacheDownload() {
             fill.style.width   = basePct + '%';
             pctEl.textContent  = basePct + '%';
             let ayahs;
-            {
-                const juzUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/' + step.juz + '/quran-uthmani');
-                const res  = await fetch(juzUrl);
-                const data = await res.json();
-                if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid untuk juz ' + step.juz);
-                const smMap = {};
-                data.data.ayahs.forEach(a => {
-                    if (!smMap[a.surah.number]) smMap[a.surah.number] = { number: a.surah.number, name: a.surah.name, englishName: a.surah.englishName, numberOfAyahs: a.surah.numberOfAyahs };
-                });
-                ayahs = data.data.ayahs.map(a => ({ ...a, surah: smMap[a.surah.number], juz: step.juz }));
-            } if (false) {
+            if (step.juz === 4) {
+                const [r3, r4] = await Promise.all([
+                    fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/3/quran-uthmani'),
+                    fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani')
+                ]);
+                const [d3, d4] = await Promise.all([r3.json(), r4.json()]);
+                const sm3 = { number: d3.data.number, name: d3.data.name, englishName: d3.data.englishName, numberOfAyahs: d3.data.numberOfAyahs };
+                const sm4 = { number: d4.data.number, name: d4.data.name, englishName: d4.data.englishName, numberOfAyahs: d4.data.numberOfAyahs };
+                ayahs = [
+                    ...d3.data.ayahs.filter(a => a.numberInSurah >= 92).map(a => ({ ...a, surah: sm3, juz: 4 })),
+                    ...d4.data.ayahs.filter(a => a.numberInSurah <= 23).map(a => ({ ...a, surah: sm4, juz: 4 }))
+                ];
+            } else if (step.juz === 5) {
+                const r4 = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani');
+                const d4 = await r4.json();
+                const sm4 = { number: d4.data.number, name: d4.data.name, englishName: d4.data.englishName, numberOfAyahs: d4.data.numberOfAyahs };
+                ayahs = d4.data.ayahs
+                    .filter(a => a.numberInSurah >= 24 && a.numberInSurah <= 147)
+                    .map(a => ({ ...a, surah: sm4, juz: 5 }));} else {
                 const res  = await fetch(step.url);
                 const data = await res.json();
                 ayahs  = data.data.ayahs;
@@ -3851,40 +3849,8 @@ async function loadAllData() {
     }
 }
 
-// Multi-proxy fetch helper — backend Flask dulu, lalu fallback CDN
-async function quranFetch(apiPath) {
-    const juzMatch   = apiPath.match(/juz\/([0-9]+)/);
-    const surahMatch = apiPath.match(/surah\/([0-9]+)/);
-    const num = juzMatch ? juzMatch[1] : (surahMatch ? surahMatch[1] : null);
-    const type = juzMatch ? 'juz' : 'surah';
-    const backendUrl = num ? '/quran/' + type + '/' + num : null;
-
-    const base = 'https://api.alquran.cloud/v1/' + apiPath;
-    const proxies = [
-        // 1. Backend Flask (same-origin, tidak kena CORS)
-        ...(backendUrl ? [backendUrl] : []),
-        // 2. Direct alquran.cloud
-        base,
-        // 3. CDN jsdelivr fawazahmed0 sebagai fallback
-        juzMatch ? 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quranuthmanihafs/juzs/' + num + '.json' : null,
-        // 4. corsproxy.io
-        'https://corsproxy.io/?' + encodeURIComponent(base),
-    ].filter(Boolean);
-    for (const url of proxies) {
-        try {
-            const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-            if (!res.ok) continue;
-            const text = await res.text();
-            if (!text || text[0] === '<') continue; // HTML error page
-            const data = JSON.parse(text);
-            if (data && data.data) return data;
-        } catch(e) { /* try next proxy */ }
-    }
-    throw new Error('Semua proxy gagal untuk: ' + apiPath);
-}
-
 async function fetchFromNetwork() {
-    const res1  = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F1%2Fquran-uthmani');
+    const res1  = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/1/quran-uthmani');
     const data1 = await res1.json();
     juzDataCache[1] = data1.data.ayahs;
     ayahsData = juzDataCache[1];
@@ -3926,7 +3892,7 @@ async function fetchFromNetwork() {
 async function refreshFromNetwork() {
     if (!navigator.onLine) return;
     try {
-        const res1 = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F1%2Fquran-uthmani');
+        const res1 = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/1/quran-uthmani');
         const d1   = await res1.json();
         juzDataCache[1] = d1.data.ayahs;
         saveJuzToIDB(1, juzDataCache[1]).catch(() => {});
@@ -3975,7 +3941,7 @@ function showLoadError() {
 async function loadJuzTwo() {
     try {
         // Gunakan endpoint juz/2 agar field 'page' tersedia (sama seperti Juz 1)
-        const res  = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F2%2Fquran-uthmani');
+        const res  = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/2/quran-uthmani');
         const data = await res.json();
         const allJuz2 = data.data.ayahs;
         // Juz 2 = Al-Baqarah 142–252 (filter surah 2, ayat 142-252)
@@ -3996,7 +3962,7 @@ async function loadJuzThree() {
         // Juz 3 = Al-Baqarah 253–286 + Ali Imran 1–91
         // (Ali Imran 92 adalah awal Juz 4, sehingga dikecualikan)
         // Fetch juz/3 dari API (field 'page' tersedia)
-        const res  = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F3%2Fquran-uthmani');
+        const res  = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/3/quran-uthmani');
         const data = await res.json();
         juzDataCache[3] = data.data.ayahs.filter(a =>
             !(a.surah.number === 3 && a.numberInSurah >= 92)
@@ -4012,30 +3978,41 @@ async function loadJuzThree() {
 
 async function loadJuzFour() {
     try {
-        const data = await quranFetch('juz/4/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[4] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 4
-        }));
+        // Juz 4 = Ali Imran 92–200 + An-Nisa 1–23
+        // Fetch langsung dari endpoint surah agar ayat 92 Ali Imran pasti ikut
+        const [res3, res4] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/3/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani')
+        ]);
+        const [data3, data4] = await Promise.all([res3.json(), res4.json()]);
+
+        // Endpoint /surah tidak menyertakan field 'surah' di tiap ayah.
+        // Normalize agar strukturnya sama dengan hasil /juz endpoint.
+        const surahMeta3 = {
+            number: data3.data.number,
+            name:   data3.data.name,
+            englishName: data3.data.englishName,
+            numberOfAyahs: data3.data.numberOfAyahs
+        };
+        const surahMeta4 = {
+            number: data4.data.number,
+            name:   data4.data.name,
+            englishName: data4.data.englishName,
+            numberOfAyahs: data4.data.numberOfAyahs
+        };
+
+        const aliImran = data3.data.ayahs
+            .filter(a => a.numberInSurah >= 92)
+            .map(a => ({ ...a, surah: surahMeta3, juz: 4 }));
+
+        const anNisa = data4.data.ayahs
+            .filter(a => a.numberInSurah <= 23)
+            .map(a => ({ ...a, surah: surahMeta4, juz: 4 }));
+
+        juzDataCache[4] = [...aliImran, ...anNisa];
         saveJuzToIDB(4, juzDataCache[4]).catch(() => {});
-        const tab = document.getElementById('juzTab4');
-        if (tab) tab.dataset.ready = '1';
-        if (4 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab4 = document.getElementById('juzTab4');
+        if (tab4) tab4.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 4:', e);
     }
@@ -4043,30 +4020,25 @@ async function loadJuzFour() {
 
 async function loadJuzFive() {
     try {
-        const data = await quranFetch('juz/5/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[5] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 5
-        }));
+        // Juz 5 = An-Nisa 24–147
+        // Fetch langsung dari endpoint surah agar struktur ayah konsisten
+        const res = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani');
+        const data = await res.json();
+
+        const surahMeta = {
+            number: data.data.number,
+            name:   data.data.name,
+            englishName: data.data.englishName,
+            numberOfAyahs: data.data.numberOfAyahs
+        };
+
+        juzDataCache[5] = data.data.ayahs
+            .filter(a => a.numberInSurah >= 24 && a.numberInSurah <= 147)
+            .map(a => ({ ...a, surah: surahMeta, juz: 5 }));
+
         saveJuzToIDB(5, juzDataCache[5]).catch(() => {});
-        const tab = document.getElementById('juzTab5');
-        if (tab) tab.dataset.ready = '1';
-        if (5 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab5 = document.getElementById('juzTab5');
+        if (tab5) tab5.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 5:', e);
     }
@@ -4074,30 +4046,45 @@ async function loadJuzFive() {
 
 async function loadJuzSix() {
     try {
-        const data = await quranFetch('juz/6/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[6] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 6
-        }));
+        // Juz 6 = An-Nisa 148–176 + Al-Maidah 1–81
+        // + overflow: Al-Maidah 82–83 (awal Juz 7, untuk konteks halaman)
+        const [resNisa, resMaidah] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/5/quran-uthmani')
+        ]);
+        const [dataNisa, dataMaidah] = await Promise.all([resNisa.json(), resMaidah.json()]);
+
+        const nisaMeta = {
+            number: dataNisa.data.number,
+            name: dataNisa.data.name,
+            englishName: dataNisa.data.englishName,
+            numberOfAyahs: dataNisa.data.numberOfAyahs
+        };
+        const maidahMeta = {
+            number: dataMaidah.data.number,
+            name: dataMaidah.data.name,
+            englishName: dataMaidah.data.englishName,
+            numberOfAyahs: dataMaidah.data.numberOfAyahs
+        };
+
+        const nisaAyahs = dataNisa.data.ayahs
+            .filter(a => a.numberInSurah >= 148)
+            .map(a => ({ ...a, surah: nisaMeta, juz: 6 }));
+
+        const maidahAyahs = dataMaidah.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 81)
+            .map(a => ({ ...a, surah: maidahMeta, juz: 6 }));
+
+        // Overflow: Al-Maidah 82 ikut halaman 121 (lihat mushaf Madinah)
+        const overflowAyahs = dataMaidah.data.ayahs
+            .filter(a => a.numberInSurah === 82)
+            .map(a => ({ ...a, surah: maidahMeta, juz: 7, _overflow: true }));
+
+        juzDataCache[6] = [...nisaAyahs, ...maidahAyahs, ...overflowAyahs];
+
         saveJuzToIDB(6, juzDataCache[6]).catch(() => {});
-        const tab = document.getElementById('juzTab6');
-        if (tab) tab.dataset.ready = '1';
-        if (6 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab6 = document.getElementById('juzTab6');
+        if (tab6) tab6.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 6:', e);
     }
@@ -4105,30 +4092,39 @@ async function loadJuzSix() {
 
 async function loadJuzSeven() {
     try {
-        const data = await quranFetch('juz/7/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[7] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 7
-        }));
+        // Juz 7 = Al-Maidah 83–176 + Al-An'am 1–110
+        const [resMaidah, resAnam] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/5/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/6/quran-uthmani')
+        ]);
+        const [dataMaidah, dataAnam] = await Promise.all([resMaidah.json(), resAnam.json()]);
+
+        const maidahMeta = {
+            number: dataMaidah.data.number,
+            name: dataMaidah.data.name,
+            englishName: dataMaidah.data.englishName,
+            numberOfAyahs: dataMaidah.data.numberOfAyahs
+        };
+        const anamMeta = {
+            number: dataAnam.data.number,
+            name: dataAnam.data.name,
+            englishName: dataAnam.data.englishName,
+            numberOfAyahs: dataAnam.data.numberOfAyahs
+        };
+
+        const maidahAyahs = dataMaidah.data.ayahs
+            .filter(a => a.numberInSurah >= 83)
+            .map(a => ({ ...a, surah: maidahMeta, juz: 7 }));
+
+        const anamAyahs = dataAnam.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 110)
+            .map(a => ({ ...a, surah: anamMeta, juz: 7 }));
+
+        juzDataCache[7] = [...maidahAyahs, ...anamAyahs];
+
         saveJuzToIDB(7, juzDataCache[7]).catch(() => {});
-        const tab = document.getElementById('juzTab7');
-        if (tab) tab.dataset.ready = '1';
-        if (7 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab7 = document.getElementById('juzTab7');
+        if (tab7) tab7.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 7:', e);
     }
@@ -4136,30 +4132,39 @@ async function loadJuzSeven() {
 
 async function loadJuzEight() {
     try {
-        const data = await quranFetch('juz/8/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[8] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 8
-        }));
+        // Juz 8 = Al-An'am 111–176 + Al-A'raf 1–87
+        const [resAnam, resAraf] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/6/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/7/quran-uthmani')
+        ]);
+        const [dataAnam, dataAraf] = await Promise.all([resAnam.json(), resAraf.json()]);
+
+        const anamMeta = {
+            number: dataAnam.data.number,
+            name: dataAnam.data.name,
+            englishName: dataAnam.data.englishName,
+            numberOfAyahs: dataAnam.data.numberOfAyahs
+        };
+        const arafMeta = {
+            number: dataAraf.data.number,
+            name: dataAraf.data.name,
+            englishName: dataAraf.data.englishName,
+            numberOfAyahs: dataAraf.data.numberOfAyahs
+        };
+
+        const anamAyahs = dataAnam.data.ayahs
+            .filter(a => a.numberInSurah >= 111)
+            .map(a => ({ ...a, surah: anamMeta, juz: 8 }));
+
+        const arafAyahs = dataAraf.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 87)
+            .map(a => ({ ...a, surah: arafMeta, juz: 8 }));
+
+        juzDataCache[8] = [...anamAyahs, ...arafAyahs];
+
         saveJuzToIDB(8, juzDataCache[8]).catch(() => {});
-        const tab = document.getElementById('juzTab8');
-        if (tab) tab.dataset.ready = '1';
-        if (8 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab8 = document.getElementById('juzTab8');
+        if (tab8) tab8.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 8:', e);
     }
@@ -4167,30 +4172,40 @@ async function loadJuzEight() {
 
 async function loadJuzNine() {
     try {
-        const data = await quranFetch('juz/9/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[9] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 9
-        }));
+        // Juz 9 = Al-A'raf 88–206 + Al-Anfal 1–40
+        // Catatan: Al-A'raf 206 adalah ayat Sajdah (sujud tilawah disunnahkan)
+        const [resAraf, resAnfal] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/7/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/8/quran-uthmani')
+        ]);
+        const [dataAraf, dataAnfal] = await Promise.all([resAraf.json(), resAnfal.json()]);
+
+        const arafMeta = {
+            number: dataAraf.data.number,
+            name: dataAraf.data.name,
+            englishName: dataAraf.data.englishName,
+            numberOfAyahs: dataAraf.data.numberOfAyahs
+        };
+        const anfalmeta = {
+            number: dataAnfal.data.number,
+            name: dataAnfal.data.name,
+            englishName: dataAnfal.data.englishName,
+            numberOfAyahs: dataAnfal.data.numberOfAyahs
+        };
+
+        const arafAyahs = dataAraf.data.ayahs
+            .filter(a => a.numberInSurah >= 88)
+            .map(a => ({ ...a, surah: arafMeta, juz: 9 }));
+
+        const anfaalAyahs = dataAnfal.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 40)
+            .map(a => ({ ...a, surah: anfalmeta, juz: 9 }));
+
+        juzDataCache[9] = [...arafAyahs, ...anfaalAyahs];
+
         saveJuzToIDB(9, juzDataCache[9]).catch(() => {});
-        const tab = document.getElementById('juzTab9');
-        if (tab) tab.dataset.ready = '1';
-        if (9 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab9 = document.getElementById('juzTab9');
+        if (tab9) tab9.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 9:', e);
     }
@@ -4198,30 +4213,45 @@ async function loadJuzNine() {
 
 async function loadJuzTen() {
     try {
-        const data = await quranFetch('juz/10/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[10] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 10
-        }));
+        // Juz 10 = Al-Anfal 41–75 + At-Taubah 1–93
+        // Catatan: At-Taubah 92-93 adalah awal Juz 11 tapi ikut di halaman terakhir Juz 10
+        const [resAnfal, resTaubah] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/8/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/9/quran-uthmani')
+        ]);
+        const [dataAnfal, dataTaubah] = await Promise.all([resAnfal.json(), resTaubah.json()]);
+
+        const anfalmeta = {
+            number: dataAnfal.data.number,
+            name: dataAnfal.data.name,
+            englishName: dataAnfal.data.englishName,
+            numberOfAyahs: dataAnfal.data.numberOfAyahs
+        };
+        const taubahmeta = {
+            number: dataTaubah.data.number,
+            name: dataTaubah.data.name,
+            englishName: dataTaubah.data.englishName,
+            numberOfAyahs: dataTaubah.data.numberOfAyahs
+        };
+
+        const anfalAyahs = dataAnfal.data.ayahs
+            .filter(a => a.numberInSurah >= 41)
+            .map(a => ({ ...a, surah: anfalmeta, juz: 10 }));
+
+        const taubahAyahs = dataTaubah.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 93)
+            .map(a => ({ 
+                ...a, 
+                surah: taubahmeta, 
+                juz: 10,
+                _overflow: a.numberInSurah >= 92 ? true : false  // Ayat 92-93 adalah awal Juz 11 (halaman 201)
+            }));
+
+        juzDataCache[10] = [...anfalAyahs, ...taubahAyahs];
+
         saveJuzToIDB(10, juzDataCache[10]).catch(() => {});
-        const tab = document.getElementById('juzTab10');
-        if (tab) tab.dataset.ready = '1';
-        if (10 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab10 = document.getElementById('juzTab10');
+        if (tab10) tab10.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 10:', e);
     }
@@ -4229,30 +4259,49 @@ async function loadJuzTen() {
 
 async function loadJuzEleven() {
     try {
-        const data = await quranFetch('juz/11/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[11] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 11
-        }));
+        // Juz 11 = At-Taubah 94–129 + Yunus 1–109 + Hud 1–5
+        const [resTaubah, resYunus, resHud] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/9/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/10/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/11/quran-uthmani')
+        ]);
+        const [dataTaubah, dataYunus, dataHud] = await Promise.all([resTaubah.json(), resYunus.json(), resHud.json()]);
+
+        const taubahmeta = {
+            number: dataTaubah.data.number,
+            name: dataTaubah.data.name,
+            englishName: dataTaubah.data.englishName,
+            numberOfAyahs: dataTaubah.data.numberOfAyahs
+        };
+        const yunusmeta = {
+            number: dataYunus.data.number,
+            name: dataYunus.data.name,
+            englishName: dataYunus.data.englishName,
+            numberOfAyahs: dataYunus.data.numberOfAyahs
+        };
+        const hudmeta = {
+            number: dataHud.data.number,
+            name: dataHud.data.name,
+            englishName: dataHud.data.englishName,
+            numberOfAyahs: dataHud.data.numberOfAyahs
+        };
+
+        const taubahAyahs = dataTaubah.data.ayahs
+            .filter(a => a.numberInSurah >= 94)
+            .map(a => ({ ...a, surah: taubahmeta, juz: 11 }));
+
+        const yunusAyahs = dataYunus.data.ayahs
+            .map(a => ({ ...a, surah: yunusmeta, juz: 11 }));
+
+        const hudAyahs = dataHud.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 5)
+            .map(a => ({ ...a, surah: hudmeta, juz: 11 }));
+
+        juzDataCache[11] = [...taubahAyahs, ...yunusAyahs, ...hudAyahs];
+
         saveJuzToIDB(11, juzDataCache[11]).catch(() => {});
-        const tab = document.getElementById('juzTab11');
-        if (tab) tab.dataset.ready = '1';
-        if (11 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab11 = document.getElementById('juzTab11');
+        if (tab11) tab11.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 11:', e);
     }
@@ -4260,30 +4309,39 @@ async function loadJuzEleven() {
 
 async function loadJuzTwelve() {
     try {
-        const data = await quranFetch('juz/12/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[12] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 12
-        }));
+        // Juz 12 = Hud 6–123 + Yusuf 1–52
+        const [resHud, resYusuf] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/11/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/12/quran-uthmani')
+        ]);
+        const [dataHud, dataYusuf] = await Promise.all([resHud.json(), resYusuf.json()]);
+
+        const hudmeta = {
+            number: dataHud.data.number,
+            name: dataHud.data.name,
+            englishName: dataHud.data.englishName,
+            numberOfAyahs: dataHud.data.numberOfAyahs
+        };
+        const yusufmeta = {
+            number: dataYusuf.data.number,
+            name: dataYusuf.data.name,
+            englishName: dataYusuf.data.englishName,
+            numberOfAyahs: dataYusuf.data.numberOfAyahs
+        };
+
+        const hudAyahs = dataHud.data.ayahs
+            .filter(a => a.numberInSurah >= 6)
+            .map(a => ({ ...a, surah: hudmeta, juz: 12 }));
+
+        const yusufAyahs = dataYusuf.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 52)
+            .map(a => ({ ...a, surah: yusufmeta, juz: 12 }));
+
+        juzDataCache[12] = [...hudAyahs, ...yusufAyahs];
+
         saveJuzToIDB(12, juzDataCache[12]).catch(() => {});
-        const tab = document.getElementById('juzTab12');
-        if (tab) tab.dataset.ready = '1';
-        if (12 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab12 = document.getElementById('juzTab12');
+        if (tab12) tab12.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 12:', e);
     }
@@ -4291,30 +4349,49 @@ async function loadJuzTwelve() {
 
 async function loadJuzThirteen() {
     try {
-        const data = await quranFetch('juz/13/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[13] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 13
-        }));
+        // Juz 13 = Yusuf 53–111 + Ar-Ra'd 1–43 + Ibrahim 1–52
+        const [resYusuf, resRaad, resIbrahim] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/12/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/13/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/14/quran-uthmani')
+        ]);
+        const [dataYusuf, dataRaad, dataIbrahim] = await Promise.all([resYusuf.json(), resRaad.json(), resIbrahim.json()]);
+
+        const yusufmeta = {
+            number: dataYusuf.data.number,
+            name: dataYusuf.data.name,
+            englishName: dataYusuf.data.englishName,
+            numberOfAyahs: dataYusuf.data.numberOfAyahs
+        };
+        const raadmeta = {
+            number: dataRaad.data.number,
+            name: dataRaad.data.name,
+            englishName: dataRaad.data.englishName,
+            numberOfAyahs: dataRaad.data.numberOfAyahs
+        };
+        const ibrahimmeta = {
+            number: dataIbrahim.data.number,
+            name: dataIbrahim.data.name,
+            englishName: dataIbrahim.data.englishName,
+            numberOfAyahs: dataIbrahim.data.numberOfAyahs
+        };
+
+        const yusufAyahs = dataYusuf.data.ayahs
+            .filter(a => a.numberInSurah >= 53)
+            .map(a => ({ ...a, surah: yusufmeta, juz: 13 }));
+
+        const raadAyahs = dataRaad.data.ayahs
+            .map(a => ({ ...a, surah: raadmeta, juz: 13 }));
+
+        const ibrahimAyahs = dataIbrahim.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 52)
+            .map(a => ({ ...a, surah: ibrahimmeta, juz: 13 }));
+
+        juzDataCache[13] = [...yusufAyahs, ...raadAyahs, ...ibrahimAyahs];
+
         saveJuzToIDB(13, juzDataCache[13]).catch(() => {});
-        const tab = document.getElementById('juzTab13');
-        if (tab) tab.dataset.ready = '1';
-        if (13 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab13 = document.getElementById('juzTab13');
+        if (tab13) tab13.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 13:', e);
     }
@@ -4322,61 +4399,78 @@ async function loadJuzThirteen() {
 
 async function loadJuzFourteen() {
     try {
-        const data = await quranFetch('juz/14/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[14] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 14
-        }));
+        // Juz 14 = Al-Hijr 1–99 (penuh) + An-Nahl 1–128 (penuh)
+        const [resHijr, resNahl] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/15/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/16/quran-uthmani')
+        ]);
+        const [dataHijr, dataNahl] = await Promise.all([resHijr.json(), resNahl.json()]);
+
+        const hijrmeta = {
+            number: dataHijr.data.number,
+            name: dataHijr.data.name,
+            englishName: dataHijr.data.englishName,
+            numberOfAyahs: dataHijr.data.numberOfAyahs
+        };
+        const nahlmeta = {
+            number: dataNahl.data.number,
+            name: dataNahl.data.name,
+            englishName: dataNahl.data.englishName,
+            numberOfAyahs: dataNahl.data.numberOfAyahs
+        };
+
+        const hijrAyahs = dataHijr.data.ayahs
+            .map(a => ({ ...a, surah: hijrmeta, juz: 14 }));
+
+        const nahlAyahs = dataNahl.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 128)
+            .map(a => ({ ...a, surah: nahlmeta, juz: 14 }));
+
+        juzDataCache[14] = [...hijrAyahs, ...nahlAyahs];
+
         saveJuzToIDB(14, juzDataCache[14]).catch(() => {});
-        const tab = document.getElementById('juzTab14');
-        if (tab) tab.dataset.ready = '1';
-        if (14 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab14 = document.getElementById('juzTab14');
+        if (tab14) tab14.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 14:', e);
     }
 }
 
+
 async function loadJuzFifteen() {
     try {
-        const data = await quranFetch('juz/15/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[15] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 15
-        }));
+        // Juz 15 = Al-Isra' 1–111 (penuh) + Al-Kahfi 1–74
+        const [resIsra, resKahfi] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/17/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/18/quran-uthmani')
+        ]);
+        const [dataIsra, dataKahfi] = await Promise.all([resIsra.json(), resKahfi.json()]);
+
+        const isrameta = {
+            number: dataIsra.data.number,
+            name: dataIsra.data.name,
+            englishName: dataIsra.data.englishName,
+            numberOfAyahs: dataIsra.data.numberOfAyahs
+        };
+        const kahfimeta = {
+            number: dataKahfi.data.number,
+            name: dataKahfi.data.name,
+            englishName: dataKahfi.data.englishName,
+            numberOfAyahs: dataKahfi.data.numberOfAyahs
+        };
+
+        const israAyahs = dataIsra.data.ayahs
+            .map(a => ({ ...a, surah: isrameta, juz: 15 }));
+
+        const kahfiAyahs = dataKahfi.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 74)
+            .map(a => ({ ...a, surah: kahfimeta, juz: 15 }));
+
+        juzDataCache[15] = [...israAyahs, ...kahfiAyahs];
+
         saveJuzToIDB(15, juzDataCache[15]).catch(() => {});
-        const tab = document.getElementById('juzTab15');
-        if (tab) tab.dataset.ready = '1';
-        if (15 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab15 = document.getElementById('juzTab15');
+        if (tab15) tab15.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 15:', e);
     }
@@ -4384,154 +4478,199 @@ async function loadJuzFifteen() {
 
 async function loadJuzSixteen() {
     try {
-        const data = await quranFetch('juz/16/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[16] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 16
-        }));
+        // Juz 16 = Al-Kahfi 75–110 + Maryam 1–98 (penuh) + Taha 1–135
+        const [resKahfi, resMaryam, resTaha] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/18/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/19/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/20/quran-uthmani')
+        ]);
+        const [dataKahfi, dataMaryam, dataTaha] = await Promise.all([resKahfi.json(), resMaryam.json(), resTaha.json()]);
+
+        const kahfimeta = {
+            number: dataKahfi.data.number, name: dataKahfi.data.name,
+            englishName: dataKahfi.data.englishName, numberOfAyahs: dataKahfi.data.numberOfAyahs
+        };
+        const maryammeta = {
+            number: dataMaryam.data.number, name: dataMaryam.data.name,
+            englishName: dataMaryam.data.englishName, numberOfAyahs: dataMaryam.data.numberOfAyahs
+        };
+        const tahameta = {
+            number: dataTaha.data.number, name: dataTaha.data.name,
+            englishName: dataTaha.data.englishName, numberOfAyahs: dataTaha.data.numberOfAyahs
+        };
+
+        const kahfiAyahs = dataKahfi.data.ayahs
+            .filter(a => a.numberInSurah >= 75 && a.numberInSurah <= 110)
+            .map(a => ({ ...a, surah: kahfimeta, juz: 16 }));
+        const maryamAyahs = dataMaryam.data.ayahs
+            .map(a => ({ ...a, surah: maryammeta, juz: 16 }));
+        const tahaAyahs = dataTaha.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 135)
+            .map(a => ({ ...a, surah: tahameta, juz: 16 }));
+
+        juzDataCache[16] = [...kahfiAyahs, ...maryamAyahs, ...tahaAyahs];
         saveJuzToIDB(16, juzDataCache[16]).catch(() => {});
-        const tab = document.getElementById('juzTab16');
-        if (tab) tab.dataset.ready = '1';
-        if (16 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab16 = document.getElementById('juzTab16');
+        if (tab16) tab16.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 16:', e);
     }
 }
 
+
 async function loadJuzSeventeen() {
     try {
-        const data = await quranFetch('juz/17/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[17] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 17
-        }));
+        // Juz 17 = Al-Anbiya 1–112 (penuh) + Al-Hajj 1–78
+        const [resAnbiya, resHajj] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/21/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/22/quran-uthmani')
+        ]);
+        const [dataAnbiya, dataHajj] = await Promise.all([resAnbiya.json(), resHajj.json()]);
+
+        const anbiyameta = {
+            number: dataAnbiya.data.number, name: dataAnbiya.data.name,
+            englishName: dataAnbiya.data.englishName, numberOfAyahs: dataAnbiya.data.numberOfAyahs
+        };
+        const hajjmeta = {
+            number: dataHajj.data.number, name: dataHajj.data.name,
+            englishName: dataHajj.data.englishName, numberOfAyahs: dataHajj.data.numberOfAyahs
+        };
+
+        const anbiyaAyahs = dataAnbiya.data.ayahs
+            .map(a => ({ ...a, surah: anbiyameta, juz: 17 }));
+        const hajjAyahs = dataHajj.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 78)
+            .map(a => ({ ...a, surah: hajjmeta, juz: 17 }));
+
+        juzDataCache[17] = [...anbiyaAyahs, ...hajjAyahs];
         saveJuzToIDB(17, juzDataCache[17]).catch(() => {});
-        const tab = document.getElementById('juzTab17');
-        if (tab) tab.dataset.ready = '1';
-        if (17 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab17 = document.getElementById('juzTab17');
+        if (tab17) tab17.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 17:', e);
     }
 }
 
+
 async function loadJuzEighteen() {
     try {
-        const data = await quranFetch('juz/18/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[18] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 18
-        }));
+        // Juz 18 = Al-Mu'minun 1–118 (penuh) + An-Nur 1–64 (penuh) + Al-Furqan 1–20
+        const [resMuminun, resNur, resFurqan] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/23/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/24/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/25/quran-uthmani')
+        ]);
+        const [dataMuminun, dataNur, dataFurqan] = await Promise.all([resMuminun.json(), resNur.json(), resFurqan.json()]);
+
+        const muminunmeta = {
+            number: dataMuminun.data.number, name: dataMuminun.data.name,
+            englishName: dataMuminun.data.englishName, numberOfAyahs: dataMuminun.data.numberOfAyahs
+        };
+        const nurmeta = {
+            number: dataNur.data.number, name: dataNur.data.name,
+            englishName: dataNur.data.englishName, numberOfAyahs: dataNur.data.numberOfAyahs
+        };
+        const furqanmeta = {
+            number: dataFurqan.data.number, name: dataFurqan.data.name,
+            englishName: dataFurqan.data.englishName, numberOfAyahs: dataFurqan.data.numberOfAyahs
+        };
+
+        const muminunAyahs = dataMuminun.data.ayahs
+            .map(a => ({ ...a, surah: muminunmeta, juz: 18 }));
+        const nurAyahs = dataNur.data.ayahs
+            .map(a => ({ ...a, surah: nurmeta, juz: 18 }));
+        const furqanAyahs = dataFurqan.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 20)
+            .map(a => ({ ...a, surah: furqanmeta, juz: 18 }));
+
+        juzDataCache[18] = [...muminunAyahs, ...nurAyahs, ...furqanAyahs];
         saveJuzToIDB(18, juzDataCache[18]).catch(() => {});
-        const tab = document.getElementById('juzTab18');
-        if (tab) tab.dataset.ready = '1';
-        if (18 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab18 = document.getElementById('juzTab18');
+        if (tab18) tab18.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 18:', e);
     }
 }
 
+
 async function loadJuzNineteen() {
     try {
-        const data = await quranFetch('juz/19/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[19] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 19
-        }));
+        // Juz 19 = Al-Furqan 21–77 + Asy-Syu'ara 1–227 (penuh) + An-Naml 1–55
+        const [resFurqan, resSyuara, resNaml] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/25/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/26/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/27/quran-uthmani')
+        ]);
+        const [dataFurqan, dataSyuara, dataNaml] = await Promise.all([resFurqan.json(), resSyuara.json(), resNaml.json()]);
+
+        const furqanmeta = {
+            number: dataFurqan.data.number, name: dataFurqan.data.name,
+            englishName: dataFurqan.data.englishName, numberOfAyahs: dataFurqan.data.numberOfAyahs
+        };
+        const syuarameta = {
+            number: dataSyuara.data.number, name: dataSyuara.data.name,
+            englishName: dataSyuara.data.englishName, numberOfAyahs: dataSyuara.data.numberOfAyahs
+        };
+        const namlmeta = {
+            number: dataNaml.data.number, name: dataNaml.data.name,
+            englishName: dataNaml.data.englishName, numberOfAyahs: dataNaml.data.numberOfAyahs
+        };
+
+        const furqanAyahs = dataFurqan.data.ayahs
+            .filter(a => a.numberInSurah >= 21 && a.numberInSurah <= 77)
+            .map(a => ({ ...a, surah: furqanmeta, juz: 19 }));
+        const syuaraAyahs = dataSyuara.data.ayahs
+            .map(a => ({ ...a, surah: syuarameta, juz: 19 }));
+        const namlAyahs = dataNaml.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 55)
+            .map(a => ({ ...a, surah: namlmeta, juz: 19 }));
+
+        juzDataCache[19] = [...furqanAyahs, ...syuaraAyahs, ...namlAyahs];
         saveJuzToIDB(19, juzDataCache[19]).catch(() => {});
-        const tab = document.getElementById('juzTab19');
-        if (tab) tab.dataset.ready = '1';
-        if (19 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab19 = document.getElementById('juzTab19');
+        if (tab19) tab19.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 19:', e);
     }
 }
 
+
 async function loadJuzTwenty() {
     try {
-        const data = await quranFetch('juz/20/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[20] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 20
-        }));
+        // Juz 20 = An-Naml 56–93 + Al-Qasas 1–88 (penuh) + Al-Ankabut 1–45
+        const [resNaml, resQasas, resAnkabut] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/27/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/28/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/29/quran-uthmani')
+        ]);
+        const [dataNaml, dataQasas, dataAnkabut] = await Promise.all([resNaml.json(), resQasas.json(), resAnkabut.json()]);
+
+        const namlmeta = {
+            number: dataNaml.data.number, name: dataNaml.data.name,
+            englishName: dataNaml.data.englishName, numberOfAyahs: dataNaml.data.numberOfAyahs
+        };
+        const qasasmeta = {
+            number: dataQasas.data.number, name: dataQasas.data.name,
+            englishName: dataQasas.data.englishName, numberOfAyahs: dataQasas.data.numberOfAyahs
+        };
+        const ankabutmeta = {
+            number: dataAnkabut.data.number, name: dataAnkabut.data.name,
+            englishName: dataAnkabut.data.englishName, numberOfAyahs: dataAnkabut.data.numberOfAyahs
+        };
+
+        const namlAyahs = dataNaml.data.ayahs
+            .filter(a => a.numberInSurah >= 56 && a.numberInSurah <= 93)
+            .map(a => ({ ...a, surah: namlmeta, juz: 20 }));
+        const qasasAyahs = dataQasas.data.ayahs
+            .map(a => ({ ...a, surah: qasasmeta, juz: 20 }));
+        const ankabutAyahs = dataAnkabut.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 45)
+            .map(a => ({ ...a, surah: ankabutmeta, juz: 20 }));
+
+        juzDataCache[20] = [...namlAyahs, ...qasasAyahs, ...ankabutAyahs];
         saveJuzToIDB(20, juzDataCache[20]).catch(() => {});
-        const tab = document.getElementById('juzTab20');
-        if (tab) tab.dataset.ready = '1';
-        if (20 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab20 = document.getElementById('juzTab20');
+        if (tab20) tab20.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 20:', e);
     }
@@ -4539,30 +4678,42 @@ async function loadJuzTwenty() {
 
 async function loadJuzTwentyOne() {
     try {
-        const data = await quranFetch('juz/21/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[21] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 21
-        }));
+        // Juz 21 = Al-Ankabut 46–69 + Ar-Rum 1–60 (penuh) + Luqman 1–34 (penuh) + As-Sajdah 1–30 (penuh) + Al-Ahzab 1–30
+        const [resAnkabut, resRum, resLuqman, resSajdah, resAhzab] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/29/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/30/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/31/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/32/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/33/quran-uthmani')
+        ]);
+        const [dataAnkabut, dataRum, dataLuqman, dataSajdah, dataAhzab] = await Promise.all([
+            resAnkabut.json(), resRum.json(), resLuqman.json(), resSajdah.json(), resAhzab.json()
+        ]);
+
+        const mkMeta = d => ({ number: d.data.number, name: d.data.name, englishName: d.data.englishName, numberOfAyahs: d.data.numberOfAyahs, revelationType: d.data.revelationType });
+        const ankabutMeta = mkMeta(dataAnkabut);
+        const rumMeta     = mkMeta(dataRum);
+        const luqmanMeta  = mkMeta(dataLuqman);
+        const sajdahMeta  = mkMeta(dataSajdah);
+        const ahzabMeta   = mkMeta(dataAhzab);
+
+        const ankabutAyahs = dataAnkabut.data.ayahs
+            .filter(a => a.numberInSurah >= 46)
+            .map(a => ({ ...a, surah: ankabutMeta, juz: 21 }));
+        const rumAyahs = dataRum.data.ayahs
+            .map(a => ({ ...a, surah: rumMeta, juz: 21 }));
+        const luqmanAyahs = dataLuqman.data.ayahs
+            .map(a => ({ ...a, surah: luqmanMeta, juz: 21 }));
+        const sajdahAyahs = dataSajdah.data.ayahs
+            .map(a => ({ ...a, surah: sajdahMeta, juz: 21 }));
+        const ahzabAyahs = dataAhzab.data.ayahs
+            .filter(a => a.numberInSurah <= 30)
+            .map(a => ({ ...a, surah: ahzabMeta, juz: 21 }));
+
+        juzDataCache[21] = [...ankabutAyahs, ...rumAyahs, ...luqmanAyahs, ...sajdahAyahs, ...ahzabAyahs];
         saveJuzToIDB(21, juzDataCache[21]).catch(() => {});
-        const tab = document.getElementById('juzTab21');
-        if (tab) tab.dataset.ready = '1';
-        if (21 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab21 = document.getElementById('juzTab21');
+        if (tab21) tab21.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 21:', e);
     }
@@ -4570,30 +4721,38 @@ async function loadJuzTwentyOne() {
 
 async function loadJuzTwentyTwo() {
     try {
-        const data = await quranFetch('juz/22/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[22] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 22
-        }));
+        // Juz 22 = Al-Ahzab 31–73 + Saba' 1–54 (penuh) + Fatir 1–45 (penuh) + Yasin 1–27
+        const [resAhzab, resSaba, resFatir, resYasin] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/33/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/34/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/35/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/36/quran-uthmani')
+        ]);
+        const [dataAhzab, dataSaba, dataFatir, dataYasin] = await Promise.all([
+            resAhzab.json(), resSaba.json(), resFatir.json(), resYasin.json()
+        ]);
+
+        const mkMeta = d => ({ number: d.data.number, name: d.data.name, englishName: d.data.englishName, numberOfAyahs: d.data.numberOfAyahs, revelationType: d.data.revelationType });
+        const ahzabMeta = mkMeta(dataAhzab);
+        const sabaMeta  = mkMeta(dataSaba);
+        const fatirMeta = mkMeta(dataFatir);
+        const yasinMeta = mkMeta(dataYasin);
+
+        const ahzabAyahs = dataAhzab.data.ayahs
+            .filter(a => a.numberInSurah >= 31)
+            .map(a => ({ ...a, surah: ahzabMeta, juz: 22 }));
+        const sabaAyahs = dataSaba.data.ayahs
+            .map(a => ({ ...a, surah: sabaMeta, juz: 22 }));
+        const fatirAyahs = dataFatir.data.ayahs
+            .map(a => ({ ...a, surah: fatirMeta, juz: 22 }));
+        const yasinAyahs = dataYasin.data.ayahs
+            .filter(a => a.numberInSurah <= 27)
+            .map(a => ({ ...a, surah: yasinMeta, juz: 22 }));
+
+        juzDataCache[22] = [...ahzabAyahs, ...sabaAyahs, ...fatirAyahs, ...yasinAyahs];
         saveJuzToIDB(22, juzDataCache[22]).catch(() => {});
-        const tab = document.getElementById('juzTab22');
-        if (tab) tab.dataset.ready = '1';
-        if (22 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab22 = document.getElementById('juzTab22');
+        if (tab22) tab22.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 22:', e);
     }
@@ -4601,30 +4760,38 @@ async function loadJuzTwentyTwo() {
 
 async function loadJuzTwentyThree() {
     try {
-        const data = await quranFetch('juz/23/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[23] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 23
-        }));
+        // Juz 23 = Yasin 28–83 + As-Saffat 1–182 (penuh) + Sad 1–88 (penuh) + Az-Zumar 1–31
+        const [resYasin, resSaffat, resSad, resZumar] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/36/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/37/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/38/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/39/quran-uthmani')
+        ]);
+        const [dataYasin, dataSaffat, dataSad, dataZumar] = await Promise.all([
+            resYasin.json(), resSaffat.json(), resSad.json(), resZumar.json()
+        ]);
+
+        const mkMeta = d => ({ number: d.data.number, name: d.data.name, englishName: d.data.englishName, numberOfAyahs: d.data.numberOfAyahs, revelationType: d.data.revelationType });
+        const yasinMeta  = mkMeta(dataYasin);
+        const saffatMeta = mkMeta(dataSaffat);
+        const sadMeta    = mkMeta(dataSad);
+        const zumarMeta  = mkMeta(dataZumar);
+
+        const yasinAyahs = dataYasin.data.ayahs
+            .filter(a => a.numberInSurah >= 28)
+            .map(a => ({ ...a, surah: yasinMeta, juz: 23 }));
+        const saffatAyahs = dataSaffat.data.ayahs
+            .map(a => ({ ...a, surah: saffatMeta, juz: 23 }));
+        const sadAyahs = dataSad.data.ayahs
+            .map(a => ({ ...a, surah: sadMeta, juz: 23 }));
+        const zumarAyahs = dataZumar.data.ayahs
+            .filter(a => a.numberInSurah <= 31)
+            .map(a => ({ ...a, surah: zumarMeta, juz: 23 }));
+
+        juzDataCache[23] = [...yasinAyahs, ...saffatAyahs, ...sadAyahs, ...zumarAyahs];
         saveJuzToIDB(23, juzDataCache[23]).catch(() => {});
-        const tab = document.getElementById('juzTab23');
-        if (tab) tab.dataset.ready = '1';
-        if (23 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab23 = document.getElementById('juzTab23');
+        if (tab23) tab23.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 23:', e);
     }
@@ -4632,61 +4799,88 @@ async function loadJuzTwentyThree() {
 
 async function loadJuzTwentyFour() {
     try {
-        const data = await quranFetch('juz/24/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[24] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 24
-        }));
+        // Juz 24 = Az-Zumar 32–75 + Ghafir 1–85 (penuh) + Fussilat 1–46
+        const [resZumar, resGhafir, resFussilat] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/39/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/40/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/41/quran-uthmani')
+        ]);
+        const [dataZumar, dataGhafir, dataFussilat] = await Promise.all([
+            resZumar.json(), resGhafir.json(), resFussilat.json()
+        ]);
+
+        const mkMeta = d => ({ number: d.data.number, name: d.data.name, englishName: d.data.englishName, numberOfAyahs: d.data.numberOfAyahs, revelationType: d.data.revelationType });
+        const zumarMeta   = mkMeta(dataZumar);
+        const ghafirMeta  = mkMeta(dataGhafir);
+        const fussilatMeta = mkMeta(dataFussilat);
+
+        const zumarAyahs = dataZumar.data.ayahs
+            .filter(a => a.numberInSurah >= 32)
+            .map(a => ({ ...a, surah: zumarMeta, juz: 24 }));
+        const ghafirAyahs = dataGhafir.data.ayahs
+            .map(a => ({ ...a, surah: ghafirMeta, juz: 24 }));
+        const fussilatAyahs = dataFussilat.data.ayahs
+            .filter(a => a.numberInSurah <= 46)
+            .map(a => ({ ...a, surah: fussilatMeta, juz: 24 }));
+
+        juzDataCache[24] = [...zumarAyahs, ...ghafirAyahs, ...fussilatAyahs];
         saveJuzToIDB(24, juzDataCache[24]).catch(() => {});
-        const tab = document.getElementById('juzTab24');
-        if (tab) tab.dataset.ready = '1';
-        if (24 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab24 = document.getElementById('juzTab24');
+        if (tab24) tab24.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 24:', e);
     }
 }
 
+
 async function loadJuzTwentyFive() {
     try {
-        const data = await quranFetch('juz/25/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[25] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 25
-        }));
+        // Juz 25 = Fussilat 47–54 + Az-Zukhruf 1–89 (penuh) + Ad-Dukhan 1–59 (penuh) + Al-Jatsiyah 1–37 (penuh)
+        // + Al-Ahqaf 1–5 (_overflow juz 26, diikutkan agar halaman rapi)
+        const [resFussilat, resZukhruf, resDukhan, resJatsiyah, resAhqaf] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/41/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/43/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/44/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/45/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/46/quran-uthmani')
+        ]);
+        const [dataFussilat, dataZukhruf, dataDukhan, dataJatsiyah, dataAhqaf] = await Promise.all([
+            resFussilat.json(), resZukhruf.json(), resDukhan.json(), resJatsiyah.json(), resAhqaf.json()
+        ]);
+
+        const mkMeta = d => ({ number: d.data.number, name: d.data.name, englishName: d.data.englishName, numberOfAyahs: d.data.numberOfAyahs, revelationType: d.data.revelationType });
+        const fussilatMeta  = mkMeta(dataFussilat);
+        const zukhrufMeta   = mkMeta(dataZukhruf);
+        const dukhanMeta    = mkMeta(dataDukhan);
+        const jatsiyahMeta  = mkMeta(dataJatsiyah);
+        const ahqafMeta     = mkMeta(dataAhqaf);
+
+        // Fussilat 47–54 (sisa dari Juz 24 yang berakhir di ayat 46)
+        const fussilatAyahs = dataFussilat.data.ayahs
+            .filter(a => a.numberInSurah >= 47)
+            .map(a => ({ ...a, surah: fussilatMeta, juz: 25 }));
+
+        // Az-Zukhruf seluruhnya (89 ayat) — Surah 43
+        const zukhrufAyahs = dataZukhruf.data.ayahs
+            .map(a => ({ ...a, surah: zukhrufMeta, juz: 25 }));
+
+        // Ad-Dukhan seluruhnya (59 ayat) — Surah 44
+        const dukhanAyahs = dataDukhan.data.ayahs
+            .map(a => ({ ...a, surah: dukhanMeta, juz: 25 }));
+
+        // Al-Jatsiyah seluruhnya (37 ayat) — Surah 45
+        const jatsiyahAyahs = dataJatsiyah.data.ayahs
+            .map(a => ({ ...a, surah: jatsiyahMeta, juz: 25 }));
+
+        // Al-Ahqaf 1–5 — masuk Juz 26, tapi diikutkan agar halaman rapi (ditandai _overflow & _juz26)
+        const ahqafOverflow = dataAhqaf.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 5)
+            .map(a => ({ ...a, surah: ahqafMeta, juz: 26, _overflow: true, _juz26: true }));
+
+        juzDataCache[25] = [...fussilatAyahs, ...zukhrufAyahs, ...dukhanAyahs, ...jatsiyahAyahs, ...ahqafOverflow];
         saveJuzToIDB(25, juzDataCache[25]).catch(() => {});
-        const tab = document.getElementById('juzTab25');
-        if (tab) tab.dataset.ready = '1';
-        if (25 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab25 = document.getElementById('juzTab25');
+        if (tab25) tab25.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 25:', e);
     }
@@ -4694,30 +4888,58 @@ async function loadJuzTwentyFive() {
 
 async function loadJuzTwentySix() {
     try {
-        const data = await quranFetch('juz/26/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[26] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 26
-        }));
+        // Juz 26 = Al-Ahqaf 6–35 + Muhammad 1–38 (penuh) + Al-Fath 1–29 (penuh)
+        // + Al-Hujurat 1–18 (penuh) + Qaf 1–45 (penuh) + Adz-Dzariyat 1–30
+        const [resAhqaf, resMuhammad, resFath, resHujurat, resQaf, resDzariyat] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/46/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/47/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/48/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/49/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/50/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/51/quran-uthmani')
+        ]);
+        const [dataAhqaf, dataMuhammad, dataFath, dataHujurat, dataQaf, dataDzariyat] = await Promise.all([
+            resAhqaf.json(), resMuhammad.json(), resFath.json(), resHujurat.json(), resQaf.json(), resDzariyat.json()
+        ]);
+
+        const mkMeta = d => ({ number: d.data.number, name: d.data.name, englishName: d.data.englishName, numberOfAyahs: d.data.numberOfAyahs, revelationType: d.data.revelationType });
+        const ahqafMeta     = mkMeta(dataAhqaf);
+        const muhammadMeta  = mkMeta(dataMuhammad);
+        const fathMeta      = mkMeta(dataFath);
+        const hujuratMeta   = mkMeta(dataHujurat);
+        const qafMeta       = mkMeta(dataQaf);
+        const dzariyatMeta  = mkMeta(dataDzariyat);
+
+        // Al-Ahqaf 6–35 (ayat 1–5 sudah ada di Juz 25 sebagai overflow)
+        const ahqafAyahs = dataAhqaf.data.ayahs
+            .filter(a => a.numberInSurah >= 6)
+            .map(a => ({ ...a, surah: ahqafMeta, juz: 26 }));
+
+        // Muhammad seluruhnya (38 ayat) — Surah 47
+        const muhammadAyahs = dataMuhammad.data.ayahs
+            .map(a => ({ ...a, surah: muhammadMeta, juz: 26 }));
+
+        // Al-Fath seluruhnya (29 ayat) — Surah 48
+        const fathAyahs = dataFath.data.ayahs
+            .map(a => ({ ...a, surah: fathMeta, juz: 26 }));
+
+        // Al-Hujurat seluruhnya (18 ayat) — Surah 49
+        const hujuratAyahs = dataHujurat.data.ayahs
+            .map(a => ({ ...a, surah: hujuratMeta, juz: 26 }));
+
+        // Qaf seluruhnya (45 ayat) — Surah 50
+        const qafAyahs = dataQaf.data.ayahs
+            .map(a => ({ ...a, surah: qafMeta, juz: 26 }));
+
+        // Adz-Dzariyat 1–30 (ayat 31 dst masuk Juz 27)
+        const dzariyatAyahs = dataDzariyat.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 30)
+            .map(a => ({ ...a, surah: dzariyatMeta, juz: 26 }));
+
+        juzDataCache[26] = [...ahqafAyahs, ...muhammadAyahs, ...fathAyahs, ...hujuratAyahs, ...qafAyahs, ...dzariyatAyahs];
         saveJuzToIDB(26, juzDataCache[26]).catch(() => {});
-        const tab = document.getElementById('juzTab26');
-        if (tab) tab.dataset.ready = '1';
-        if (26 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab26 = document.getElementById('juzTab26');
+        if (tab26) tab26.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 26:', e);
     }
@@ -4725,30 +4947,65 @@ async function loadJuzTwentySix() {
 
 async function loadJuzTwentySeven() {
     try {
-        const data = await quranFetch('juz/27/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[27] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 27
-        }));
+        // Juz 27 = Adz-Dzariyat 31–60 + At-Tur 1–49 (penuh) + An-Najm 1–62 (penuh)
+        // + Al-Qamar 1–55 (penuh) + Ar-Rahman 1–78 (penuh) + Al-Waqi'ah 1–96 (penuh)
+        // + Al-Hadid 1–29
+        const [resDzariyat, resTur, resNajm, resQamar, resRahman, resWaqiah, resHadid] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/51/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/52/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/53/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/54/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/55/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/56/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/57/quran-uthmani')
+        ]);
+        const [dataDzariyat, dataTur, dataNajm, dataQamar, dataRahman, dataWaqiah, dataHadid] = await Promise.all([
+            resDzariyat.json(), resTur.json(), resNajm.json(), resQamar.json(), resRahman.json(), resWaqiah.json(), resHadid.json()
+        ]);
+
+        const mkMeta = d => ({ number: d.data.number, name: d.data.name, englishName: d.data.englishName, numberOfAyahs: d.data.numberOfAyahs, revelationType: d.data.revelationType });
+        const dzariyatMeta = mkMeta(dataDzariyat);
+        const turMeta      = mkMeta(dataTur);
+        const najmMeta     = mkMeta(dataNajm);
+        const qamarMeta    = mkMeta(dataQamar);
+        const rahmanMeta   = mkMeta(dataRahman);
+        const waqiahMeta   = mkMeta(dataWaqiah);
+        const hadidMeta    = mkMeta(dataHadid);
+
+        // Adz-Dzariyat 31–60 (ayat 1–30 sudah ada di Juz 26)
+        const dzariyatAyahs = dataDzariyat.data.ayahs
+            .filter(a => a.numberInSurah >= 31)
+            .map(a => ({ ...a, surah: dzariyatMeta, juz: 27 }));
+
+        // At-Tur seluruhnya (49 ayat) — Surah 52
+        const turAyahs = dataTur.data.ayahs
+            .map(a => ({ ...a, surah: turMeta, juz: 27 }));
+
+        // An-Najm seluruhnya (62 ayat) — Surah 53
+        const najmAyahs = dataNajm.data.ayahs
+            .map(a => ({ ...a, surah: najmMeta, juz: 27 }));
+
+        // Al-Qamar seluruhnya (55 ayat) — Surah 54
+        const qamarAyahs = dataQamar.data.ayahs
+            .map(a => ({ ...a, surah: qamarMeta, juz: 27 }));
+
+        // Ar-Rahman seluruhnya (78 ayat) — Surah 55
+        const rahmanAyahs = dataRahman.data.ayahs
+            .map(a => ({ ...a, surah: rahmanMeta, juz: 27 }));
+
+        // Al-Waqi'ah seluruhnya (96 ayat) — Surah 56
+        const waqiahAyahs = dataWaqiah.data.ayahs
+            .map(a => ({ ...a, surah: waqiahMeta, juz: 27 }));
+
+        // Al-Hadid 1–29 (ayat 30 dst masuk Juz 28 — Al-Hadid hanya 29 ayat, jadi penuh)
+        const hadidAyahs = dataHadid.data.ayahs
+            .filter(a => a.numberInSurah >= 1 && a.numberInSurah <= 29)
+            .map(a => ({ ...a, surah: hadidMeta, juz: 27 }));
+
+        juzDataCache[27] = [...dzariyatAyahs, ...turAyahs, ...najmAyahs, ...qamarAyahs, ...rahmanAyahs, ...waqiahAyahs, ...hadidAyahs];
         saveJuzToIDB(27, juzDataCache[27]).catch(() => {});
-        const tab = document.getElementById('juzTab27');
-        if (tab) tab.dataset.ready = '1';
-        if (27 === 1) {
-            ayahsData = juzDataCache[1];
-            renderContent();
-            document.getElementById('loading').style.display = 'none';
-        }
+        const tab27 = document.getElementById('juzTab27');
+        if (tab27) tab27.dataset.ready = '1';
     } catch(e) {
         console.warn('Gagal memuat Juz 27:', e);
     }
@@ -4756,22 +5013,76 @@ async function loadJuzTwentySeven() {
 
 async function loadJuzTwentyEight() {
     try {
-        const data = await quranFetch('juz/28/quran-uthmani');
-        if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
-        const surahMetaMap = {};
-        data.data.ayahs.forEach(a => {
-            if (!surahMetaMap[a.surah.number]) {
-                surahMetaMap[a.surah.number] = {
-                    number: a.surah.number, name: a.surah.name,
-                    englishName: a.surah.englishName,
-                    numberOfAyahs: a.surah.numberOfAyahs,
-                    revelationType: a.surah.revelationType
-                };
-            }
-        });
-        juzDataCache[28] = data.data.ayahs.map(a => ({
-            ...a, surah: surahMetaMap[a.surah.number], juz: 28
-        }));
+        // Juz 28 = Al-Mujadilah 1–22 + Al-Hasyr 1–24 + Al-Mumtahanah 1–13
+        // + As-Saff 1–14 + Al-Jumu'ah 1–11 + Al-Munafiqun 1–11
+        // + At-Taghabun 1–18 + At-Talaq 1–12 + At-Tahrim 1–12
+        const [resMujadilah, resHasyr, resMumtahanah, resSaff, resJumuah, resMunafiqun, resTaghabun, resTalaq, resTahrim] = await Promise.all([
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/58/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/59/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/60/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/61/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/62/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/63/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/64/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/65/quran-uthmani'),
+            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/66/quran-uthmani')
+        ]);
+        const [dataMujadilah, dataHasyr, dataMumtahanah, dataSaff, dataJumuah, dataMunafiqun, dataTaghabun, dataTalaq, dataTahrim] = await Promise.all([
+            resMujadilah.json(), resHasyr.json(), resMumtahanah.json(), resSaff.json(),
+            resJumuah.json(), resMunafiqun.json(), resTaghabun.json(), resTalaq.json(), resTahrim.json()
+        ]);
+
+        const mkMeta = d => ({ number: d.data.number, name: d.data.name, englishName: d.data.englishName, numberOfAyahs: d.data.numberOfAyahs, revelationType: d.data.revelationType });
+        const mujadilahMeta  = mkMeta(dataMujadilah);
+        const hasyrMeta      = mkMeta(dataHasyr);
+        const mumtahanahMeta = mkMeta(dataMumtahanah);
+        const saffMeta       = mkMeta(dataSaff);
+        const jumuahMeta     = mkMeta(dataJumuah);
+        const munafiqunMeta  = mkMeta(dataMunafiqun);
+        const taghabunMeta   = mkMeta(dataTaghabun);
+        const talaqMeta      = mkMeta(dataTalaq);
+        const tahrimMeta     = mkMeta(dataTahrim);
+
+        // Al-Mujadilah seluruhnya (22 ayat) — Surah 58
+        const mujadilahAyahs = dataMujadilah.data.ayahs
+            .map(a => ({ ...a, surah: mujadilahMeta, juz: 28 }));
+
+        // Al-Hasyr seluruhnya (24 ayat) — Surah 59
+        const hasyrAyahs = dataHasyr.data.ayahs
+            .map(a => ({ ...a, surah: hasyrMeta, juz: 28 }));
+
+        // Al-Mumtahanah seluruhnya (13 ayat) — Surah 60
+        const mumtahanahAyahs = dataMumtahanah.data.ayahs
+            .map(a => ({ ...a, surah: mumtahanahMeta, juz: 28 }));
+
+        // As-Saff seluruhnya (14 ayat) — Surah 61
+        const saffAyahs = dataSaff.data.ayahs
+            .map(a => ({ ...a, surah: saffMeta, juz: 28 }));
+
+        // Al-Jumu'ah seluruhnya (11 ayat) — Surah 62
+        const jumuahAyahs = dataJumuah.data.ayahs
+            .map(a => ({ ...a, surah: jumuahMeta, juz: 28 }));
+
+        // Al-Munafiqun seluruhnya (11 ayat) — Surah 63
+        const munafiqunAyahs = dataMunafiqun.data.ayahs
+            .map(a => ({ ...a, surah: munafiqunMeta, juz: 28 }));
+
+        // At-Taghabun seluruhnya (18 ayat) — Surah 64
+        const taghabunAyahs = dataTaghabun.data.ayahs
+            .map(a => ({ ...a, surah: taghabunMeta, juz: 28 }));
+
+        // At-Talaq seluruhnya (12 ayat) — Surah 65
+        const talaqAyahs = dataTalaq.data.ayahs
+            .map(a => ({ ...a, surah: talaqMeta, juz: 28 }));
+
+        // At-Tahrim seluruhnya (12 ayat) — Surah 66
+        const tahrimAyahs = dataTahrim.data.ayahs
+            .map(a => ({ ...a, surah: tahrimMeta, juz: 28 }));
+
+        juzDataCache[28] = [
+            ...mujadilahAyahs, ...hasyrAyahs, ...mumtahanahAyahs, ...saffAyahs,
+            ...jumuahAyahs, ...munafiqunAyahs, ...taghabunAyahs, ...talaqAyahs, ...tahrimAyahs
+        ];
         saveJuzToIDB(28, juzDataCache[28]).catch(() => {});
         const tab28 = document.getElementById('juzTab28');
         if (tab28) tab28.dataset.ready = '1';
@@ -4783,7 +5094,7 @@ async function loadJuzTwentyEight() {
 async function loadJuzTwentyNine() {
     try {
         // Juz 29 = Al-Mulk s.d. Al-Mursalat (surah 67–77) — gunakan endpoint /juz/29
-        const res = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F29%2Fquran-uthmani');
+        const res = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/29/quran-uthmani');
         const data = await res.json();
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
@@ -4815,7 +5126,7 @@ async function loadJuzTwentyNine() {
 async function loadJuzThirty() {
     try {
         // Juz 30 = An-Naba s.d. An-Nas (surah 78–114) — gunakan endpoint /juz/30 agar 1 request
-        const res = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F30%2Fquran-uthmani');
+        const res = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/30/quran-uthmani');
         const data = await res.json();
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         // Bangun surahMeta dari field surah yang sudah ada di tiap ayat
@@ -9150,7 +9461,7 @@ function updateJuzSelectInfo() {
 
 <!-- MODAL SETOR HAFALAN -->
 <div class="modal-overlay" id="tasmiModal">
-    <div class="modal-panel" style="padding:0;display:flex;flex-direction:column;max-height:calc(100vh - 72px);overflow:hidden">
+    <div class="modal-panel" style="padding:0;display:flex;flex-direction:column;max-height:88vh;overflow:hidden">
         <div style="overflow-y:auto;flex:1;padding:20px 24px 8px">
         <div class="modal-header">
             <div class="modal-title"><i class="fa-solid fa-microphone" style="color:var(--accent-gold)"></i> Setor Hafalan</div>
@@ -9576,28 +9887,12 @@ function updateJuzSelectInfo() {
 .guest-restriction-banner { background: rgba(217,152,26,0.08); border: 1px solid rgba(217,152,26,0.28); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; }
 .guest-restriction-title { font-size: 12px; font-weight: 700; color: var(--accent-gold); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
 .guest-restriction-list { font-size: 11px; color: var(--text-secondary); line-height: 1.9; }
-
-    /* ── FORCE BOTTOM NAV VISIBLE — harus di akhir ── */
-    @media screen and (max-width: 768px) {
-        nav#bottomNav {
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            position: fixed !important;
-            bottom: 0 !important; left: 0 !important; right: 0 !important;
-            z-index: 510 !important;
-            min-height: 56px !important;
-            background: #ffffff !important;
-            border-top: 1.5px solid rgba(184,144,42,0.14) !important;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.08) !important;
-        }
-    }
 </style>
 
 <!-- ============================================================
      BOTTOM NAVIGATION BAR (Mobile)
 ============================================================ -->
-<nav id="bottomNav" style="display:flex!important;visibility:visible!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;min-height:58px!important;background:#fff!important;border-top:1.5px solid rgba(184,144,42,0.18)!important;box-shadow:0 -3px 16px rgba(0,0,0,0.08)!important;z-index:9000!important;align-items:center!important;justify-content:space-around!important;padding:4px 4px env(safe-area-inset-bottom,6px)!important;">
+<nav id="bottomNav">
     <!-- Home / Dashboard -->
     <button class="bnav-btn" onclick="showDashboard(); closeBNavMore()" title="Home">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -10307,7 +10602,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 <!-- TASMI BETA BANNER MODAL -->
-<div id="tasmiBetaBanner" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+<div id="tasmiBetaBanner" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
     <div style="background:var(--surface);border-radius:24px;max-width:360px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.35);overflow:hidden;font-family:var(--ui-font)">
         <!-- Header oranye -->
         <div style="background:linear-gradient(135deg,#f59e0b,#ef4444);padding:22px 20px 18px;text-align:center">

@@ -9,10 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ELfashih">
     <meta name="description" content="Aplikasi hafalan Al-Quran Juz 1 s.d. Juz 30">
-    <!-- Cache control — selalu ambil versi terbaru -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <!-- Cache dikelola oleh Service Worker (sw.js) -->
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
@@ -3109,17 +3106,22 @@ document.addEventListener('DOMContentLoaded', () => {
 // =============================================
 function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
-    // Unregister semua SW lama agar tidak serve cache stale
-    navigator.serviceWorker.getRegistrations().then(regs => {
-        regs.forEach(reg => reg.unregister());
-    });
     navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(r => {
-            console.log('[SW] OK:', r.scope);
-            // Force update jika ada SW baru
-            r.update();
+            console.log('[SW] Terdaftar:', r.scope);
+            // Cek update SW di background (tidak menghapus cache aktif)
+            r.update().catch(() => {});
+            // Kalau ada SW baru siap, aktif di reload berikutnya
+            r.addEventListener('updatefound', () => {
+                const newSW = r.installing;
+                newSW.addEventListener('statechange', () => {
+                    if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('[SW] Versi baru tersedia, aktif di reload berikutnya.');
+                    }
+                });
+            });
         })
-        .catch(e => console.warn('[SW] Gagal:', e));
+        .catch(e => console.warn('[SW] Gagal daftar:', e));
 }
 let deferredInstallPrompt = null;
 function initPWAInstall() {

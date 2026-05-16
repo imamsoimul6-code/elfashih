@@ -3867,7 +3867,7 @@ async function fetchFromProxy(apiPath) {
     const res = await fetch(backendUrl);
     if (!res.ok) throw new Error('Backend error: ' + res.status);
     return await res.json();
-}}
+}
 
 async function fetchFromNetwork() {
     const res1  = await fetch('/quran/juz/1');

@@ -2256,8 +2256,10 @@
     /* =============================================
        DESKTOP: bottom nav & drawer tersembunyi
     ============================================= */
+    @media (min-width: 769px) {
     #bottomNav         { display: none; }
     #moreDrawer        { display: none; }
+    }
     #moreDrawerOverlay { display: none !important; }
 
     /* =============================================
@@ -2431,15 +2433,21 @@
         border-color: rgba(13,138,122,0.35);
     }
 
-    /* ── BOTTOM NAV — Redesign (hanya styling, display diatur oleh media query) ── */
+    /* ── BOTTOM NAV — Redesign ── */
     @media (max-width: 768px) {
     #bottomNav {
+        display: flex !important;
         background: #ffffff !important;
         border-top: 1.5px solid rgba(184,144,42,0.14) !important;
         box-shadow: 0 -4px 20px rgba(0,0,0,0.07) !important;
         padding: 6px 4px max(env(safe-area-inset-bottom,0px),8px) !important;
         height: auto !important;
         min-height: 62px !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 510 !important;
     }
     }
     .bnav-btn {

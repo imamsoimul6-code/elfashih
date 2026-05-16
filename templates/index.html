@@ -2205,6 +2205,143 @@
     .quiz-hist-detail { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
     .quiz-hist-score { font-size: 18px; font-weight: 900; color: var(--accent-teal); }
 
+    /* =============================================
+       TOMBOL DUKUNG PENGEMBANG
+    ============================================= */
+    .support-banner {
+        margin: 0 16px 0;
+        background: linear-gradient(135deg, #fff9ec 0%, #fff3d6 100%);
+        border: 1.5px solid rgba(217,152,26,0.35);
+        border-radius: var(--radius-lg);
+        padding: 16px 18px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(217,152,26,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .support-banner::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        background: linear-gradient(90deg, var(--accent-gold), #f5a623, var(--accent-green));
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .support-banner-top {
+        display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+    }
+    .support-banner-icon {
+        width: 44px; height: 44px; border-radius: var(--radius-md); flex-shrink: 0;
+        background: linear-gradient(135deg, rgba(217,152,26,0.2), rgba(245,200,66,0.25));
+        border: 1.5px solid rgba(217,152,26,0.3);
+        display: flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .support-banner-text { flex: 1; min-width: 0; }
+    .support-banner-title {
+        font-size: 14px; font-weight: 800; color: #7a4e00;
+        margin-bottom: 2px;
+    }
+    .support-banner-sub {
+        font-size: 11px; color: #a06b00; line-height: 1.5;
+    }
+    .support-banner-btn {
+        width: 100%;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 20px; border-radius: 50px;
+        background: linear-gradient(135deg, var(--accent-gold) 0%, #e07b00 100%);
+        color: #fff; border: none; cursor: pointer;
+        font-size: 14px; font-weight: 800; font-family: var(--ui-font);
+        box-shadow: 0 4px 16px rgba(217,152,26,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
+        transition: all 0.2s; letter-spacing: 0.3px;
+    }
+    .support-banner-btn:hover { background: linear-gradient(135deg, #e8a41e 0%, #c06800 100%); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(217,152,26,0.55); }
+    .support-banner-btn:active { transform: translateY(0); }
+    .support-banner-btn svg { flex-shrink: 0; }
+
+    /* Modal Dukungan */
+    .support-modal-overlay {
+        display: none; position: fixed; inset: 0; z-index: 400;
+        background: rgba(0,0,0,0.55); align-items: flex-end; justify-content: center;
+        backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    }
+    .support-modal-overlay.visible { display: flex; }
+    .support-modal {
+        background: var(--bg-card); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        width: 100%; max-width: 560px; padding: 0 0 env(safe-area-inset-bottom,0);
+        max-height: 92vh; overflow-y: auto;
+        box-shadow: 0 -8px 40px rgba(0,0,0,0.25);
+        animation: slideUpModal 0.3s ease;
+    }
+    @keyframes slideUpModal { from { transform: translateY(40px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    .support-modal-handle {
+        width: 36px; height: 4px; border-radius: 2px;
+        background: var(--border); margin: 12px auto 0;
+    }
+    .support-modal-header {
+        text-align: center; padding: 18px 24px 8px;
+    }
+    .support-modal-emoji { font-size: 40px; line-height: 1; margin-bottom: 8px; }
+    .support-modal-title {
+        font-size: 18px; font-weight: 900; color: var(--text-primary); margin-bottom: 4px;
+    }
+    .support-modal-desc {
+        font-size: 12.5px; color: var(--text-muted); line-height: 1.7; padding: 0 8px;
+    }
+    .support-modal-body { padding: 16px 20px 24px; }
+    .support-option {
+        background: var(--bg-secondary); border: 1.5px solid var(--border);
+        border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 12px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .support-option:hover { border-color: var(--border-hover); box-shadow: 0 4px 16px rgba(14,145,128,0.1); }
+    .support-option-head {
+        display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .support-option-icon {
+        width: 36px; height: 36px; border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; flex-shrink: 0;
+    }
+    .support-option-icon.saweria { background: linear-gradient(135deg, rgba(255,126,95,0.2), rgba(254,180,123,0.2)); border: 1px solid rgba(255,126,95,0.25); }
+    .support-option-icon.bri { background: linear-gradient(135deg, rgba(0,100,200,0.12), rgba(0,140,255,0.1)); border: 1px solid rgba(0,100,200,0.2); }
+    .support-option-label {
+        font-size: 13px; font-weight: 800; color: var(--text-primary);
+    }
+    .support-option-sub {
+        font-size: 10px; color: var(--text-muted); margin-top: 1px;
+    }
+    .support-rekening-row {
+        display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 6px;
+    }
+    .support-rekening-label { font-size: 10px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.3px; }
+    .support-rekening-value { font-size: 15px; font-weight: 800; color: var(--text-primary); letter-spacing: 1px; }
+    .support-rekening-name { font-size: 11px; color: var(--accent-teal); font-weight: 700; }
+    .support-copy-btn {
+        background: var(--accent-teal); color: #fff; border: none;
+        padding: 7px 14px; border-radius: var(--radius-sm);
+        font-size: 11px; font-weight: 700; cursor: pointer;
+        font-family: var(--ui-font); transition: background 0.2s; white-space: nowrap; flex-shrink: 0;
+    }
+    .support-copy-btn:hover { background: var(--accent-teal-lt); }
+    .support-copy-btn.copied { background: var(--accent-green); }
+    .support-saweria-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%; padding: 13px; border-radius: var(--radius-md);
+        background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+        color: #fff; border: none; cursor: pointer;
+        font-size: 14px; font-weight: 800; font-family: var(--ui-font);
+        box-shadow: 0 4px 16px rgba(255,126,95,0.4);
+        transition: all 0.2s; text-decoration: none;
+    }
+    .support-saweria-btn:hover { background: linear-gradient(135deg, #ff6344 0%, #feb05e 100%); box-shadow: 0 6px 20px rgba(255,126,95,0.5); }
+    .support-modal-close {
+        display: block; width: calc(100% - 40px); margin: 0 20px 20px;
+        padding: 13px; border-radius: var(--radius-md);
+        background: var(--bg-secondary); border: 1px solid var(--border);
+        color: var(--text-secondary); font-size: 13px; font-weight: 700;
+        cursor: pointer; font-family: var(--ui-font); text-align: center; transition: all 0.2s;
+    }
+    .support-modal-close:hover { background: var(--bg-card); border-color: var(--border-hover); }
+
     /* Tanda overflow Juz 26 pada Juz 25 */
     .juz26-marker {
         display: inline-flex; align-items: center; gap: 5px;
@@ -7834,6 +7971,21 @@ function updateJuzSelectInfo() {
         </button>
     </div>
 
+    <!-- Dukung Pengembang -->
+    <div class="support-banner">
+        <div class="support-banner-top">
+            <div class="support-banner-icon">🤲</div>
+            <div class="support-banner-text">
+                <div class="support-banner-title">Dukung Pengembang elFashih</div>
+                <div class="support-banner-sub">Sumbangan Anda sangat berarti bagi pengembangan aplikasi ini. Jazakumullah! 🙏</div>
+            </div>
+        </div>
+        <button class="support-banner-btn" onclick="openSupportModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            Beri Dukungan
+        </button>
+    </div>
+
     <div class="dash-body">
         <!-- Greeting -->
         <div class="dash-greeting">
@@ -8040,6 +8192,63 @@ function updateJuzSelectInfo() {
         <div class="dash-schedule-list" id="dashScheduleList">
             <div class="dash-sched-empty">Belum ada jadwal untuk hari ini</div>
         </div>
+    </div>
+</div>
+
+<!-- Modal Dukung Pengembang -->
+<div class="support-modal-overlay" id="supportModalOverlay" onclick="if(event.target===this)closeSupportModal()">
+    <div class="support-modal">
+        <div class="support-modal-handle"></div>
+        <div class="support-modal-header">
+            <div class="support-modal-emoji">🤲</div>
+            <div class="support-modal-title">Dukung Pengembang elFashih</div>
+            <div class="support-modal-desc">
+                Sumbangan Anda sangat berarti bagi pengembangan aplikasi ini.<br>
+                <strong style="color:var(--accent-gold)">Jazakumullah Khairan Katsiran! 🙏</strong>
+            </div>
+        </div>
+        <div class="support-modal-body">
+
+            <!-- Opsi 1: Saweria -->
+            <div class="support-option">
+                <div class="support-option-head">
+                    <div class="support-option-icon saweria">🎁</div>
+                    <div>
+                        <div class="support-option-label">Saweria (Trakteer Online)</div>
+                        <div class="support-option-sub">Cara paling mudah & cepat</div>
+                    </div>
+                </div>
+                <a href="https://saweria.co/elFashih" target="_blank" rel="noopener noreferrer" class="support-saweria-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    Buka saweria.co/elFashih
+                </a>
+            </div>
+
+            <!-- Opsi 2: Transfer Bank BRI -->
+            <div class="support-option">
+                <div class="support-option-head">
+                    <div class="support-option-icon bri">🏦</div>
+                    <div>
+                        <div class="support-option-label">Transfer Bank BRI</div>
+                        <div class="support-option-sub">Tap nomor rekening untuk menyalin</div>
+                    </div>
+                </div>
+                <div class="support-rekening-row">
+                    <div>
+                        <div class="support-rekening-label">NOMOR REKENING BRI</div>
+                        <div class="support-rekening-value">6676 0102 9194 536</div>
+                        <div class="support-rekening-name">a.n. Imam Soimul Fajri</div>
+                    </div>
+                    <button class="support-copy-btn" id="copyRekBtn" onclick="copyRekening()">Salin</button>
+                </div>
+            </div>
+
+            <div style="background:rgba(71,126,16,0.07);border:1px solid rgba(71,126,16,0.18);border-radius:var(--radius-md);padding:12px 14px;font-size:12px;color:var(--text-muted);line-height:1.7;text-align:center;margin-top:4px">
+                <div style="font-weight:700;color:var(--accent-green);margin-bottom:4px">💚 Terima Kasih atas Dukungannya</div>
+                Setiap donasi akan digunakan untuk biaya server, pengembangan fitur baru, dan pemeliharaan aplikasi elFashih.
+            </div>
+        </div>
+        <button class="support-modal-close" onclick="closeSupportModal()">Tutup</button>
     </div>
 </div>
 
@@ -9065,6 +9274,43 @@ function closeBNavMore() {
     document.getElementById('moreDrawer').classList.remove('open');
     document.getElementById('moreDrawerOverlay').classList.remove('open');
     document.getElementById('bnavMore').classList.remove('active');
+}
+
+// =============================================
+// DUKUNG PENGEMBANG — MODAL
+// =============================================
+function openSupportModal() {
+    document.getElementById('supportModalOverlay').classList.add('visible');
+}
+function closeSupportModal() {
+    document.getElementById('supportModalOverlay').classList.remove('visible');
+}
+function copyRekening() {
+    const noRek = '667601029194536';
+    navigator.clipboard.writeText(noRek).then(() => {
+        const btn = document.getElementById('copyRekBtn');
+        btn.textContent = '✓ Tersalin!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = 'Salin';
+            btn.classList.remove('copied');
+        }, 2500);
+        showToast('✅ Nomor rekening berhasil disalin!');
+    }).catch(() => {
+        // Fallback untuk browser yang tidak support clipboard API
+        const el = document.createElement('textarea');
+        el.value = noRek;
+        el.style.position = 'fixed'; el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        const btn = document.getElementById('copyRekBtn');
+        btn.textContent = '✓ Tersalin!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Salin'; btn.classList.remove('copied'); }, 2500);
+        showToast('✅ Nomor rekening berhasil disalin!');
+    });
 }
 
 // Sync bottom nav view buttons with setViewMode

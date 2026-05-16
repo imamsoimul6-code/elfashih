@@ -5626,7 +5626,7 @@ function wordSim(a, b) {
 }
 
 // Cocokkan got-words ke exp-words, kembalikan {matched, totalSim}
-function matchWords(expWords, gotWords, threshold = 0.55) {
+function matchWords(expWords, gotWords, threshold = 0.60) {
     let matched = 0, totalSim = 0;
     const usedGot = new Set();
     for (const expW of expWords) {
@@ -5656,13 +5656,24 @@ function initSpeechRecognition() {
 
     recognition.onresult = (e) => {
         let finalText = '';
+        let hasInterim = false;
         for (let i = e.resultIndex; i < e.results.length; i++) {
             if (e.results[i].isFinal) {
                 // Ambil SEMUA alternatif, gabung, agar tidak ada kata yang luput
                 for (let k = 0; k < e.results[i].length; k++) {
                     finalText += e.results[i][k].transcript + ' ';
                 }
+            } else {
+                hasInterim = true;
             }
+        }
+
+        // Jika ada interim (user sedang bicara aktif), reset silence timer segera
+        // agar tidak ada alarm saat user masih membaca
+        if (hasInterim && !finalText.trim()) {
+            clearTimeout(_silenceTimer);
+            clearTimeout(_tasmiEvalTimer);
+            return;
         }
 
         if (!finalText.trim()) return;
@@ -5735,7 +5746,7 @@ function initSpeechRecognition() {
             const result = _accumulationSufficient(_tasmiAccum);
 
             if (result === 'pass') {
-                // Coverage sudah bagus — konfirmasi dalam 500ms agar tidak terlalu responsif
+                // Coverage sudah bagus — konfirmasi 300ms agar responsif tapi tidak prematur
                 _tasmiEvalTimer = setTimeout(() => {
                     if (!isTasmiMode || !_tasmiAccum) return;
                     const r2 = _accumulationSufficient(_tasmiAccum);
@@ -5746,39 +5757,37 @@ function initSpeechRecognition() {
                     } else {
                         // Coverage turun setelah kata baru masuk — evaluasi penuh
                         const now = Date.now();
-                        if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
+                        if (!_lastAlarmTime || now - _lastAlarmTime > 3000) {
                             _lastAlarmTime = now;
                             handleTasmiResult(_tasmiAccum);
                             _tasmiAccum = '';
                         }
                     }
-                }, 500);
+                }, 300);
 
             } else if (result === 'partial') {
                 // User masih membaca / akumulasi belum cukup.
-                // Jangan ganggu — pasang silence timer 4 detik.
+                // Pasang silence timer 3.5 detik — cukup sabar tapi tidak terlalu lama
                 _silenceTimer = setTimeout(() => {
                     if (!isTasmiMode || !_tasmiAccum) return;
                     const r2 = _accumulationSufficient(_tasmiAccum);
                     if (r2 === 'pass') {
-                        // Ternyata sudah pass saat silence
                         _tasmiAccum = '';
                         triggerCorrect();
                         setTimeout(() => advanceTasmi(), 150);
                     } else {
-                        // Masih partial/fail setelah diam lama → nudge halus
-                        // Jangan clear akumulasi agar user bisa lanjut
+                        // Masih partial/fail setelah diam → nudge halus
                         const now = Date.now();
-                        if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
+                        if (!_lastAlarmTime || now - _lastAlarmTime > 3000) {
                             _lastAlarmTime = now;
                             triggerNudge();
                         }
                     }
-                }, 4000);
+                }, 3500);
 
             } else {
                 // result === 'fail' — coverage cukup tapi kata tidak cocok.
-                // Beri 2.5 detik window untuk self-correct sebelum alarm.
+                // Beri 2 detik window untuk self-correct sebelum alarm.
                 _tasmiEvalTimer = setTimeout(() => {
                     if (!isTasmiMode || !_tasmiAccum) return;
                     const r2 = _accumulationSufficient(_tasmiAccum);
@@ -5789,14 +5798,14 @@ function initSpeechRecognition() {
                         setTimeout(() => advanceTasmi(), 150);
                         return;
                     }
-                    // Masih fail → alarm dengan cooldown 4 detik
+                    // Masih fail → alarm dengan cooldown 3 detik
                     const now = Date.now();
-                    if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
+                    if (!_lastAlarmTime || now - _lastAlarmTime > 3000) {
                         _lastAlarmTime = now;
                         _tasmiAccum = '';
                         triggerError();
                     }
-                }, 2500);
+                }, 2000);
             }
         }
     };
@@ -5895,8 +5904,10 @@ function _accumulationSufficient(transcript) {
     const { matched } = matchWords(expWords, gotWords);
     const coverage = matched / expWords.length;
 
-    if (coverage < 0.60) return 'partial';
-    if (coverage >= 0.70) return 'pass';
+    // Balanced: < 0.55 belum cukup kata, >= 0.65 sudah cukup benar,
+    // 0.55-0.65 = grey zone (fail) → beri window self-correct
+    if (coverage < 0.55) return 'partial';
+    if (coverage >= 0.65) return 'pass';
     return 'fail';
 }
 
@@ -5986,11 +5997,12 @@ function handleTasmiResult(transcript) {
     const shortAyah  = expWords.length <= 5;
     const avgSim     = matched ? totalSim / matched : 0;
 
-    // Threshold: ayat pendek (≤5 kata) → ≥60% & avgSim ≥60%;
-    //            ayat panjang          → ≥55% & avgSim ≥58%
+    // Threshold: ayat pendek (≤5 kata) → ≥65% & avgSim ≥62%;
+    //            ayat panjang          → ≥60% & avgSim ≥60%
+    // Seimbang: tidak mudah alarm tapi kesalahan nyata tetap terdeteksi
     const passed = shortAyah
-        ? (matchRatio >= 0.60 && avgSim >= 0.60)
-        : (matchRatio >= 0.55 && avgSim >= 0.58);
+        ? (matchRatio >= 0.65 && avgSim >= 0.62)
+        : (matchRatio >= 0.60 && avgSim >= 0.60);
 
     showTasmiDebug(normalizeArabic(transcript), expWords, gotWords, matched, matchRatio * expWords.length | 0, avgSim, passed, false);
 
@@ -5998,9 +6010,9 @@ function handleTasmiResult(transcript) {
         triggerCorrect();
         setTimeout(() => advanceTasmi(), 150);
     } else {
-        // Alarm hanya jika cooldown sudah lewat (4 detik) agar tidak bertubi-tubi
+        // Alarm hanya jika cooldown sudah lewat (3 detik) agar tidak bertubi-tubi
         const now = Date.now();
-        if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
+        if (!_lastAlarmTime || now - _lastAlarmTime > 3000) {
             _lastAlarmTime = now;
             triggerError();
         }

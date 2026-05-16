@@ -1039,7 +1039,7 @@
         border: 1px solid rgba(71,126,16,0.12);
         border-top: 1px solid rgba(14,145,128,0.20);
         border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-        padding: 24px; width: 100%; max-width: 520px;
+        padding: 24px 24px calc(65px + env(safe-area-inset-bottom,0)) 24px; width: 100%; max-width: 520px;
         max-height: 85vh; overflow-y: auto;
         box-shadow: 0 -10px 50px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.95);
     }
@@ -8795,7 +8795,7 @@ function updateJuzSelectInfo() {
                 </div>
                 <div>
                     <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Mode Cepat (Hafidz)</div>
-                    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4">Untuk yang membaca tanpa jeda panjang antar ayat. Evaluasi langsung tiap segment. <b style="color:var(--accent-teal)">Aktif</b>: alarm hanya saat bacaan jelas salah (cooldown 3 detik); jika "stuck" terlalu lama → nudge lembut. <b style="color:var(--text-secondary)">Nonaktif (Normal)</b>: tunggu coverage cukup dulu baru evaluasi — lebih sabar, alarm hanya kalau jelas salah setelah jeda 2.5 detik, nudge setelah diam 4 detik.</div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4">Evaluasi langsung tiap segment tanpa jeda panjang.</div>
                 </div>
             </label>
         </div>

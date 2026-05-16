@@ -2567,6 +2567,117 @@
         text-align: center; font-weight: 600;
     }
     #guestBanner.show { display: block; }
+
+    /* =============================================
+       LOGIN PAGE — INSTALL BUTTON
+    ============================================= */
+    .login-install-btn {
+        display: none; /* shown via JS when prompt available */
+        width: 100%; padding: 11px 14px; margin-top: 16px;
+        border: 1.5px solid rgba(14,145,128,0.45);
+        border-radius: var(--radius-md);
+        background: rgba(14,145,128,0.10);
+        color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 700;
+        font-family: var(--ui-font); cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: all 0.2s;
+    }
+    .login-install-btn:hover { background: rgba(14,145,128,0.18); color: #fff; }
+    .login-install-btn.hide { display: none !important; }
+
+    /* =============================================
+       TUTORIAL OVERLAY
+    ============================================= */
+    #tutorialOverlay {
+        position: fixed; inset: 0; z-index: 8000;
+        background: rgba(0,0,0,0.72);
+        display: flex; align-items: flex-end; justify-content: center;
+        padding: 0; backdrop-filter: blur(3px);
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    #tutorialOverlay.visible {
+        opacity: 1; pointer-events: all;
+    }
+    .tutorial-card {
+        background: linear-gradient(160deg, #ffffff 0%, #f0f5ef 100%);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        border-top: 2px solid var(--accent-teal);
+        width: 100%; max-width: 520px;
+        padding: 20px 22px calc(72px + env(safe-area-inset-bottom,0)) 22px;
+        max-height: 70vh; overflow-y: auto;
+        box-shadow: 0 -12px 40px rgba(0,0,0,0.25);
+        transform: translateY(30px);
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+    #tutorialOverlay.visible .tutorial-card {
+        transform: translateY(0);
+    }
+    .tutorial-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: linear-gradient(135deg, rgba(14,145,128,0.12), rgba(71,126,16,0.10));
+        border: 1px solid rgba(14,145,128,0.25);
+        border-radius: 20px; padding: 4px 12px;
+        font-size: 10px; font-weight: 800; color: var(--accent-teal);
+        text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 12px;
+    }
+    .tutorial-icon {
+        font-size: 40px; margin-bottom: 10px; display: block;
+        line-height: 1;
+    }
+    .tutorial-title {
+        font-size: 17px; font-weight: 900; color: var(--text-primary);
+        margin-bottom: 8px; line-height: 1.3;
+    }
+    .tutorial-desc {
+        font-size: 13px; color: var(--text-secondary); line-height: 1.75;
+        margin-bottom: 16px;
+    }
+    .tutorial-tips {
+        display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;
+    }
+    .tutorial-tip {
+        display: flex; align-items: flex-start; gap: 10px;
+        background: var(--bg-secondary); border: 1px solid var(--border);
+        border-radius: var(--radius-md); padding: 10px 12px;
+        font-size: 12px; color: var(--text-secondary); line-height: 1.6;
+    }
+    .tutorial-tip-icon {
+        font-size: 16px; flex-shrink: 0; line-height: 1.4;
+    }
+    .tutorial-btn-row {
+        display: flex; gap: 8px;
+    }
+    .tutorial-btn-ok {
+        flex: 1; padding: 13px; border: none; border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-teal) 100%);
+        color: #fff; font-size: 14px; font-weight: 800;
+        font-family: var(--ui-font); cursor: pointer;
+        box-shadow: 0 4px 16px rgba(14,145,128,0.35);
+        transition: all 0.2s;
+    }
+    .tutorial-btn-ok:hover { opacity: 0.9; }
+    .tutorial-close {
+        position: absolute; top: 16px; right: 16px;
+        width: 28px; height: 28px; border-radius: 50%;
+        background: var(--bg-secondary); border: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: var(--text-muted); font-size: 14px;
+        font-family: var(--ui-font); font-weight: 700;
+    }
+    .tutorial-step-dots {
+        display: flex; gap: 5px; justify-content: center; margin-bottom: 16px;
+    }
+    .tutorial-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: var(--border);
+        transition: background 0.2s, width 0.2s;
+    }
+    .tutorial-dot.active {
+        background: var(--accent-teal); width: 18px; border-radius: 3px;
+    }
 </style>
 
 <script defer>
@@ -8143,6 +8254,11 @@ function updateJuzSelectInfo() {
         <button class="login-btn-guest" onclick="doLoginGuest()">
             <i class="fa-solid fa-user-secret" style="margin-right:6px"></i> Lanjut sebagai Tamu
         </button>
+
+        <button class="login-install-btn hide" id="loginInstallBtn" onclick="doLoginInstall()">
+            <i class="fa-solid fa-download"></i>
+            Pasang ELfashih ke HP (Offline)
+        </button>
     </div>
 
     <div class="login-credit">
@@ -8984,8 +9100,16 @@ function updateJuzSelectInfo() {
             <button class="modal-close" onclick="closeTasmiModal()">&times;</button>
         </div>
         <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Pilih titik mulai setoran, atau ketuk langsung ayatnya di mushaf.</p>
-        <button class="from-mushaf-btn" style="margin-bottom:14px;padding:10px" onclick="activateSelectMode('tasmi')">
-            <i class="fa-solid fa-hand-pointer"></i> Ketuk Ayat dari Mushaf
+        <button onclick="activateSelectMode('tasmi')" style="
+            display:flex;align-items:center;justify-content:center;gap:8px;
+            width:100%;margin-bottom:14px;padding:12px;
+            background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%);
+            border:none;border-radius:var(--radius-md);cursor:pointer;
+            color:#fff;font-size:14px;font-weight:900;font-family:var(--ui-font);
+            letter-spacing:0.3px;box-shadow:0 4px 16px rgba(231,76,60,0.40);
+            transition:all 0.2s;">
+            <i class="fa-solid fa-hand-pointer" style="font-size:16px"></i>
+            👆 KETUK AYAT DARI MUSHAF
         </button>
         <div class="modal-grid-2">
             <div>
@@ -9029,21 +9153,25 @@ function updateJuzSelectInfo() {
 
         <!-- Peringatan sebelum mulai -->
         <div style="
-            background: linear-gradient(135deg, rgba(217,152,26,0.10) 0%, rgba(14,145,128,0.07) 100%);
-            border: 1px solid rgba(217,152,26,0.35);
+            background: linear-gradient(135deg, rgba(180,20,20,0.08) 0%, rgba(217,152,26,0.10) 100%);
+            border: 2px solid rgba(180,20,20,0.50);
             border-radius: var(--radius-md);
-            padding: 12px 14px;
+            padding: 14px 16px;
             margin-bottom: 14px;
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
         ">
-            <span style="font-size:18px;line-height:1;flex-shrink:0;margin-top:1px">⚠️</span>
-            <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.7">
-                <div style="font-weight:700;color:var(--accent-gold);margin-bottom:4px;font-size:12px">Perhatian sebelum memulai</div>
-                Mode Tasmi ini hanya alat bantu dan <strong>masih memiliki banyak kekurangan</strong> —
-                lebih utama dan lebih baik setor langsung kepada Guru / Ustadz.<br>
-                <span style="color:var(--accent-teal);font-weight:600">Bacalah dengan nada pelan, tenang, dan jelas.</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+                <span style="font-size:20px;line-height:1">⚠️</span>
+                <span style="font-size:13px;font-weight:900;color:#b41414;letter-spacing:0.2px;text-transform:uppercase">Perhatian !</span>
+            </div>
+            <div style="font-size:12.5px;color:#1a1a1a;line-height:1.85;font-weight:500">
+                Mode Tasmi' ini hanya <strong style="color:#b41414">alat bantu sederhana</strong>,
+                masih dalam tahap <strong style="color:#b41414">PENGEMBANGAN</strong>,
+                sistem <strong style="color:#b41414">KOREKSI</strong> hafalan masih sangat
+                <strong style="color:#b41414">LEMAH</strong> —
+                lebih utama setor langsung ke <strong style="color:#1a6b40">Guru / Ustadz</strong>.<br><br>
+                <span style="font-size:13px;font-weight:900;color:#b41414;letter-spacing:0.3px">
+                    🔊 Untuk hasil terbaik, bacalah dengan PELAN dan JELAS !
+                </span>
             </div>
         </div>
 
@@ -9637,13 +9765,16 @@ function _applyUser(userObj) {
     if (lbl) {
         if (userObj.type === 'guest') lbl.textContent = 'Tamu';
         else {
-            // Show short id: first part before @ or last 4 digits
             const short = userObj.id.includes('@')
                 ? userObj.id.split('@')[0].slice(0, 10)
                 : userObj.id.slice(-4);
             lbl.textContent = short;
         }
     }
+    // Show welcome tutorial on first login
+    setTimeout(() => {
+        if (typeof showTutorial === 'function') showTutorial('welcome');
+    }, 600);
 }
 
 // Redirect all elfashih_* storage reads/writes to user-namespaced keys
@@ -9756,6 +9887,364 @@ function logoutUser() {
     }
     // else: login page stays visible (it's already in the DOM)
 })();
+</script>
+
+
+<!-- =============================================
+     TUTORIAL OVERLAY
+============================================= -->
+<div id="tutorialOverlay" onclick="tutorialOverlayClick(event)">
+    <div class="tutorial-card" id="tutorialCard">
+        <div class="tutorial-close" onclick="closeTutorial()">✕</div>
+        <div class="tutorial-badge" id="tutorialBadge">
+            <i class="fa-solid fa-circle-info"></i> Panduan
+        </div>
+        <span class="tutorial-icon" id="tutorialIcon">📖</span>
+        <div class="tutorial-step-dots" id="tutorialDots"></div>
+        <div class="tutorial-title" id="tutorialTitle">Judul Tutorial</div>
+        <div class="tutorial-desc" id="tutorialDesc">Deskripsi.</div>
+        <div class="tutorial-tips" id="tutorialTips"></div>
+        <div class="tutorial-btn-row">
+            <button class="tutorial-btn-ok" id="tutorialNextBtn" onclick="tutorialNext()">
+                Mengerti, Lanjutkan →
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+// =============================================
+// TUTORIAL SYSTEM
+// =============================================
+const TUTORIAL_KEY = 'elfashih_tutorials_seen';
+
+function _getTutorialsSeen() {
+    try { return JSON.parse(localStorage.getItem(TUTORIAL_KEY) || '[]'); } catch { return []; }
+}
+function _markTutorialSeen(id) {
+    const seen = _getTutorialsSeen();
+    if (!seen.includes(id)) { seen.push(id); localStorage.setItem(TUTORIAL_KEY, JSON.stringify(seen)); }
+}
+function _isTutorialSeen(id) {
+    return _getTutorialsSeen().includes(id);
+}
+
+// Tutorial definitions: id, icon, badge, title, desc, tips[], multiStep?
+const TUTORIALS = {
+    welcome: {
+        id: 'welcome',
+        steps: [
+            {
+                icon: '🌟',
+                badge: 'Selamat Datang',
+                title: 'Selamat Datang di ELfashih!',
+                desc: 'ELfashih adalah teman hafalan Al-Qur'an Juz 1–30. Semua fitur dirancang untuk memudahkan perjalanan hafalan Anda.',
+                tips: [
+                    { icon: '📖', text: '<b>Mushaf</b> — Baca & dengarkan Al-Qur'an mushaf digital dengan tampilan halaman asli.' },
+                    { icon: '✅', text: '<b>Hafalan</b> — Tandai ayat Belum / Proses / Lancar dan pantau progress Anda.' },
+                    { icon: '🎙️', text: '<b>Setor</b> — Latih hafalan dengan deteksi suara otomatis.' },
+                    { icon: '🔁', text: '<b>Ulang</b> — Loop ayat tertentu untuk memperkuat hafalan.' },
+                ]
+            },
+            {
+                icon: '🗂️',
+                badge: 'Navigasi',
+                title: 'Cara Menggunakan Navigasi',
+                desc: 'Gunakan menu bawah untuk berpindah antar fitur utama. Tombol "Lainnya" membuka fitur tambahan seperti Quiz, Murojaah, dan Rekam.',
+                tips: [
+                    { icon: '🏠', text: '<b>Home</b> — Dashboard ringkasan progress dan statistik harian.' },
+                    { icon: '📗', text: '<b>Mushaf</b> — Tampilan mushaf per halaman, navigasi Juz.' },
+                    { icon: '▶️', text: '<b>Putar</b> — Kontrol audio murattal langsung dari sini.' },
+                    { icon: '⋯', text: '<b>Lainnya</b> — Quiz, Jadwal, Murojaah, Rekam, dan pengaturan.' },
+                ]
+            }
+        ]
+    },
+    mushaf: {
+        id: 'mushaf',
+        icon: '📖',
+        badge: 'Fitur Mushaf',
+        title: 'Mushaf Digital',
+        desc: 'Tampilan mushaf Utsmani asli. Geser kiri/kanan untuk ganti halaman, atau pilih Juz dari tab atas.',
+        tips: [
+            { icon: '👆', text: '<b>Ketuk ayat</b> — Putar audio ayat tersebut dari qari pilihan Anda.' },
+            { icon: '🔡', text: '<b>Mode Digital</b> — Tampilan teks Arab per ayat dengan terjemahan.' },
+            { icon: '🙈', text: '<b>Mode Hafalan</b> — Sembunyikan teks untuk latihan murni.' },
+            { icon: '🔖', text: '<b>Kertas</b> — Tampilan kertas untuk nuansa membaca klasik.' },
+        ]
+    },
+    hafalan: {
+        id: 'hafalan',
+        icon: '✅',
+        badge: 'Fitur Hafalan',
+        title: 'Progress Hafalan',
+        desc: 'Catat status hafalan setiap ayat: Belum, Proses, atau Lancar. Data tersimpan per akun Anda.',
+        tips: [
+            { icon: '⬜', text: '<b>Belum</b> — Ayat belum pernah dihafal.' },
+            { icon: '🔶', text: '<b>Proses</b> — Sedang dalam proses menghafal, belum lancar.' },
+            { icon: '✅', text: '<b>Lancar</b> — Sudah hafal dengan lancar.' },
+            { icon: '📊', text: 'Pantau statistik per Juz dan keseluruhan di halaman Progress.' },
+        ]
+    },
+    setor: {
+        id: 'setor',
+        icon: '🎙️',
+        badge: 'Fitur Setor Hafalan',
+        title: 'Setor Hafalan (Tasmi')',
+        desc: 'Baca ayat dengan lantang, sistem akan mendeteksi dan mengevaluasi bacaan Anda secara otomatis.',
+        tips: [
+            { icon: '🟢', text: '<b>Hijau</b> — Bacaan benar, otomatis lanjut ke ayat berikutnya.' },
+            { icon: '🔴', text: '<b>Alarm merah</b> — Terdeteksi kesalahan, ulangi bacaan.' },
+            { icon: '🐌', text: '<b>Baca pelan & jelas</b> — Mikrofon lebih mudah menangkap bacaan yang jelas.' },
+            { icon: '⚡', text: '<b>Mode Cepat</b> — Aktifkan untuk hafidz yang membaca tanpa jeda panjang.' },
+        ]
+    },
+    ulang: {
+        id: 'ulang',
+        icon: '🔁',
+        badge: 'Fitur Ulang / Loop',
+        title: 'Loop & Ulang Ayat',
+        desc: 'Putar ulang satu ayat atau rentang ayat tertentu secara otomatis untuk membantu hafalan.',
+        tips: [
+            { icon: '🎯', text: '<b>Pilih rentang</b> — Tentukan dari ayat mana sampai ayat mana yang ingin diulang.' },
+            { icon: '🔢', text: '<b>Jumlah ulang</b> — Atur berapa kali tiap ayat diulang (1–10x).' },
+            { icon: '👁️', text: '<b>Ketuk dari Mushaf</b> — Pilih langsung dengan mengetuk ayat di halaman mushaf.' },
+        ]
+    },
+    quiz: {
+        id: 'quiz',
+        icon: '🧠',
+        badge: 'Fitur Quiz',
+        title: 'Quiz Hafalan',
+        desc: 'Uji hafalan Anda dengan sistem quiz acak. Cocok untuk evaluasi mandiri sebelum setor ke guru.',
+        tips: [
+            { icon: '❓', text: 'Sistem menampilkan awal ayat, Anda melanjutkan hafalan secara lisan atau mental.' },
+            { icon: '📈', text: 'Skor tersimpan per akun dan bisa dilihat riwayatnya.' },
+            { icon: '🎲', text: 'Ayat dipilih secara acak dari Juz yang Anda pilih.' },
+        ]
+    },
+    murojaah: {
+        id: 'murojaah',
+        icon: '🔄',
+        badge: 'Fitur Murojaah',
+        title: 'Jadwal Murojaah',
+        desc: 'Sistem pengulangan terjadwal agar hafalan tidak mudah lupa. Murojaah otomatis mengingatkan Anda.',
+        tips: [
+            { icon: '📅', text: 'Atur jadwal murojaah harian atau mingguan per Juz.' },
+            { icon: '🔔', text: 'Notifikasi pengingat muncul saat waktunya murojaah.' },
+            { icon: '✨', text: 'Sistem Leitner Box — ayat yang sering lupa lebih sering muncul.' },
+        ]
+    },
+    rekam: {
+        id: 'rekam',
+        icon: '🔴',
+        badge: 'Fitur Rekam',
+        title: 'Rekam Bacaan',
+        desc: 'Rekam bacaan Anda sendiri untuk didengarkan kembali dan dievaluasi secara mandiri.',
+        tips: [
+            { icon: '🎙️', text: 'Tekan rekam, baca ayat, tekan stop — rekaman tersimpan otomatis.' },
+            { icon: '▶️', text: 'Putar ulang rekaman untuk mendengar kualitas bacaan Anda.' },
+            { icon: '🗑️', text: 'Hapus rekaman yang tidak diperlukan untuk hemat penyimpanan.' },
+        ]
+    },
+    jadwal: {
+        id: 'jadwal',
+        icon: '🔔',
+        badge: 'Fitur Jadwal',
+        title: 'Jadwal & Pengingat',
+        desc: 'Atur jadwal hafalan harian dan dapatkan notifikasi pengingat agar tidak terlewat.',
+        tips: [
+            { icon: '⏰', text: 'Pilih waktu dan target hafalan (Juz atau rentang ayat).' },
+            { icon: '📲', text: 'Izinkan notifikasi agar pengingat bisa muncul tepat waktu.' },
+            { icon: '📆', text: 'Jadwal tersimpan per akun dan sinkron antar sesi.' },
+        ]
+    },
+    progress: {
+        id: 'progress',
+        icon: '📊',
+        badge: 'Fitur Progress',
+        title: 'Progress & Statistik',
+        desc: 'Pantau seberapa jauh perjalanan hafalan Anda. Lihat per Juz, per Surah, atau keseluruhan.',
+        tips: [
+            { icon: '📈', text: 'Grafik progress menampilkan persentase Lancar, Proses, dan Belum.' },
+            { icon: '🏆', text: 'Streak harian — konsistensi adalah kunci hafalan kuat.' },
+            { icon: '🗓️', text: 'Lihat riwayat aktivitas dan pencapaian Anda setiap hari.' },
+        ]
+    },
+};
+
+let _tutorialCurrentDef = null;
+let _tutorialCurrentStep = 0;
+
+function showTutorial(id, force) {
+    if (!force && _isTutorialSeen(id)) return;
+    const def = TUTORIALS[id];
+    if (!def) return;
+    _tutorialCurrentDef = def;
+    _tutorialCurrentStep = 0;
+    _renderTutorialStep();
+    _markTutorialSeen(id);
+    const ov = document.getElementById('tutorialOverlay');
+    if (ov) { ov.classList.add('visible'); }
+}
+
+function _renderTutorialStep() {
+    const def = _tutorialCurrentDef;
+    if (!def) return;
+    // Multi-step (welcome) or single
+    const isMulti = !!def.steps;
+    const step = isMulti ? def.steps[_tutorialCurrentStep] : def;
+    const totalSteps = isMulti ? def.steps.length : 1;
+
+    document.getElementById('tutorialIcon').textContent = step.icon;
+    document.getElementById('tutorialBadge').innerHTML =
+        '<i class="fa-solid fa-circle-info"></i> ' + step.badge;
+    document.getElementById('tutorialTitle').textContent = step.title;
+    document.getElementById('tutorialDesc').textContent = step.desc;
+
+    // Tips
+    const tipsEl = document.getElementById('tutorialTips');
+    tipsEl.innerHTML = (step.tips || []).map(t =>
+        `<div class="tutorial-tip"><span class="tutorial-tip-icon">${t.icon}</span><span>${t.text}</span></div>`
+    ).join('');
+
+    // Step dots
+    const dotsEl = document.getElementById('tutorialDots');
+    if (totalSteps > 1) {
+        dotsEl.innerHTML = Array.from({length: totalSteps}, (_, i) =>
+            `<div class="tutorial-dot${i === _tutorialCurrentStep ? ' active' : ''}"></div>`
+        ).join('');
+        dotsEl.style.display = 'flex';
+    } else {
+        dotsEl.style.display = 'none';
+    }
+
+    // Button label
+    const nextBtn = document.getElementById('tutorialNextBtn');
+    const isLast = !isMulti || _tutorialCurrentStep === totalSteps - 1;
+    nextBtn.textContent = isLast ? 'Mengerti! Mulai →' : 'Lanjut →';
+}
+
+function tutorialNext() {
+    const def = _tutorialCurrentDef;
+    if (!def) return closeTutorial();
+    const isMulti = !!def.steps;
+    const totalSteps = isMulti ? def.steps.length : 1;
+    if (isMulti && _tutorialCurrentStep < totalSteps - 1) {
+        _tutorialCurrentStep++;
+        _renderTutorialStep();
+    } else {
+        closeTutorial();
+    }
+}
+
+function closeTutorial() {
+    const ov = document.getElementById('tutorialOverlay');
+    if (ov) ov.classList.remove('visible');
+    _tutorialCurrentDef = null;
+    _tutorialCurrentStep = 0;
+}
+
+function tutorialOverlayClick(e) {
+    if (e.target === document.getElementById('tutorialOverlay')) closeTutorial();
+}
+
+// ── Hook tutorials into feature open functions ──
+// We wrap after DOM loaded so original functions exist
+document.addEventListener('DOMContentLoaded', () => {
+    // Welcome tutorial — show after login
+    // Triggered by _applyUser when user first logs in (see auth system)
+
+    // Patch feature openers
+    const _origOpenJuz = window.openJuz;
+    window.openJuz = function(...args) {
+        const r = _origOpenJuz && _origOpenJuz.apply(this, args);
+        setTimeout(() => showTutorial('mushaf'), 400);
+        return r;
+    };
+
+    const _origOpenProgressModal = window.openProgressModal;
+    window.openProgressModal = function(...args) {
+        const r = _origOpenProgressModal && _origOpenProgressModal.apply(this, args);
+        setTimeout(() => showTutorial('progress'), 300);
+        return r;
+    };
+
+    const _origOpenTasmiModal = window.openTasmiModal;
+    window.openTasmiModal = function(...args) {
+        const r = _origOpenTasmiModal && _origOpenTasmiModal.apply(this, args);
+        setTimeout(() => showTutorial('setor'), 300);
+        return r;
+    };
+
+    const _origOpenLoopModal = window.openLoopModal;
+    window.openLoopModal = function(...args) {
+        const r = _origOpenLoopModal && _origOpenLoopModal.apply(this, args);
+        setTimeout(() => showTutorial('ulang'), 300);
+        return r;
+    };
+
+    const _origOpenQuizView = window.openQuizView;
+    window.openQuizView = function(...args) {
+        const r = _origOpenQuizView && _origOpenQuizView.apply(this, args);
+        setTimeout(() => showTutorial('quiz'), 400);
+        return r;
+    };
+
+    const _origOpenMurojaahView = window.openMurojaahView;
+    window.openMurojaahView = function(...args) {
+        const r = _origOpenMurojaahView && _origOpenMurojaahView.apply(this, args);
+        setTimeout(() => showTutorial('murojaah'), 400);
+        return r;
+    };
+
+    const _origOpenRecordModal = window.openRecordModal;
+    window.openRecordModal = function(...args) {
+        const r = _origOpenRecordModal && _origOpenRecordModal.apply(this, args);
+        setTimeout(() => showTutorial('rekam'), 300);
+        return r;
+    };
+
+    const _origOpenScheduleModal = window.openScheduleModal;
+    window.openScheduleModal = function(...args) {
+        const r = _origOpenScheduleModal && _origOpenScheduleModal.apply(this, args);
+        setTimeout(() => showTutorial('jadwal'), 300);
+        return r;
+    };
+});
+
+// ── Hafalan tutorial: triggered when hafalan modal or tab is opened ──
+// We listen to a click on "bnavHafalan" bottom nav
+document.addEventListener('DOMContentLoaded', () => {
+    const hNav = document.getElementById('bnavHafalan');
+    if (hNav) {
+        hNav.addEventListener('click', () => setTimeout(() => showTutorial('hafalan'), 500));
+    }
+});
+
+// ── Install button on login page ──
+function doLoginInstall() {
+    if (window.deferredInstallPrompt) {
+        window.deferredInstallPrompt.prompt();
+        window.deferredInstallPrompt.userChoice.then(c => {
+            if (c.outcome === 'accepted') {
+                document.getElementById('loginInstallBtn').classList.add('hide');
+            }
+        });
+    }
+}
+
+// Show install btn on login page if prompt available
+window.addEventListener('beforeinstallprompt', (e) => {
+    // (original handler in initPWAInstall also fires — that's fine)
+    const btn = document.getElementById('loginInstallBtn');
+    if (btn) btn.classList.remove('hide');
+});
+window.addEventListener('appinstalled', () => {
+    const btn = document.getElementById('loginInstallBtn');
+    if (btn) btn.classList.add('hide');
+});
 </script>
 
 </body>

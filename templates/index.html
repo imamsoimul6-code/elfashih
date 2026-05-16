@@ -1493,12 +1493,12 @@
     ============================================= */
     #dashboardView {
         display: none;
-        position: fixed; inset: 0;
+        position: fixed; top: 0; left: 0; right: 0; bottom: 62px;
         background: var(--bg-primary);
         z-index: 40;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 30px;
+        padding-bottom: 16px;
     }
     #dashboardView.active { display: block; }
 
@@ -1756,8 +1756,8 @@
         background: rgba(255,255,255,0.04); border-radius: var(--radius-sm);
     }
 
-    /* Dashboard body bottom padding — clear nav (62px) + audio bar */
-    .dash-body { padding: 16px 16px 140px; max-width: 600px; margin: 0 auto; }
+    /* Dashboard body bottom padding — clear audio bar */
+    .dash-body { padding: 16px 16px 100px; max-width: 600px; margin: 0 auto; }
 
     /* Topbar button modernized icons */
     .top-btn svg { pointer-events: none; }
@@ -2254,9 +2254,9 @@
     }
 
     /* =============================================
-       BOTTOM NAV — selalu tampil di semua ukuran layar
+       BOTTOM NAV: selalu tampil
     ============================================= */
-    /* Hapus hide desktop — nav dikelola via inline style */
+    /* @media min-width dihapus — nav tampil di semua ukuran */
     #moreDrawerOverlay { display: none !important; }
 
     /* =============================================
@@ -2270,9 +2270,9 @@
     .topbar-surah-name { display: none !important; }
     .topbar-surah-info { display: none !important; }
 
-    /* Topbar actions tetap tersembunyi (ada di drawer), toolbar tampil */
+    /* Sembunyikan topbar-actions & toolbar — pindah ke bottom nav */
     .topbar-actions { display: none !important; }
-    /* toolbar tampil agar tombol play dll bisa diakses */
+    .toolbar        { display: none !important; }
 
     /* Audio player naik 56px beri ruang bottom nav */
     .audio-player {
@@ -2295,20 +2295,18 @@
     #mushafView   { padding-bottom: 130px !important; }
     .dash-body    { padding-bottom: 130px !important; }
 
-    /* Bottom nav muncul di semua ukuran — z-index sangat tinggi */
+    /* Bottom nav muncul di mobile — z-index 200 di atas segalanya */
     #bottomNav {
         display: flex !important;
-        position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
-        height: auto !important; min-height: 56px !important;
-        background: #ffffff !important;
-        border-top: 1px solid rgba(14,145,128,0.15) !important;
-        align-items: center !important;
-        justify-content: space-around !important;
-        z-index: 9500 !important;
-        padding: 0 4px env(safe-area-inset-bottom, 0px) !important;
-        box-shadow: 0 -3px 20px rgba(71,126,16,0.09) !important;
-        width: 100% !important;
-        visibility: visible !important;
+        position: fixed; bottom: 0; left: 0; right: 0;
+        height: 56px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(240,245,239,0.99) 100%);
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border-top: 1px solid rgba(14,145,128,0.15);
+        align-items: stretch;
+        z-index: 510;
+        padding: 0 4px env(safe-area-inset-bottom, 0px);
+        box-shadow: 0 -3px 20px rgba(71,126,16,0.09), inset 0 1px 0 rgba(255,255,255,0.95);
     }
     #moreDrawer { display: block !important; }
 
@@ -2353,7 +2351,7 @@
         font-weight: 700;
         line-height: 1.3;
     }
-    /* Topbar actions tetap di drawer */
+    /* Topbar actions — hide on mobile, moved to drawer */
     .topbar-actions { display: none !important; }
 
     /* ── JUZ TABS — Redesign ── */
@@ -2432,7 +2430,8 @@
         border-color: rgba(13,138,122,0.35);
     }
 
-    /* ── BOTTOM NAV — selalu tampil, z-index tertinggi ── */
+    /* ── BOTTOM NAV — Redesign ── */
+    @media (max-width: 768px) {
     #bottomNav {
         display: flex !important;
         background: #ffffff !important;
@@ -2445,12 +2444,8 @@
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
-        width: 100% !important;
-        z-index: 9500 !important;
-        align-items: center !important;
-        justify-content: space-around !important;
-        visibility: visible !important;
-        opacity: 1 !important;
+        z-index: 510 !important;
+    }
     }
     .bnav-btn {
         display: flex;
@@ -2994,17 +2989,24 @@
     .dash-body { padding: 0 0 20px; }
     .dash-body .dash-section-title { margin-top: 18px; }
 
-    /* ── LOGIN SCREEN — jaga dark theme, jangan override ke warna terang ── */
+    /* ── LOGIN SCREEN ── */
+    #loginContainer, .login-card {
+        background: var(--bg-primary) !important;
+    }
+    .login-card {
+        border: 1px solid rgba(184,144,42,0.15) !important;
+        box-shadow: var(--shadow-card) !important;
+    }
     .login-btn-google {
-        background: rgba(255,255,255,0.12) !important;
-        border: 1.5px solid rgba(255,255,255,0.2) !important;
-        color: #fff !important;
+        background: #fff !important;
+        border: 1.5px solid rgba(184,144,42,0.2) !important;
         font-weight: 800 !important;
+        box-shadow: var(--shadow-card) !important;
     }
     .login-btn-guest {
-        background: rgba(255,255,255,0.06) !important;
-        border: 1.5px solid rgba(255,255,255,0.14) !important;
-        color: rgba(255,255,255,0.7) !important;
+        background: rgba(45,106,31,0.07) !important;
+        border: 1.5px solid rgba(45,106,31,0.2) !important;
+        color: var(--accent-green) !important;
         font-weight: 800 !important;
     }
 
@@ -3363,9 +3365,9 @@ async function startCacheDownload() {
     const pctEl  = document.getElementById('cachePctText');
     const statEl = document.getElementById('cacheStatusText');
     const steps  = [
-        { juz: 1, url: '/quran/juz/1', label: 'Juz 1 — Al-Fatihah & Al-Baqarah...' },
-        { juz: 2, url: '/quran/juz/2', label: 'Juz 2 — Al-Baqarah 142–252...' },
-        { juz: 3, url: '/quran/juz/3', label: 'Juz 3 — Al-Baqarah & Ali Imran 1–91...' },
+        { juz: 1, url: 'https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F1%2Fquran-uthmani', label: 'Juz 1 — Al-Fatihah & Al-Baqarah...' },
+        { juz: 2, url: 'https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F2%2Fquran-uthmani', label: 'Juz 2 — Al-Baqarah 142–252...' },
+        { juz: 3, url: 'https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F3%2Fquran-uthmani', label: 'Juz 3 — Al-Baqarah & Ali Imran 1–91...' },
         { juz: 4, url: null, label: 'Juz 4 — Ali Imran 92–200 & An-Nisa 1–23...' },
         { juz: 5, url: null, label: 'Juz 5 — An-Nisa 24–147...' },
     ];
@@ -3378,7 +3380,7 @@ async function startCacheDownload() {
             pctEl.textContent  = basePct + '%';
             let ayahs;
             {
-                const juzUrl = '/quran/juz/' + step.juz;
+                const juzUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/' + step.juz + '/quran-uthmani');
                 const res  = await fetch(juzUrl);
                 const data = await res.json();
                 if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid untuk juz ' + step.juz);
@@ -3849,27 +3851,40 @@ async function loadAllData() {
     }
 }
 
-// Fetch dari backend Flask — tidak kena CORS karena same-origin
-// apiPath contoh: 'juz/4/quran-uthmani' atau '/juz/4/quran-uthmani'
+// Multi-proxy fetch helper — backend Flask dulu, lalu fallback CDN
 async function quranFetch(apiPath) {
-    const juzMatch  = apiPath.match(/juz\/(\d+)/);
-    const surahMatch = apiPath.match(/surah\/(\d+)/);
-    let backendUrl;
-    if (juzMatch)        backendUrl = '/quran/juz/'   + juzMatch[1];
-    else if (surahMatch) backendUrl = '/quran/surah/' + surahMatch[1];
-    else throw new Error('Path tidak dikenal: ' + apiPath);
-    const res = await fetch(backendUrl);
-    if (!res.ok) throw new Error('Backend error ' + res.status + ': ' + backendUrl);
-    return await res.json();
-}
+    const juzMatch   = apiPath.match(/juz\/([0-9]+)/);
+    const surahMatch = apiPath.match(/surah\/([0-9]+)/);
+    const num = juzMatch ? juzMatch[1] : (surahMatch ? surahMatch[1] : null);
+    const type = juzMatch ? 'juz' : 'surah';
+    const backendUrl = num ? '/quran/' + type + '/' + num : null;
 
-// Alias untuk kompatibilitas
-async function fetchFromProxy(apiPath) {
-    return await quranFetch(apiPath);
+    const base = 'https://api.alquran.cloud/v1/' + apiPath;
+    const proxies = [
+        // 1. Backend Flask (same-origin, tidak kena CORS)
+        ...(backendUrl ? [backendUrl] : []),
+        // 2. Direct alquran.cloud
+        base,
+        // 3. CDN jsdelivr fawazahmed0 sebagai fallback
+        juzMatch ? 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quranuthmanihafs/juzs/' + num + '.json' : null,
+        // 4. corsproxy.io
+        'https://corsproxy.io/?' + encodeURIComponent(base),
+    ].filter(Boolean);
+    for (const url of proxies) {
+        try {
+            const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+            if (!res.ok) continue;
+            const text = await res.text();
+            if (!text || text[0] === '<') continue; // HTML error page
+            const data = JSON.parse(text);
+            if (data && data.data) return data;
+        } catch(e) { /* try next proxy */ }
+    }
+    throw new Error('Semua proxy gagal untuk: ' + apiPath);
 }
 
 async function fetchFromNetwork() {
-    const res1  = await fetch('/quran/juz/1');
+    const res1  = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F1%2Fquran-uthmani');
     const data1 = await res1.json();
     juzDataCache[1] = data1.data.ayahs;
     ayahsData = juzDataCache[1];
@@ -3911,7 +3926,7 @@ async function fetchFromNetwork() {
 async function refreshFromNetwork() {
     if (!navigator.onLine) return;
     try {
-        const res1 = await fetch('/quran/juz/1');
+        const res1 = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F1%2Fquran-uthmani');
         const d1   = await res1.json();
         juzDataCache[1] = d1.data.ayahs;
         saveJuzToIDB(1, juzDataCache[1]).catch(() => {});
@@ -3960,7 +3975,7 @@ function showLoadError() {
 async function loadJuzTwo() {
     try {
         // Gunakan endpoint juz/2 agar field 'page' tersedia (sama seperti Juz 1)
-        const res  = await fetch('/quran/juz/2');
+        const res  = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F2%2Fquran-uthmani');
         const data = await res.json();
         const allJuz2 = data.data.ayahs;
         // Juz 2 = Al-Baqarah 142–252 (filter surah 2, ayat 142-252)
@@ -3981,7 +3996,7 @@ async function loadJuzThree() {
         // Juz 3 = Al-Baqarah 253–286 + Ali Imran 1–91
         // (Ali Imran 92 adalah awal Juz 4, sehingga dikecualikan)
         // Fetch juz/3 dari API (field 'page' tersedia)
-        const res  = await fetch('/quran/juz/3');
+        const res  = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F3%2Fquran-uthmani');
         const data = await res.json();
         juzDataCache[3] = data.data.ayahs.filter(a =>
             !(a.surah.number === 3 && a.numberInSurah >= 92)
@@ -4768,7 +4783,7 @@ async function loadJuzTwentyEight() {
 async function loadJuzTwentyNine() {
     try {
         // Juz 29 = Al-Mulk s.d. Al-Mursalat (surah 67–77) — gunakan endpoint /juz/29
-        const res = await fetch('/quran/juz/29');
+        const res = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F29%2Fquran-uthmani');
         const data = await res.json();
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
@@ -4800,7 +4815,7 @@ async function loadJuzTwentyNine() {
 async function loadJuzThirty() {
     try {
         // Juz 30 = An-Naba s.d. An-Nas (surah 78–114) — gunakan endpoint /juz/30 agar 1 request
-        const res = await fetch('/quran/juz/30');
+        const res = await fetch('https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.alquran.cloud%2Fv1%2Fjuz%2F30%2Fquran-uthmani');
         const data = await res.json();
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         // Bangun surahMeta dari field surah yang sudah ada di tiap ayat
@@ -9563,27 +9578,26 @@ function updateJuzSelectInfo() {
 .guest-restriction-list { font-size: 11px; color: var(--text-secondary); line-height: 1.9; }
 
     /* ── FORCE BOTTOM NAV VISIBLE — harus di akhir ── */
-    nav#bottomNav, #bottomNav {
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        position: fixed !important;
-        bottom: 0 !important; left: 0 !important; right: 0 !important;
-        width: 100% !important;
-        z-index: 9500 !important;
-        min-height: 58px !important;
-        background: #ffffff !important;
-        border-top: 1.5px solid rgba(184,144,42,0.14) !important;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.08) !important;
-        align-items: center !important;
-        justify-content: space-around !important;
+    @media screen and (max-width: 768px) {
+        nav#bottomNav {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: fixed !important;
+            bottom: 0 !important; left: 0 !important; right: 0 !important;
+            z-index: 510 !important;
+            min-height: 56px !important;
+            background: #ffffff !important;
+            border-top: 1.5px solid rgba(184,144,42,0.14) !important;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08) !important;
+        }
     }
 </style>
 
 <!-- ============================================================
      BOTTOM NAVIGATION BAR (Mobile)
 ============================================================ -->
-<nav id="bottomNav" style="display:flex!important;visibility:visible!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;min-height:58px!important;background:#fff!important;border-top:1.5px solid rgba(184,144,42,0.18)!important;box-shadow:0 -3px 16px rgba(0,0,0,0.08)!important;z-index:9500!important;align-items:center!important;justify-content:space-around!important;padding:4px 4px env(safe-area-inset-bottom,6px)!important;">
+<nav id="bottomNav" style="display:flex!important;visibility:visible!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;min-height:58px!important;background:#fff!important;border-top:1.5px solid rgba(184,144,42,0.18)!important;box-shadow:0 -3px 16px rgba(0,0,0,0.08)!important;z-index:9000!important;align-items:center!important;justify-content:space-around!important;padding:4px 4px env(safe-area-inset-bottom,6px)!important;">
     <!-- Home / Dashboard -->
     <button class="bnav-btn" onclick="showDashboard(); closeBNavMore()" title="Home">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -10321,90 +10335,5 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     </div>
 </div>
-
-<!-- ============================================================
-     FINAL OVERRIDE — Bottom Nav & Top Bar pasti tampil
-============================================================ -->
-<style>
-/* === BOTTOM NAV: SELALU TAMPIL, TIDAK BISA DISEMBUNYIKAN === */
-#bottomNav {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    min-height: 58px !important;
-    height: auto !important;
-    background: #fff !important;
-    border-top: 1.5px solid rgba(184,144,42,0.18) !important;
-    box-shadow: 0 -3px 16px rgba(0,0,0,0.10) !important;
-    z-index: 99999 !important;
-    align-items: center !important;
-    justify-content: space-around !important;
-    padding: 4px 0 env(safe-area-inset-bottom, 6px) !important;
-    flex-wrap: nowrap !important;
-}
-
-/* Tombol nav */
-#bottomNav .bnav-btn {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 2px !important;
-    padding: 4px 8px !important;
-    border: none !important;
-    background: transparent !important;
-    color: #888 !important;
-    font-size: 9px !important;
-    cursor: pointer !important;
-    min-width: 40px !important;
-}
-
-/* Tombol play (tengah) */
-#bottomNav .bnav-play {
-    background: transparent !important;
-}
-#bottomNav .bnav-play-inner {
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 50% !important;
-    background: linear-gradient(135deg, #2d6a1f, #0d8a7a) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: #fff !important;
-    font-size: 14px !important;
-}
-
-/* === TOPBAR: SELALU TAMPIL === */
-.topbar, #topbar {
-    display: block !important;
-    visibility: visible !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 9000 !important;
-}
-
-/* === TOOLBAR: TAMPIL === */
-.toolbar {
-    display: flex !important;
-    visibility: visible !important;
-}
-
-/* === DASHBOARD: TIDAK BOLEH MENUTUPI NAV === */
-#dashboardView {
-    z-index: 40 !important;
-    padding-bottom: 80px !important;
-}
-
-/* Konten utama beri ruang untuk nav */
-#mushafView, #digitalView, .dash-body, .dash-content {
-    padding-bottom: 80px !important;
-}
-</style>
-
 </body>
 </html>

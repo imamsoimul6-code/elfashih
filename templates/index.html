@@ -3849,24 +3849,23 @@ async function loadAllData() {
     }
 }
 
-// Fetch dari backend Flask (proxy lokal — tidak kena CORS)
-async function fetchFromProxy(apiPath) {
-    // apiPath: '/juz/1/quran-uthmani' atau '/surah/1/quran-uthmani'
-    const juzMatch = apiPath.match(/\/juz\/(\d+)/);
-    const surahMatch = apiPath.match(/\/surah\/(\d+)/);
-    
+// Fetch dari backend Flask — tidak kena CORS karena same-origin
+// apiPath contoh: 'juz/4/quran-uthmani' atau '/juz/4/quran-uthmani'
+async function quranFetch(apiPath) {
+    const juzMatch  = apiPath.match(/juz\/(\d+)/);
+    const surahMatch = apiPath.match(/surah\/(\d+)/);
     let backendUrl;
-    if (juzMatch) {
-        backendUrl = '/quran/juz/' + juzMatch[1];
-    } else if (surahMatch) {
-        backendUrl = '/quran/surah/' + surahMatch[1];
-    } else {
-        throw new Error('Path tidak dikenal: ' + apiPath);
-    }
-    
+    if (juzMatch)        backendUrl = '/quran/juz/'   + juzMatch[1];
+    else if (surahMatch) backendUrl = '/quran/surah/' + surahMatch[1];
+    else throw new Error('Path tidak dikenal: ' + apiPath);
     const res = await fetch(backendUrl);
-    if (!res.ok) throw new Error('Backend error: ' + res.status);
+    if (!res.ok) throw new Error('Backend error ' + res.status + ': ' + backendUrl);
     return await res.json();
+}
+
+// Alias untuk kompatibilitas
+async function fetchFromProxy(apiPath) {
+    return await quranFetch(apiPath);
 }
 
 async function fetchFromNetwork() {

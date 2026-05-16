@@ -3130,25 +3130,29 @@ function registerServiceWorker() {
         })
         .catch(e => console.warn('[SW] Gagal daftar:', e));
 }
-let deferredInstallPrompt = null;
+window.deferredInstallPrompt = null;
 function initPWAInstall() {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
-        deferredInstallPrompt = e;
+        window.deferredInstallPrompt = e;
         if (!localStorage.getItem('pwa-dismissed'))
             document.getElementById('installBanner').classList.add('visible');
+        const loginBtn = document.getElementById('loginInstallBtn');
+        if (loginBtn) loginBtn.classList.remove('hide');
     });
     window.addEventListener('appinstalled', () => {
         document.getElementById('installBanner').classList.remove('visible');
-        deferredInstallPrompt = null;
+        window.deferredInstallPrompt = null;
+        const loginBtn = document.getElementById('loginInstallBtn');
+        if (loginBtn) loginBtn.classList.add('hide');
     });
 }
 function installPWA() {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.then(c => {
+    if (!window.deferredInstallPrompt) return;
+    window.deferredInstallPrompt.prompt();
+    window.deferredInstallPrompt.userChoice.then(c => {
         if (c.outcome === 'accepted') document.getElementById('installBanner').classList.remove('visible');
-        deferredInstallPrompt = null;
+        window.deferredInstallPrompt = null;
     });
 }
 function dismissInstall() {
@@ -10251,22 +10255,13 @@ function doLoginInstall() {
         window.deferredInstallPrompt.prompt();
         window.deferredInstallPrompt.userChoice.then(c => {
             if (c.outcome === 'accepted') {
-                document.getElementById('loginInstallBtn').classList.add('hide');
+                const btn = document.getElementById('loginInstallBtn');
+                if (btn) btn.classList.add('hide');
             }
+            window.deferredInstallPrompt = null;
         });
     }
 }
-
-// Show install btn on login page if prompt available
-window.addEventListener('beforeinstallprompt', (e) => {
-    // (original handler in initPWAInstall also fires — that's fine)
-    const btn = document.getElementById('loginInstallBtn');
-    if (btn) btn.classList.remove('hide');
-});
-window.addEventListener('appinstalled', () => {
-    const btn = document.getElementById('loginInstallBtn');
-    if (btn) btn.classList.add('hide');
-});
 </script>
 
 </body>

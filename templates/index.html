@@ -3854,21 +3854,30 @@ async function loadAllData() {
     }
 }
 
-// Multi-proxy fetch helper — coba direct → allorigins → thingproxy
+// Multi-proxy fetch helper — coba 4 sumber berbeda
 async function quranFetch(apiPath) {
     const base = 'https://api.alquran.cloud/v1/' + apiPath;
     const proxies = [
-        base, // direct (beberapa browser bisa)
+        // 1. Direct
+        base,
+        // 2. allorigins (raw)
         'https://api.allorigins.win/raw?url=' + encodeURIComponent(base),
-        'https://thingproxy.freeboard.io/fetch/' + base,
+        // 3. corsproxy.io
+        'https://corsproxy.io/?' + encodeURIComponent(base),
+        // 4. cors.sh (no key needed for public APIs)
+        'https://proxy.cors.sh/' + base,
+        // 5. crossorigin.me
+        'https://crossorigin.me/' + base,
     ];
     for (const url of proxies) {
         try {
-            const res = await fetch(url);
+            const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
             if (!res.ok) continue;
-            const data = await res.json();
+            const text = await res.text();
+            if (!text || text[0] === '<') continue; // HTML error page
+            const data = JSON.parse(text);
             if (data && data.data) return data;
-        } catch(e) { /* try next */ }
+        } catch(e) { /* try next proxy */ }
     }
     throw new Error('Semua proxy gagal untuk: ' + apiPath);
 }
@@ -4002,9 +4011,7 @@ async function loadJuzThree() {
 
 async function loadJuzFour() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/4/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/4/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4035,9 +4042,7 @@ async function loadJuzFour() {
 
 async function loadJuzFive() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/5/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/5/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4068,9 +4073,7 @@ async function loadJuzFive() {
 
 async function loadJuzSix() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/6/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/6/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4101,9 +4104,7 @@ async function loadJuzSix() {
 
 async function loadJuzSeven() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/7/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/7/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4134,9 +4135,7 @@ async function loadJuzSeven() {
 
 async function loadJuzEight() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/8/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/8/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4167,9 +4166,7 @@ async function loadJuzEight() {
 
 async function loadJuzNine() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/9/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/9/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4200,9 +4197,7 @@ async function loadJuzNine() {
 
 async function loadJuzTen() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/10/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/10/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4233,9 +4228,7 @@ async function loadJuzTen() {
 
 async function loadJuzEleven() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/11/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/11/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4266,9 +4259,7 @@ async function loadJuzEleven() {
 
 async function loadJuzTwelve() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/12/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/12/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4299,9 +4290,7 @@ async function loadJuzTwelve() {
 
 async function loadJuzThirteen() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/13/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/13/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4332,9 +4321,7 @@ async function loadJuzThirteen() {
 
 async function loadJuzFourteen() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/14/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/14/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4365,9 +4352,7 @@ async function loadJuzFourteen() {
 
 async function loadJuzFifteen() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/15/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/15/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4398,9 +4383,7 @@ async function loadJuzFifteen() {
 
 async function loadJuzSixteen() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/16/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/16/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4431,9 +4414,7 @@ async function loadJuzSixteen() {
 
 async function loadJuzSeventeen() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/17/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/17/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4464,9 +4445,7 @@ async function loadJuzSeventeen() {
 
 async function loadJuzEighteen() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/18/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/18/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4497,9 +4476,7 @@ async function loadJuzEighteen() {
 
 async function loadJuzNineteen() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/19/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/19/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4530,9 +4507,7 @@ async function loadJuzNineteen() {
 
 async function loadJuzTwenty() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/20/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/20/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4563,9 +4538,7 @@ async function loadJuzTwenty() {
 
 async function loadJuzTwentyOne() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/21/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/21/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4596,9 +4569,7 @@ async function loadJuzTwentyOne() {
 
 async function loadJuzTwentyTwo() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/22/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/22/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4629,9 +4600,7 @@ async function loadJuzTwentyTwo() {
 
 async function loadJuzTwentyThree() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/23/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/23/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4662,9 +4631,7 @@ async function loadJuzTwentyThree() {
 
 async function loadJuzTwentyFour() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/24/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/24/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4695,9 +4662,7 @@ async function loadJuzTwentyFour() {
 
 async function loadJuzTwentyFive() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/25/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/25/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4728,9 +4693,7 @@ async function loadJuzTwentyFive() {
 
 async function loadJuzTwentySix() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/26/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/26/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4761,9 +4724,7 @@ async function loadJuzTwentySix() {
 
 async function loadJuzTwentySeven() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/27/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/27/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -4794,9 +4755,7 @@ async function loadJuzTwentySeven() {
 
 async function loadJuzTwentyEight() {
     try {
-        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.alquran.cloud/v1/juz/28/quran-uthmani');
-        const res  = await fetch(url);
-        const data = await res.json();
+        const data = await quranFetch('juz/28/quran-uthmani');
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
         data.data.ayahs.forEach(a => {
@@ -9616,6 +9575,22 @@ function updateJuzSelectInfo() {
 .guest-restriction-banner { background: rgba(217,152,26,0.08); border: 1px solid rgba(217,152,26,0.28); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; }
 .guest-restriction-title { font-size: 12px; font-weight: 700; color: var(--accent-gold); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
 .guest-restriction-list { font-size: 11px; color: var(--text-secondary); line-height: 1.9; }
+
+    /* ── FORCE BOTTOM NAV VISIBLE — harus di akhir ── */
+    @media screen and (max-width: 768px) {
+        nav#bottomNav {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: fixed !important;
+            bottom: 0 !important; left: 0 !important; right: 0 !important;
+            z-index: 510 !important;
+            min-height: 56px !important;
+            background: #ffffff !important;
+            border-top: 1.5px solid rgba(184,144,42,0.14) !important;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08) !important;
+        }
+    }
 </style>
 
 <!-- ============================================================

@@ -2439,7 +2439,135 @@
     body.paper-mode .drawer-item  { background: rgba(245,220,160,0.3) !important; border-color: rgba(139,90,43,0.15) !important; color: #7a5030 !important; }
 
     } /* end @media (max-width: 768px) */
-    </style>
+    
+    /* =============================================
+       LOGIN PAGE
+    ============================================= */
+    #loginPage {
+        position: fixed; inset: 0; z-index: 9999;
+        background: linear-gradient(160deg, #0a1510 0%, #0e2018 50%, #0a1a12 100%);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        padding: 24px; font-family: var(--ui-font);
+        overflow-y: auto;
+    }
+    #loginPage.hidden { display: none; }
+    .login-brand {
+        display: flex; flex-direction: column; align-items: center; gap: 10px;
+        margin-bottom: 32px;
+    }
+    .login-brand-icon {
+        width: 72px; height: 72px; border-radius: 20px;
+        background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-teal) 100%);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 8px 32px rgba(14,145,128,0.4);
+    }
+    .login-brand-name {
+        font-size: 28px; font-weight: 900; letter-spacing: -0.5px;
+        background: linear-gradient(135deg, #5be19a 0%, #38c4af 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .login-brand-tagline {
+        font-size: 12px; color: rgba(255,255,255,0.45); letter-spacing: 0.5px; margin-top: -6px;
+    }
+    .login-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: var(--radius-xl);
+        padding: 28px 24px;
+        width: 100%; max-width: 400px;
+        backdrop-filter: blur(20px);
+    }
+    .login-title {
+        font-size: 16px; font-weight: 800; color: #fff;
+        margin-bottom: 6px; text-align: center;
+    }
+    .login-subtitle {
+        font-size: 12px; color: rgba(255,255,255,0.45); text-align: center; margin-bottom: 24px; line-height: 1.6;
+    }
+    .login-tab-row {
+        display: flex; gap: 6px; margin-bottom: 20px;
+        background: rgba(255,255,255,0.06); border-radius: var(--radius-md); padding: 4px;
+    }
+    .login-tab {
+        flex: 1; padding: 8px; border: none; background: transparent;
+        color: rgba(255,255,255,0.45); font-size: 12px; font-weight: 700;
+        border-radius: 10px; cursor: pointer; font-family: var(--ui-font);
+        transition: all 0.2s;
+    }
+    .login-tab.active {
+        background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-teal) 100%);
+        color: #fff; box-shadow: 0 2px 10px rgba(14,145,128,0.4);
+    }
+    .login-form-section { display: none; }
+    .login-form-section.active { display: block; }
+    .login-input-group { margin-bottom: 14px; }
+    .login-input-label {
+        font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5);
+        margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+        display: block;
+    }
+    .login-input {
+        width: 100%; background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: var(--radius-md); padding: 12px 14px;
+        color: #fff; font-family: var(--ui-font); font-size: 14px;
+        outline: none; transition: border-color 0.2s;
+    }
+    .login-input::placeholder { color: rgba(255,255,255,0.25); }
+    .login-input:focus { border-color: var(--accent-teal); }
+    .login-btn-primary {
+        width: 100%; padding: 14px; border: none; border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-teal) 100%);
+        color: #fff; font-size: 14px; font-weight: 800;
+        font-family: var(--ui-font); cursor: pointer;
+        box-shadow: 0 4px 20px rgba(14,145,128,0.4);
+        transition: all 0.2s; margin-bottom: 12px;
+    }
+    .login-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .login-btn-guest {
+        width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.15);
+        border-radius: var(--radius-md);
+        background: rgba(255,255,255,0.05);
+        color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 600;
+        font-family: var(--ui-font); cursor: pointer;
+        transition: all 0.2s;
+    }
+    .login-btn-guest:hover { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.8); }
+    .login-divider {
+        display: flex; align-items: center; gap: 10px; margin: 14px 0;
+        color: rgba(255,255,255,0.2); font-size: 11px;
+    }
+    .login-divider::before, .login-divider::after {
+        content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1);
+    }
+    .login-guest-notice {
+        background: rgba(217,152,26,0.10); border: 1px solid rgba(217,152,26,0.25);
+        border-radius: var(--radius-md); padding: 10px 14px;
+        font-size: 11px; color: rgba(217,152,26,0.85); line-height: 1.6;
+        margin-bottom: 14px;
+    }
+    .login-credit {
+        margin-top: 32px; text-align: center;
+        font-size: 11px; color: rgba(255,255,255,0.2); line-height: 1.8;
+    }
+    .login-credit span {
+        color: rgba(14,145,128,0.7); font-weight: 700;
+    }
+    .login-error {
+        color: #f87171; font-size: 11px; margin-top: 4px; display: none;
+    }
+    /* Guest banner in app */
+    #guestBanner {
+        display: none;
+        background: linear-gradient(90deg, rgba(217,152,26,0.15), rgba(14,145,128,0.10));
+        border-bottom: 1px solid rgba(217,152,26,0.25);
+        padding: 6px 14px; font-size: 11px; color: var(--accent-gold);
+        text-align: center; font-weight: 600;
+    }
+    #guestBanner.show { display: block; }
+</style>
 
 <script defer>
 // =============================================
@@ -7951,6 +8079,85 @@ function updateJuzSelectInfo() {
 </head>
 <body>
 
+<!-- =============================================
+     LOGIN PAGE
+============================================= -->
+<div id="loginPage">
+    <div class="login-brand">
+        <div class="login-brand-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+        </div>
+        <div class="login-brand-name">ELfashih</div>
+        <div class="login-brand-tagline">Teman Penghafal Al-Qur'an • Juz 1–30</div>
+    </div>
+
+    <div class="login-card">
+        <div class="login-title">Masuk ke Akun</div>
+        <div class="login-subtitle">Data hafalan Anda tersimpan per akun<br>sehingga tidak saling tertimpa antar pengguna</div>
+
+        <div class="login-tab-row">
+            <button class="login-tab active" onclick="switchLoginTab('gmail')" id="tabGmail">
+                <i class="fa-solid fa-envelope" style="margin-right:4px"></i> Gmail
+            </button>
+            <button class="login-tab" onclick="switchLoginTab('phone')" id="tabPhone">
+                <i class="fa-solid fa-mobile-screen" style="margin-right:4px"></i> No. Telepon
+            </button>
+        </div>
+
+        <!-- Gmail Section -->
+        <div class="login-form-section active" id="sectionGmail">
+            <div class="login-input-group">
+                <label class="login-input-label">Alamat Gmail</label>
+                <input class="login-input" type="email" id="inputGmail"
+                    placeholder="contoh@gmail.com"
+                    oninput="clearLoginError()"
+                    onkeydown="if(event.key==='Enter')doLogin()">
+                <div class="login-error" id="errorGmail">Format email tidak valid</div>
+            </div>
+        </div>
+
+        <!-- Phone Section -->
+        <div class="login-form-section" id="sectionPhone">
+            <div class="login-input-group">
+                <label class="login-input-label">Nomor Telepon</label>
+                <input class="login-input" type="tel" id="inputPhone"
+                    placeholder="08xxxxxxxxxx"
+                    oninput="clearLoginError()"
+                    onkeydown="if(event.key==='Enter')doLogin()">
+                <div class="login-error" id="errorPhone">Nomor minimal 9 angka</div>
+            </div>
+        </div>
+
+        <button class="login-btn-primary" onclick="doLogin()">
+            <i class="fa-solid fa-right-to-bracket" style="margin-right:6px"></i> Masuk
+        </button>
+
+        <div class="login-divider">atau</div>
+
+        <div class="login-guest-notice">
+            ⚠️ Mode Tamu: data hafalan & progress <strong>tidak tersimpan permanen</strong> dan hanya tersedia di sesi ini. Fitur rekam & jadwal dinonaktifkan.
+        </div>
+        <button class="login-btn-guest" onclick="doLoginGuest()">
+            <i class="fa-solid fa-user-secret" style="margin-right:6px"></i> Lanjut sebagai Tamu
+        </button>
+    </div>
+
+    <div class="login-credit">
+        Dikembangkan dengan ❤️ oleh<br>
+        <span>Imam Soimul Fajri</span> · elFashih © 2025–2026<br>
+        <span style="color:rgba(255,255,255,0.15);font-weight:400">Semoga bermanfaat & barokah</span>
+    </div>
+</div>
+
+<!-- Guest banner (shown inside app when logged in as guest) -->
+<div id="guestBanner">
+    👤 Mode Tamu — data tidak disimpan · <a href="#" onclick="logoutUser()" style="color:var(--accent-gold);text-decoration:none;font-weight:700">Masuk Akun</a>
+</div>
+
+
 <!-- DASHBOARD VIEW -->
 <div id="dashboardView" class="active">
     <div class="dash-header">
@@ -7971,6 +8178,14 @@ function updateJuzSelectInfo() {
                 <strong id="dashDateDay">—</strong>
                 <span id="dashDateFull">—</span>
             </div>
+            <button id="logoutBtn" onclick="logoutUser()" title="Keluar / Ganti Akun"
+                style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+                border-radius:20px;padding:5px 10px;color:rgba(255,255,255,0.55);
+                font-size:10px;font-weight:700;cursor:pointer;font-family:var(--ui-font);
+                display:flex;align-items:center;gap:4px;white-space:nowrap;max-width:90px;overflow:hidden">
+                <i class="fa-solid fa-right-from-bracket" style="font-size:9px;flex-shrink:0"></i>
+                <span id="logoutBtnLabel" style="overflow:hidden;text-overflow:ellipsis">Keluar</span>
+            </button>
         </div>
     </div>
 
@@ -9381,6 +9596,166 @@ function syncUIStates() {
     if (bnavLoop) bnavLoop.classList.toggle('active', !!window.isRepeatAyah);
 }
 setInterval(syncUIStates, 1000);
+</script>
+
+
+<script>
+// =============================================
+// AUTH / LOGIN SYSTEM
+// =============================================
+const AUTH_KEY = 'elfashih_auth';
+
+function _getAuth() {
+    try { return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch { return null; }
+}
+function _setAuth(obj) {
+    localStorage.setItem(AUTH_KEY, JSON.stringify(obj));
+}
+
+// Build a safe storage prefix from identity string
+function _makePrefix(id) {
+    // e.g. "user_contoh@gmail.com_" or "user_08123_"
+    return 'user_' + id.replace(/[^a-zA-Z0-9@._+]/g, '_') + '_';
+}
+
+// ── Public API ──────────────────────────────
+// Get current user object: { id, type: 'account'|'guest', prefix }
+window.elfashihUser = null;
+
+function _applyUser(userObj) {
+    window.elfashihUser = userObj;
+    // Patch all namespaced storage keys
+    _patchStorageKeys(userObj.prefix);
+    // Show/hide guest banner
+    const gb = document.getElementById('guestBanner');
+    if (gb) gb.classList.toggle('show', userObj.type === 'guest');
+    // Hide login page
+    const lp = document.getElementById('loginPage');
+    if (lp) lp.classList.add('hidden');
+    // Update logout button label
+    const lbl = document.getElementById('logoutBtnLabel');
+    if (lbl) {
+        if (userObj.type === 'guest') lbl.textContent = 'Tamu';
+        else {
+            // Show short id: first part before @ or last 4 digits
+            const short = userObj.id.includes('@')
+                ? userObj.id.split('@')[0].slice(0, 10)
+                : userObj.id.slice(-4);
+            lbl.textContent = short;
+        }
+    }
+}
+
+// Redirect all elfashih_* storage reads/writes to user-namespaced keys
+// We override the key-building functions that are already defined in the app
+function _patchStorageKeys(prefix) {
+    // Hafalan
+    window._elfashihStoragePrefix = prefix;
+}
+
+// Override localStorage get/set to namespace elfashih_ keys per user
+// We do this by wrapping the native methods safely
+(function() {
+    const _origGet = Storage.prototype.getItem;
+    const _origSet = Storage.prototype.setItem;
+    const _origRem = Storage.prototype.removeItem;
+
+    const NAMESPACED = [
+        'elfashih_hafalan',
+        'elfashih_streak',
+        'elfashih_recordings',
+        'elfashih_schedules',
+        'elfashih_quiz_scores',
+        'elfashih_leitner',
+        'elfashih_murojaah',
+    ];
+    const GUEST_BLOCKED = ['elfashih_recordings', 'elfashih_schedules'];
+
+    function nsKey(key) {
+        const u = window.elfashihUser;
+        if (!u) return key;
+        if (NAMESPACED.includes(key)) return u.prefix + key;
+        return key;
+    }
+
+    Storage.prototype.getItem = function(key) {
+        return _origGet.call(this, nsKey(key));
+    };
+    Storage.prototype.setItem = function(key, value) {
+        const u = window.elfashihUser;
+        // Block persistent writes for guests on certain keys
+        if (u && u.type === 'guest' && GUEST_BLOCKED.includes(key)) return;
+        return _origSet.call(this, nsKey(key), value);
+    };
+    Storage.prototype.removeItem = function(key) {
+        return _origRem.call(this, nsKey(key));
+    };
+})();
+
+// ── Login UI logic ──────────────────────────
+let _loginTab = 'gmail';
+
+function switchLoginTab(tab) {
+    _loginTab = tab;
+    document.getElementById('sectionGmail').classList.toggle('active', tab === 'gmail');
+    document.getElementById('sectionPhone').classList.toggle('active', tab === 'phone');
+    document.getElementById('tabGmail').classList.toggle('active', tab === 'gmail');
+    document.getElementById('tabPhone').classList.toggle('active', tab === 'phone');
+    clearLoginError();
+}
+
+function clearLoginError() {
+    document.getElementById('errorGmail').style.display = 'none';
+    document.getElementById('errorPhone').style.display = 'none';
+}
+
+function doLogin() {
+    clearLoginError();
+    let id = '';
+    if (_loginTab === 'gmail') {
+        const val = document.getElementById('inputGmail').value.trim().toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+            document.getElementById('errorGmail').style.display = 'block';
+            return;
+        }
+        id = val;
+    } else {
+        const val = document.getElementById('inputPhone').value.trim().replace(/\s/g, '');
+        if (!/^\+?\d{9,15}$/.test(val)) {
+            document.getElementById('errorPhone').style.display = 'block';
+            return;
+        }
+        id = val;
+    }
+    const userObj = { id, type: 'account', prefix: _makePrefix(id) };
+    _setAuth(userObj);
+    _applyUser(userObj);
+}
+
+function doLoginGuest() {
+    const userObj = { id: 'guest', type: 'guest', prefix: 'guest_' };
+    // Don't persist guest auth — so next open shows login again
+    _applyUser(userObj);
+}
+
+function logoutUser() {
+    localStorage.removeItem(AUTH_KEY);
+    window.elfashihUser = null;
+    // Show login page again
+    const lp = document.getElementById('loginPage');
+    if (lp) lp.classList.remove('hidden');
+    const gb = document.getElementById('guestBanner');
+    if (gb) gb.classList.remove('show');
+}
+
+// ── Boot: check existing session ──────────────
+(function() {
+    const saved = _getAuth();
+    if (saved && saved.id && saved.type === 'account') {
+        _applyUser(saved);
+    }
+    // else: login page stays visible (it's already in the DOM)
+})();
 </script>
 
 </body>

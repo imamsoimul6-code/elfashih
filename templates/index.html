@@ -289,6 +289,22 @@
         box-shadow: 0 2px 14px rgba(71,126,16,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
     }
 
+    /* Tombol Keluar di topbar — desktop only */
+    .top-btn-logout {
+        border-color: rgba(219,35,80,0.20) !important;
+        background: rgba(219,35,80,0.06) !important;
+    }
+    .top-btn-logout:hover {
+        border-color: rgba(219,35,80,0.55) !important;
+        background: rgba(219,35,80,0.13) !important;
+        color: #DB2350 !important;
+    }
+    /* Sembunyikan di mobile (sudah ada di drawer) */
+    @media (max-width: 768px) {
+        .top-btn-logout { display: none !important; }
+        #topbarLogoutDivider { display: none !important; }
+    }
+
     /* =============================================
        TOOLBAR (play controls)
     ============================================= */
@@ -8958,6 +8974,15 @@ function updateJuzSelectInfo() {
             <button class="top-btn" id="quizTopBtn" onclick="openQuizView()" title="Uji Hafalan">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
                 <span class="btn-icon-label" style="color:#a78bfa">Quiz</span>
+            </button>
+
+            <!-- Divider -->
+            <div id="topbarLogoutDivider" style="width:1px;height:32px;background:var(--border);margin:0 2px;flex-shrink:0"></div>
+
+            <!-- Tombol Keluar — hanya desktop -->
+            <button class="top-btn top-btn-logout" id="topbarLogoutBtn" onclick="logoutUser()" title="Keluar / Ganti Akun">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DB2350" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span class="btn-icon-label" style="color:#DB2350">Keluar</span>
             </button>
 
         </div>

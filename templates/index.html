@@ -32,65 +32,50 @@
        Palette: Black/Forest-Green/Teal/Gold/Pink/Blue/Charcoal
     ============================================= */
     :root {
-        /* ── New ELfashih Design System ── */
-        /* Warm Parchment + Forest Green + Gold */
-        --bg-primary:       #f5f0e8;
-        --bg-secondary:     #ede8df;
+        /* Brand palette */
+        --clr-black:        #000000;
+        --clr-green-dark:   #477E10;
+        --clr-white:        #FBFCFA;
+        --clr-teal:         #0E9180;
+        --clr-orange:       #D9981A;
+        --clr-pink:         #DB2350;
+        --clr-blue:         #0331E0;
+        --clr-gray-dark:    #203228;
+        --clr-gray:         #969D8F;
+        --clr-brown:        #6C4631;
+
+        /* Semantic tokens — Light/Bright Theme */
+        --bg-primary:       #f0f5ef;
+        --bg-secondary:     #e8f0e6;
         --bg-card:          #ffffff;
-        --bg-glass:         rgba(245,240,232,0.97);
-
-        /* Brand */
-        --accent-green:     #2d6a1f;
-        --accent-green-lt:  #3a8528;
-        --accent-green-dk:  #1e4a14;
-        --accent-green-glow:rgba(45,106,31,0.12);
-        --accent-teal:      #0d8a7a;
-        --accent-teal-lt:   #10a890;
-        --accent-gold:      #b8902a;
-        --accent-gold-lt:   #d4a830;
-        --accent-pink:      #c0392b;
-        --accent-blue:      #1a3a9e;
-
-        /* Text */
-        --text-primary:     #1a1208;
-        --text-secondary:   #4a3a20;
-        --text-muted:       #8a7a60;
-
-        /* Borders */
-        --border:           rgba(184,144,42,0.18);
-        --border-hover:     rgba(13,138,122,0.45);
-
-        /* Fonts */
+        --bg-glass:         rgba(240,245,239,0.95);
+        --accent-green:     #477E10;
+        --accent-green-lt:  #5a9e14;
+        --accent-green-dk:  #2e5209;
+        --accent-green-glow:rgba(71,126,16,0.15);
+        --accent-teal:      #0E9180;
+        --accent-teal-lt:   #12b39f;
+        --accent-gold:      #D9981A;
+        --accent-pink:      #DB2350;
+        --accent-blue:      #0331E0;
+        --text-primary:     #0a1510;
+        --text-secondary:   #3a5240;
+        --text-muted:       #7a9080;
+        --border:           rgba(71,126,16,0.18);
+        --border-hover:     rgba(14,145,128,0.50);
         --arabic-font:      'Amiri Quran', serif;
         --ui-font:          'Cairo', 'Outfit', sans-serif;
-
-        /* Radii */
         --radius-sm:        10px;
         --radius-md:        16px;
         --radius-lg:        22px;
         --radius-xl:        30px;
-
-        /* Shadows */
-        --shadow-card:      0 2px 16px rgba(45,106,31,0.08), 0 1px 4px rgba(0,0,0,0.06);
-        --shadow-glow:      0 0 30px rgba(13,138,122,0.10);
-        --shadow-gold:      0 4px 20px rgba(184,144,42,0.18);
-
-        /* Legacy compat */
-        --clr-black:        #1a1208;
-        --clr-green-dark:   #2d6a1f;
-        --clr-white:        #f5f0e8;
-        --clr-teal:         #0d8a7a;
-        --clr-orange:       #b8902a;
-        --clr-pink:         #c0392b;
-        --clr-blue:         #1a3a9e;
-        --clr-gray-dark:    #4a3a20;
-        --clr-gray:         #8a7a60;
-        --clr-brown:        #7a5a3a;
+        --shadow-card:      0 4px 20px rgba(0,0,0,0.10);
+        --shadow-glow:      0 0 30px rgba(14,145,128,0.12);
         --sidebar-w:        0px;
+        /* Glossy effects */
         --gloss-white:      rgba(255,255,255,0.70);
         --gloss-border:     rgba(255,255,255,0.80);
-
-        /* Mushaf sizing — tidak diubah */
+        /* mushaf sizing */
         --mf-content-w:     min(98vw, 600px);
         --mf-font-size:     clamp(15px, calc(var(--mf-content-w)*0.044), 26px);
         --mf-line-height:   2.05;
@@ -2317,702 +2302,7 @@
     body.paper-mode .drawer-item  { background: rgba(245,220,160,0.3) !important; border-color: rgba(139,90,43,0.15) !important; color: #7a5030 !important; }
 
     } /* end @media (max-width: 768px) */
-    
-    /* ══════════════════════════════════════════════
-       ELFASHIH REDESIGN — Override Block
-    ══════════════════════════════════════════════ */
-
-    /* ── Body & Layout ── */
-    body {
-        background: var(--bg-primary);
-        font-family: var(--ui-font);
-    }
-
-    /* ── TOPBAR — Redesign ── */
-    .topbar {
-        background: #ffffff;
-        border-bottom: 1.5px solid rgba(184,144,42,0.15);
-        box-shadow: 0 2px 12px rgba(45,106,31,0.08);
-        padding: 0;
-    }
-    .topbar-row1 {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 14px 8px;
-        gap: 10px;
-    }
-    .topbar-surah-name {
-        font-family: var(--arabic-font);
-        font-size: 17px;
-        color: var(--text-primary);
-        font-weight: 700;
-        line-height: 1.3;
-    }
-    /* Topbar actions — hide on mobile, moved to drawer */
-    .topbar-actions { display: none !important; }
-
-    /* ── JUZ TABS — Redesign ── */
-    .topbar-row2 {
-        background: #f9f6f0;
-        border-top: 1px solid rgba(184,144,42,0.12);
-        padding: 6px 8px;
-    }
-    .juz-tab {
-        font-family: var(--ui-font);
-        font-size: 11.5px;
-        font-weight: 700;
-        color: var(--text-muted);
-        background: transparent;
-        border: none;
-        padding: 5px 12px;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.18s;
-        white-space: nowrap;
-    }
-    .juz-tab:hover { background: rgba(184,144,42,0.1); color: var(--accent-gold); }
-    .juz-tab.active {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(45,106,31,0.25);
-    }
-    .tab-scroll-btn {
-        background: transparent;
-        border: none;
-        color: var(--text-muted);
-        font-size: 18px;
-        padding: 4px 6px;
-        cursor: pointer;
-        border-radius: 8px;
-        flex-shrink: 0;
-    }
-    .tab-scroll-btn:hover { background: rgba(184,144,42,0.12); color: var(--accent-gold); }
-
-    /* ── TOOLBAR — Redesign ── */
-    .toolbar {
-        background: #ffffff;
-        border-bottom: 1px solid rgba(184,144,42,0.12);
-        padding: 8px 14px;
-        gap: 8px;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-    }
-    .tool-btn {
-        font-family: var(--ui-font);
-        font-size: 12px;
-        font-weight: 700;
-        border-radius: 20px;
-        padding: 7px 14px;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.18s;
-    }
-    .tool-btn-primary {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
-        color: #fff;
-        box-shadow: 0 2px 10px rgba(45,106,31,0.28);
-    }
-    .tool-btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-    .tool-btn-ghost {
-        background: rgba(45,106,31,0.07);
-        color: var(--text-secondary);
-        border: 1px solid rgba(184,144,42,0.18);
-    }
-    .tool-btn-ghost:hover { background: rgba(45,106,31,0.13); color: var(--text-primary); }
-    .tool-btn.active, .tool-btn-ghost.active {
-        background: rgba(13,138,122,0.12);
-        color: var(--accent-teal);
-        border-color: rgba(13,138,122,0.35);
-    }
-
-    /* ── BOTTOM NAV — Redesign ── */
-    #bottomNav {
-        background: #ffffff;
-        border-top: 1.5px solid rgba(184,144,42,0.14);
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
-        padding: 6px 4px max(env(safe-area-inset-bottom,0px),8px);
-        height: auto;
-        min-height: 62px;
-    }
-    .bnav-btn {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-        padding: 6px 10px;
-        border: none;
-        background: transparent;
-        color: var(--text-muted);
-        font-family: var(--ui-font);
-        font-size: 9.5px;
-        font-weight: 700;
-        cursor: pointer;
-        border-radius: 14px;
-        transition: all 0.18s;
-        min-width: 44px;
-    }
-    .bnav-btn:hover { background: rgba(184,144,42,0.08); color: var(--accent-gold); }
-    .bnav-btn.active { color: var(--accent-teal); }
-    .bnav-btn.active svg { stroke: var(--accent-teal); }
-
-    /* Center play button */
-    .bnav-play {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
-        border-radius: 50% !important;
-        width: 52px !important;
-        height: 52px !important;
-        min-width: 52px !important;
-        padding: 0 !important;
-        margin-top: -14px;
-        box-shadow: 0 4px 16px rgba(45,106,31,0.35);
-        position: relative;
-        color: #fff !important;
-    }
-    .bnav-play-inner {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        font-size: 18px;
-        color: #fff;
-    }
-    .bnav-play:hover { opacity: 0.88; transform: scale(1.05); }
-
-    /* ── MORE DRAWER — Redesign ── */
-    #moreDrawer {
-        background: #ffffff;
-        border-radius: 28px 28px 0 0;
-        border-top: 2px solid rgba(184,144,42,0.15);
-        padding: 12px 16px 32px;
-        box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
-    }
-    .drawer-handle {
-        width: 36px;
-        height: 4px;
-        background: rgba(184,144,42,0.25);
-        border-radius: 99px;
-        margin: 0 auto 16px;
-    }
-    .drawer-title {
-        font-family: var(--ui-font);
-        font-size: 10px;
-        font-weight: 800;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin: 14px 0 10px;
-    }
-    .drawer-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
-    }
-    .drawer-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 12px 6px;
-        border-radius: 16px;
-        border: 1.5px solid rgba(184,144,42,0.12);
-        background: #faf7f2;
-        color: var(--text-secondary);
-        font-family: var(--ui-font);
-        font-size: 10.5px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.18s;
-        min-height: 70px;
-    }
-    .drawer-item:hover {
-        background: rgba(45,106,31,0.06);
-        border-color: rgba(45,106,31,0.25);
-        color: var(--accent-green);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(45,106,31,0.10);
-    }
-    .drawer-item.active {
-        background: rgba(13,138,122,0.08);
-        border-color: rgba(13,138,122,0.35);
-        color: var(--accent-teal);
-    }
-    .dpr-btn {
-        font-family: var(--ui-font);
-        font-size: 12.5px;
-        font-weight: 700;
-        border-radius: 20px;
-        padding: 9px 16px;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.18s;
-    }
-    .dpr-btn-primary {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
-        color: #fff;
-        box-shadow: 0 2px 10px rgba(45,106,31,0.25);
-        flex: 1;
-    }
-    .dpr-btn-ghost {
-        background: rgba(45,106,31,0.06);
-        color: var(--text-secondary);
-        border: 1px solid rgba(184,144,42,0.18);
-    }
-    .drawer-play-row {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 4px;
-        align-items: center;
-    }
-
-    /* ── DASHBOARD — Full Redesign ── */
-    #dashboardView {
-        background: var(--bg-primary);
-    }
-    .dash-header {
-        background: linear-gradient(160deg, var(--accent-green) 0%, var(--accent-teal) 100%);
-        padding: 20px 18px 24px;
-        position: relative;
-        overflow: hidden;
-    }
-    .dash-header::before {
-        content: '';
-        position: absolute;
-        top: -30px; right: -30px;
-        width: 140px; height: 140px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.06);
-    }
-    .dash-header::after {
-        content: '';
-        position: absolute;
-        bottom: -20px; left: 20px;
-        width: 80px; height: 80px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.04);
-    }
-    .dash-logo-name {
-        color: #fff;
-        font-size: 20px;
-        font-weight: 900;
-        letter-spacing: -0.3px;
-        font-family: var(--ui-font);
-    }
-    .dash-logo-sub {
-        color: rgba(255,255,255,0.72);
-        font-size: 11px;
-        font-weight: 600;
-        font-family: var(--ui-font);
-    }
-    .dash-date strong { color: rgba(255,255,255,0.9); font-size: 13px; }
-    .dash-date span   { color: rgba(255,255,255,0.65); font-size: 10px; }
-    .user-btn {
-        background: rgba(255,255,255,0.18) !important;
-        border: 1.5px solid rgba(255,255,255,0.3) !important;
-        color: #fff !important;
-        backdrop-filter: blur(8px);
-    }
-    .user-name-label { color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 700; }
-    .user-avatar {
-        background: rgba(255,255,255,0.25);
-        color: #fff;
-        font-weight: 900;
-        font-size: 13px;
-    }
-    .offline-badge { font-size: 10px; font-weight: 700; }
-    .offline-badge.online {
-        background: rgba(255,255,255,0.2);
-        color: #fff;
-        border: 1px solid rgba(255,255,255,0.3);
-        padding: 3px 10px;
-        border-radius: 99px;
-    }
-
-    /* Greeting section */
-    .dash-greeting {
-        background: #fff;
-        border-radius: var(--radius-lg);
-        padding: 18px 20px;
-        margin: -14px 14px 14px;
-        box-shadow: var(--shadow-card);
-        position: relative;
-        z-index: 2;
-        border: 1px solid rgba(184,144,42,0.10);
-    }
-    .dash-greeting-title {
-        font-size: 17px;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin-bottom: 3px;
-    }
-    .dash-greeting-sub {
-        font-size: 12.5px;
-        color: var(--text-muted);
-        font-weight: 500;
-    }
-    .dash-streak {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        margin-top: 8px;
-        background: rgba(184,144,42,0.1);
-        border: 1px solid rgba(184,144,42,0.2);
-        color: var(--accent-gold);
-        padding: 4px 12px;
-        border-radius: 99px;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    /* Progress card */
-    .dash-progress-card {
-        background: #fff;
-        border-radius: var(--radius-lg);
-        padding: 18px 20px;
-        margin: 0 14px 14px;
-        box-shadow: var(--shadow-card);
-        border: 1px solid rgba(184,144,42,0.10);
-    }
-    .dash-progress-pct {
-        font-size: 26px;
-        font-weight: 900;
-        color: var(--accent-teal);
-        line-height: 1;
-    }
-    .dash-progress-label { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
-    .dash-mini-stat-num { font-size: 20px; font-weight: 900; }
-    .dash-mini-stat-num.lancar { color: #16a34a; }
-    .dash-mini-stat-num.proses { color: #d97706; }
-    .dash-mini-stat-num.belum  { color: var(--text-muted); }
-    .dash-mini-stat-label { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
-    .dash-mini-stats { display: flex; gap: 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-    .dash-mini-stat { text-align: center; flex: 1; }
-
-    /* Section titles */
-    .dash-section-title {
-        font-size: 11px;
-        font-weight: 800;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        padding: 0 14px;
-        margin: 0 0 10px;
-        display: flex;
-        align-items: center;
-        gap: 7px;
-    }
-
-    /* Juz select */
-    .dash-juz-select-row {
-        display: flex;
-        gap: 8px;
-        padding: 0 14px;
-        margin-bottom: 10px;
-    }
-    .dash-juz-select {
-        flex: 1;
-        background: #fff;
-        border: 1.5px solid rgba(184,144,42,0.2);
-        border-radius: var(--radius-sm);
-        padding: 10px 12px;
-        font-family: var(--ui-font);
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--text-primary);
-        outline: none;
-        transition: border-color 0.2s;
-    }
-    .dash-juz-select:focus { border-color: var(--accent-teal); }
-    .dash-juz-go-btn {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
-        color: #fff;
-        border: none;
-        border-radius: var(--radius-sm);
-        padding: 10px 16px;
-        font-family: var(--ui-font);
-        font-size: 13px;
-        font-weight: 800;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: opacity 0.18s;
-        white-space: nowrap;
-        box-shadow: 0 2px 10px rgba(45,106,31,0.25);
-    }
-    .dash-juz-go-btn:hover { opacity: 0.88; }
-    .dash-juz-select-info {
-        padding: 0 14px;
-        margin-bottom: 14px;
-        font-size: 12px;
-        color: var(--text-muted);
-        font-weight: 600;
-    }
-    .dash-juz-bar { height: 4px; background: var(--bg-secondary); border-radius: 99px; overflow: hidden; }
-    .dash-juz-fill { height: 100%; background: linear-gradient(90deg, var(--accent-green), var(--accent-teal)); border-radius: 99px; }
-
-    /* Quick actions */
-    .dash-quick-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        padding: 0 14px;
-        margin-bottom: 14px;
-    }
-    .dash-quick-btn {
-        background: #fff;
-        border: 1px solid rgba(184,144,42,0.12);
-        border-radius: var(--radius-md);
-        padding: 14px 14px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        cursor: pointer;
-        transition: all 0.18s;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-    }
-    .dash-quick-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-card);
-        border-color: rgba(13,138,122,0.25);
-    }
-    .dash-quick-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-    .dash-quick-title { font-size: 12.5px; font-weight: 800; color: var(--text-primary); }
-    .dash-quick-desc  { font-size: 10.5px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
-
-    /* Sticky mushaf button */
-    .dash-mushaf-sticky {
-        padding: 12px 14px 4px;
-        position: sticky;
-        top: 0;
-        background: var(--bg-primary);
-        z-index: 5;
-    }
-    .dash-mushaf-btn {
-        width: 100%;
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
-        color: #fff;
-        border: none;
-        border-radius: var(--radius-md);
-        padding: 14px 20px;
-        font-family: var(--ui-font);
-        font-size: 15px;
-        font-weight: 800;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        box-shadow: 0 4px 18px rgba(45,106,31,0.30);
-        transition: all 0.18s;
-        letter-spacing: 0.2px;
-    }
-    .dash-mushaf-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-    /* ── AUDIO PLAYER — Redesign ── */
-    .audio-player {
-        background: #fff;
-        border-top: 1.5px solid rgba(184,144,42,0.14);
-        box-shadow: 0 -2px 16px rgba(0,0,0,0.07);
-        padding: 8px 16px;
-    }
-    .player-thumb {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(45,106,31,0.25);
-    }
-    .player-play {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
-        box-shadow: 0 2px 12px rgba(45,106,31,0.30) !important;
-        border: none !important;
-    }
-    .player-surah-name { font-weight: 800; color: var(--text-primary); font-size: 13px; }
-    .player-ayat-num  { color: var(--text-muted); font-size: 11px; font-weight: 600; }
-    .player-btn {
-        background: rgba(45,106,31,0.07) !important;
-        border: 1px solid rgba(184,144,42,0.18) !important;
-        color: var(--text-secondary) !important;
-        border-radius: 50% !important;
-    }
-    .player-btn:hover { background: rgba(45,106,31,0.14) !important; }
-
-    /* ── MODALS — Redesign ── */
-    .modal-panel {
-        background: #fff;
-        border-radius: 28px 28px 0 0 !important;
-        border: none !important;
-        border-top: 2px solid rgba(184,144,42,0.15) !important;
-        box-shadow: 0 -8px 40px rgba(0,0,0,0.12) !important;
-        padding: 24px !important;
-    }
-    .modal-header {
-        margin-bottom: 18px;
-        padding-bottom: 14px;
-        border-bottom: 1px solid rgba(184,144,42,0.12);
-    }
-    .modal-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
-    .modal-close {
-        width: 32px; height: 32px;
-        background: var(--bg-secondary) !important;
-        border: 1px solid rgba(184,144,42,0.18) !important;
-        color: var(--text-muted) !important;
-        border-radius: 50% !important;
-        font-size: 18px !important;
-        transition: all 0.18s;
-    }
-    .modal-close:hover { background: rgba(192,57,43,0.08) !important; color: var(--accent-pink) !important; }
-    .modal-select {
-        background: var(--bg-secondary) !important;
-        border: 1.5px solid rgba(184,144,42,0.18) !important;
-        border-radius: var(--radius-sm) !important;
-        color: var(--text-primary) !important;
-        font-weight: 700 !important;
-    }
-    .modal-select:focus { border-color: var(--accent-teal) !important; }
-    .modal-btn-primary {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
-        box-shadow: 0 3px 14px rgba(45,106,31,0.30) !important;
-        border-radius: var(--radius-md) !important;
-        font-weight: 800 !important;
-    }
-    .modal-btn-gold {
-        background: linear-gradient(135deg, var(--accent-gold), #d4a830) !important;
-        box-shadow: 0 3px 14px rgba(184,144,42,0.30) !important;
-        border-radius: var(--radius-md) !important;
-        color: #fff !important;
-        font-weight: 800 !important;
-        border: none !important;
-        padding: 13px !important;
-        flex: 1;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        font-family: var(--ui-font); font-size: 14px; cursor: pointer;
-    }
-    .from-mushaf-btn {
-        background: rgba(139,92,246,0.08) !important;
-        border: 1.5px solid rgba(139,92,246,0.2) !important;
-        border-radius: var(--radius-sm) !important;
-    }
-
-    /* ── QUIZ VIEW — Redesign ── */
-    .quiz-header {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
-        padding: 16px 18px;
-    }
-    .quiz-header-title { color: #fff; font-size: 16px; font-weight: 800; }
-    .quiz-header-sub   { color: rgba(255,255,255,0.7); font-size: 11px; }
-    .quiz-back-btn {
-        background: rgba(255,255,255,0.2) !important;
-        border: 1px solid rgba(255,255,255,0.3) !important;
-        color: #fff !important;
-        border-radius: 50% !important;
-        width: 34px; height: 34px;
-    }
-    .quiz-score-badge {
-        background: rgba(255,255,255,0.18);
-        border: 1px solid rgba(255,255,255,0.3);
-        color: #fff;
-        font-weight: 800;
-        font-size: 12px;
-        padding: 5px 12px;
-        border-radius: 99px;
-    }
-    .quiz-mode-card {
-        background: #fff;
-        border: 2px solid rgba(184,144,42,0.15);
-        border-radius: var(--radius-md);
-        transition: all 0.18s;
-    }
-    .quiz-mode-card:hover, .quiz-mode-card.selected {
-        border-color: var(--accent-teal);
-        background: rgba(13,138,122,0.05);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 16px rgba(13,138,122,0.12);
-    }
-    .quiz-start-btn {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
-        border-radius: var(--radius-md) !important;
-        box-shadow: 0 4px 16px rgba(45,106,31,0.28) !important;
-        font-weight: 800 !important;
-    }
-
-    /* ── SCROLLBARS ── */
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent-gold), var(--accent-teal)); }
-
-    /* ── LOADING SCREEN ── */
-    #loading {
-        background: linear-gradient(160deg, var(--accent-green) 0%, var(--accent-teal) 100%) !important;
-    }
-
-    /* ── TOAST ── */
-    .toast-msg {
-        background: var(--text-primary) !important;
-        color: #fff !important;
-        border-radius: var(--radius-md) !important;
-        font-weight: 700 !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
-    }
-
-    /* ── ERROR SCREEN ── */
-    .error-screen-btn, #retryBtn {
-        background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)) !important;
-        border: none !important;
-        font-weight: 800 !important;
-    }
-
-    /* ── DASHBOARD BODY PADDING ── */
-    .dash-body { padding: 0 0 20px; }
-    .dash-body .dash-section-title { margin-top: 18px; }
-
-    /* ── LOGIN SCREEN ── */
-    #loginContainer, .login-card {
-        background: var(--bg-primary) !important;
-    }
-    .login-card {
-        border: 1px solid rgba(184,144,42,0.15) !important;
-        box-shadow: var(--shadow-card) !important;
-    }
-    .login-btn-google {
-        background: #fff !important;
-        border: 1.5px solid rgba(184,144,42,0.2) !important;
-        font-weight: 800 !important;
-        box-shadow: var(--shadow-card) !important;
-    }
-    .login-btn-guest {
-        background: rgba(45,106,31,0.07) !important;
-        border: 1.5px solid rgba(45,106,31,0.2) !important;
-        color: var(--accent-green) !important;
-        font-weight: 800 !important;
-    }
-
-
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(12px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to   { opacity: 1; }
-    }
-    .dash-progress-card  { animation: slideUp 0.4s 0.1s ease both; }
-    .dash-juz-select-row { animation: slideUp 0.4s 0.15s ease both; }
-    .dash-quick-grid     { animation: slideUp 0.4s 0.2s ease both; }
-</style>
+    </style>
 
 <script defer>
 // =============================================
@@ -3355,9 +2645,9 @@ async function startCacheDownload() {
     const pctEl  = document.getElementById('cachePctText');
     const statEl = document.getElementById('cacheStatusText');
     const steps  = [
-        { juz: 1, url: 'https://corsproxy.io/?https://api.alquran.cloud/v1/juz/1/quran-uthmani', label: 'Juz 1 — Al-Fatihah & Al-Baqarah...' },
-        { juz: 2, url: 'https://corsproxy.io/?https://api.alquran.cloud/v1/juz/2/quran-uthmani', label: 'Juz 2 — Al-Baqarah 142–252...' },
-        { juz: 3, url: 'https://corsproxy.io/?https://api.alquran.cloud/v1/juz/3/quran-uthmani', label: 'Juz 3 — Al-Baqarah & Ali Imran 1–91...' },
+        { juz: 1, url: '/quran/juz/1', label: 'Juz 1 — Al-Fatihah & Al-Baqarah...' },
+        { juz: 2, url: '/quran/juz/2', label: 'Juz 2 — Al-Baqarah 142–252...' },
+        { juz: 3, url: '/quran/juz/3', label: 'Juz 3 — Al-Baqarah & Ali Imran 1–91...' },
         { juz: 4, url: null, label: 'Juz 4 — Ali Imran 92–200 & An-Nisa 1–23...' },
         { juz: 5, url: null, label: 'Juz 5 — An-Nisa 24–147...' },
     ];
@@ -3371,8 +2661,8 @@ async function startCacheDownload() {
             let ayahs;
             if (step.juz === 4) {
                 const [r3, r4] = await Promise.all([
-                    fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/3/quran-uthmani'),
-                    fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani')
+                    fetch('/quran/surah/3'),
+                    fetch('/quran/surah/4')
                 ]);
                 const [d3, d4] = await Promise.all([r3.json(), r4.json()]);
                 const sm3 = { number: d3.data.number, name: d3.data.name, englishName: d3.data.englishName, numberOfAyahs: d3.data.numberOfAyahs };
@@ -3382,7 +2672,7 @@ async function startCacheDownload() {
                     ...d4.data.ayahs.filter(a => a.numberInSurah <= 23).map(a => ({ ...a, surah: sm4, juz: 4 }))
                 ];
             } else if (step.juz === 5) {
-                const r4 = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani');
+                const r4 = await fetch('/quran/surah/4');
                 const d4 = await r4.json();
                 const sm4 = { number: d4.data.number, name: d4.data.name, englishName: d4.data.englishName, numberOfAyahs: d4.data.numberOfAyahs };
                 ayahs = d4.data.ayahs
@@ -3850,7 +3140,7 @@ async function loadAllData() {
 }
 
 async function fetchFromNetwork() {
-    const res1  = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/1/quran-uthmani');
+    const res1  = await fetch('/quran/juz/1');
     const data1 = await res1.json();
     juzDataCache[1] = data1.data.ayahs;
     ayahsData = juzDataCache[1];
@@ -3892,7 +3182,7 @@ async function fetchFromNetwork() {
 async function refreshFromNetwork() {
     if (!navigator.onLine) return;
     try {
-        const res1 = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/1/quran-uthmani');
+        const res1 = await fetch('/quran/juz/1');
         const d1   = await res1.json();
         juzDataCache[1] = d1.data.ayahs;
         saveJuzToIDB(1, juzDataCache[1]).catch(() => {});
@@ -3941,7 +3231,7 @@ function showLoadError() {
 async function loadJuzTwo() {
     try {
         // Gunakan endpoint juz/2 agar field 'page' tersedia (sama seperti Juz 1)
-        const res  = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/2/quran-uthmani');
+        const res  = await fetch('/quran/juz/2');
         const data = await res.json();
         const allJuz2 = data.data.ayahs;
         // Juz 2 = Al-Baqarah 142–252 (filter surah 2, ayat 142-252)
@@ -3962,7 +3252,7 @@ async function loadJuzThree() {
         // Juz 3 = Al-Baqarah 253–286 + Ali Imran 1–91
         // (Ali Imran 92 adalah awal Juz 4, sehingga dikecualikan)
         // Fetch juz/3 dari API (field 'page' tersedia)
-        const res  = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/3/quran-uthmani');
+        const res  = await fetch('/quran/juz/3');
         const data = await res.json();
         juzDataCache[3] = data.data.ayahs.filter(a =>
             !(a.surah.number === 3 && a.numberInSurah >= 92)
@@ -3981,8 +3271,8 @@ async function loadJuzFour() {
         // Juz 4 = Ali Imran 92–200 + An-Nisa 1–23
         // Fetch langsung dari endpoint surah agar ayat 92 Ali Imran pasti ikut
         const [res3, res4] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/3/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani')
+            fetch('/quran/surah/3'),
+            fetch('/quran/surah/4')
         ]);
         const [data3, data4] = await Promise.all([res3.json(), res4.json()]);
 
@@ -4022,7 +3312,7 @@ async function loadJuzFive() {
     try {
         // Juz 5 = An-Nisa 24–147
         // Fetch langsung dari endpoint surah agar struktur ayah konsisten
-        const res = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani');
+        const res = await fetch('/quran/surah/4');
         const data = await res.json();
 
         const surahMeta = {
@@ -4049,8 +3339,8 @@ async function loadJuzSix() {
         // Juz 6 = An-Nisa 148–176 + Al-Maidah 1–81
         // + overflow: Al-Maidah 82–83 (awal Juz 7, untuk konteks halaman)
         const [resNisa, resMaidah] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/4/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/5/quran-uthmani')
+            fetch('/quran/surah/4'),
+            fetch('/quran/surah/5')
         ]);
         const [dataNisa, dataMaidah] = await Promise.all([resNisa.json(), resMaidah.json()]);
 
@@ -4094,8 +3384,8 @@ async function loadJuzSeven() {
     try {
         // Juz 7 = Al-Maidah 83–176 + Al-An'am 1–110
         const [resMaidah, resAnam] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/5/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/6/quran-uthmani')
+            fetch('/quran/surah/5'),
+            fetch('/quran/surah/6')
         ]);
         const [dataMaidah, dataAnam] = await Promise.all([resMaidah.json(), resAnam.json()]);
 
@@ -4134,8 +3424,8 @@ async function loadJuzEight() {
     try {
         // Juz 8 = Al-An'am 111–176 + Al-A'raf 1–87
         const [resAnam, resAraf] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/6/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/7/quran-uthmani')
+            fetch('/quran/surah/6'),
+            fetch('/quran/surah/7')
         ]);
         const [dataAnam, dataAraf] = await Promise.all([resAnam.json(), resAraf.json()]);
 
@@ -4175,8 +3465,8 @@ async function loadJuzNine() {
         // Juz 9 = Al-A'raf 88–206 + Al-Anfal 1–40
         // Catatan: Al-A'raf 206 adalah ayat Sajdah (sujud tilawah disunnahkan)
         const [resAraf, resAnfal] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/7/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/8/quran-uthmani')
+            fetch('/quran/surah/7'),
+            fetch('/quran/surah/8')
         ]);
         const [dataAraf, dataAnfal] = await Promise.all([resAraf.json(), resAnfal.json()]);
 
@@ -4216,8 +3506,8 @@ async function loadJuzTen() {
         // Juz 10 = Al-Anfal 41–75 + At-Taubah 1–93
         // Catatan: At-Taubah 92-93 adalah awal Juz 11 tapi ikut di halaman terakhir Juz 10
         const [resAnfal, resTaubah] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/8/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/9/quran-uthmani')
+            fetch('/quran/surah/8'),
+            fetch('/quran/surah/9')
         ]);
         const [dataAnfal, dataTaubah] = await Promise.all([resAnfal.json(), resTaubah.json()]);
 
@@ -4261,9 +3551,9 @@ async function loadJuzEleven() {
     try {
         // Juz 11 = At-Taubah 94–129 + Yunus 1–109 + Hud 1–5
         const [resTaubah, resYunus, resHud] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/9/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/10/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/11/quran-uthmani')
+            fetch('/quran/surah/9'),
+            fetch('/quran/surah/10'),
+            fetch('/quran/surah/11')
         ]);
         const [dataTaubah, dataYunus, dataHud] = await Promise.all([resTaubah.json(), resYunus.json(), resHud.json()]);
 
@@ -4311,8 +3601,8 @@ async function loadJuzTwelve() {
     try {
         // Juz 12 = Hud 6–123 + Yusuf 1–52
         const [resHud, resYusuf] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/11/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/12/quran-uthmani')
+            fetch('/quran/surah/11'),
+            fetch('/quran/surah/12')
         ]);
         const [dataHud, dataYusuf] = await Promise.all([resHud.json(), resYusuf.json()]);
 
@@ -4351,9 +3641,9 @@ async function loadJuzThirteen() {
     try {
         // Juz 13 = Yusuf 53–111 + Ar-Ra'd 1–43 + Ibrahim 1–52
         const [resYusuf, resRaad, resIbrahim] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/12/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/13/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/14/quran-uthmani')
+            fetch('/quran/surah/12'),
+            fetch('/quran/surah/13'),
+            fetch('/quran/surah/14')
         ]);
         const [dataYusuf, dataRaad, dataIbrahim] = await Promise.all([resYusuf.json(), resRaad.json(), resIbrahim.json()]);
 
@@ -4401,8 +3691,8 @@ async function loadJuzFourteen() {
     try {
         // Juz 14 = Al-Hijr 1–99 (penuh) + An-Nahl 1–128 (penuh)
         const [resHijr, resNahl] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/15/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/16/quran-uthmani')
+            fetch('/quran/surah/15'),
+            fetch('/quran/surah/16')
         ]);
         const [dataHijr, dataNahl] = await Promise.all([resHijr.json(), resNahl.json()]);
 
@@ -4441,8 +3731,8 @@ async function loadJuzFifteen() {
     try {
         // Juz 15 = Al-Isra' 1–111 (penuh) + Al-Kahfi 1–74
         const [resIsra, resKahfi] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/17/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/18/quran-uthmani')
+            fetch('/quran/surah/17'),
+            fetch('/quran/surah/18')
         ]);
         const [dataIsra, dataKahfi] = await Promise.all([resIsra.json(), resKahfi.json()]);
 
@@ -4480,9 +3770,9 @@ async function loadJuzSixteen() {
     try {
         // Juz 16 = Al-Kahfi 75–110 + Maryam 1–98 (penuh) + Taha 1–135
         const [resKahfi, resMaryam, resTaha] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/18/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/19/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/20/quran-uthmani')
+            fetch('/quran/surah/18'),
+            fetch('/quran/surah/19'),
+            fetch('/quran/surah/20')
         ]);
         const [dataKahfi, dataMaryam, dataTaha] = await Promise.all([resKahfi.json(), resMaryam.json(), resTaha.json()]);
 
@@ -4522,8 +3812,8 @@ async function loadJuzSeventeen() {
     try {
         // Juz 17 = Al-Anbiya 1–112 (penuh) + Al-Hajj 1–78
         const [resAnbiya, resHajj] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/21/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/22/quran-uthmani')
+            fetch('/quran/surah/21'),
+            fetch('/quran/surah/22')
         ]);
         const [dataAnbiya, dataHajj] = await Promise.all([resAnbiya.json(), resHajj.json()]);
 
@@ -4556,9 +3846,9 @@ async function loadJuzEighteen() {
     try {
         // Juz 18 = Al-Mu'minun 1–118 (penuh) + An-Nur 1–64 (penuh) + Al-Furqan 1–20
         const [resMuminun, resNur, resFurqan] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/23/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/24/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/25/quran-uthmani')
+            fetch('/quran/surah/23'),
+            fetch('/quran/surah/24'),
+            fetch('/quran/surah/25')
         ]);
         const [dataMuminun, dataNur, dataFurqan] = await Promise.all([resMuminun.json(), resNur.json(), resFurqan.json()]);
 
@@ -4597,9 +3887,9 @@ async function loadJuzNineteen() {
     try {
         // Juz 19 = Al-Furqan 21–77 + Asy-Syu'ara 1–227 (penuh) + An-Naml 1–55
         const [resFurqan, resSyuara, resNaml] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/25/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/26/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/27/quran-uthmani')
+            fetch('/quran/surah/25'),
+            fetch('/quran/surah/26'),
+            fetch('/quran/surah/27')
         ]);
         const [dataFurqan, dataSyuara, dataNaml] = await Promise.all([resFurqan.json(), resSyuara.json(), resNaml.json()]);
 
@@ -4639,9 +3929,9 @@ async function loadJuzTwenty() {
     try {
         // Juz 20 = An-Naml 56–93 + Al-Qasas 1–88 (penuh) + Al-Ankabut 1–45
         const [resNaml, resQasas, resAnkabut] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/27/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/28/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/29/quran-uthmani')
+            fetch('/quran/surah/27'),
+            fetch('/quran/surah/28'),
+            fetch('/quran/surah/29')
         ]);
         const [dataNaml, dataQasas, dataAnkabut] = await Promise.all([resNaml.json(), resQasas.json(), resAnkabut.json()]);
 
@@ -4680,11 +3970,11 @@ async function loadJuzTwentyOne() {
     try {
         // Juz 21 = Al-Ankabut 46–69 + Ar-Rum 1–60 (penuh) + Luqman 1–34 (penuh) + As-Sajdah 1–30 (penuh) + Al-Ahzab 1–30
         const [resAnkabut, resRum, resLuqman, resSajdah, resAhzab] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/29/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/30/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/31/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/32/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/33/quran-uthmani')
+            fetch('/quran/surah/29'),
+            fetch('/quran/surah/30'),
+            fetch('/quran/surah/31'),
+            fetch('/quran/surah/32'),
+            fetch('/quran/surah/33')
         ]);
         const [dataAnkabut, dataRum, dataLuqman, dataSajdah, dataAhzab] = await Promise.all([
             resAnkabut.json(), resRum.json(), resLuqman.json(), resSajdah.json(), resAhzab.json()
@@ -4723,10 +4013,10 @@ async function loadJuzTwentyTwo() {
     try {
         // Juz 22 = Al-Ahzab 31–73 + Saba' 1–54 (penuh) + Fatir 1–45 (penuh) + Yasin 1–27
         const [resAhzab, resSaba, resFatir, resYasin] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/33/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/34/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/35/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/36/quran-uthmani')
+            fetch('/quran/surah/33'),
+            fetch('/quran/surah/34'),
+            fetch('/quran/surah/35'),
+            fetch('/quran/surah/36')
         ]);
         const [dataAhzab, dataSaba, dataFatir, dataYasin] = await Promise.all([
             resAhzab.json(), resSaba.json(), resFatir.json(), resYasin.json()
@@ -4762,10 +4052,10 @@ async function loadJuzTwentyThree() {
     try {
         // Juz 23 = Yasin 28–83 + As-Saffat 1–182 (penuh) + Sad 1–88 (penuh) + Az-Zumar 1–31
         const [resYasin, resSaffat, resSad, resZumar] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/36/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/37/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/38/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/39/quran-uthmani')
+            fetch('/quran/surah/36'),
+            fetch('/quran/surah/37'),
+            fetch('/quran/surah/38'),
+            fetch('/quran/surah/39')
         ]);
         const [dataYasin, dataSaffat, dataSad, dataZumar] = await Promise.all([
             resYasin.json(), resSaffat.json(), resSad.json(), resZumar.json()
@@ -4801,9 +4091,9 @@ async function loadJuzTwentyFour() {
     try {
         // Juz 24 = Az-Zumar 32–75 + Ghafir 1–85 (penuh) + Fussilat 1–46
         const [resZumar, resGhafir, resFussilat] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/39/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/40/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/41/quran-uthmani')
+            fetch('/quran/surah/39'),
+            fetch('/quran/surah/40'),
+            fetch('/quran/surah/41')
         ]);
         const [dataZumar, dataGhafir, dataFussilat] = await Promise.all([
             resZumar.json(), resGhafir.json(), resFussilat.json()
@@ -4838,11 +4128,11 @@ async function loadJuzTwentyFive() {
         // Juz 25 = Fussilat 47–54 + Az-Zukhruf 1–89 (penuh) + Ad-Dukhan 1–59 (penuh) + Al-Jatsiyah 1–37 (penuh)
         // + Al-Ahqaf 1–5 (_overflow juz 26, diikutkan agar halaman rapi)
         const [resFussilat, resZukhruf, resDukhan, resJatsiyah, resAhqaf] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/41/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/43/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/44/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/45/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/46/quran-uthmani')
+            fetch('/quran/surah/41'),
+            fetch('/quran/surah/43'),
+            fetch('/quran/surah/44'),
+            fetch('/quran/surah/45'),
+            fetch('/quran/surah/46')
         ]);
         const [dataFussilat, dataZukhruf, dataDukhan, dataJatsiyah, dataAhqaf] = await Promise.all([
             resFussilat.json(), resZukhruf.json(), resDukhan.json(), resJatsiyah.json(), resAhqaf.json()
@@ -4891,12 +4181,12 @@ async function loadJuzTwentySix() {
         // Juz 26 = Al-Ahqaf 6–35 + Muhammad 1–38 (penuh) + Al-Fath 1–29 (penuh)
         // + Al-Hujurat 1–18 (penuh) + Qaf 1–45 (penuh) + Adz-Dzariyat 1–30
         const [resAhqaf, resMuhammad, resFath, resHujurat, resQaf, resDzariyat] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/46/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/47/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/48/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/49/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/50/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/51/quran-uthmani')
+            fetch('/quran/surah/46'),
+            fetch('/quran/surah/47'),
+            fetch('/quran/surah/48'),
+            fetch('/quran/surah/49'),
+            fetch('/quran/surah/50'),
+            fetch('/quran/surah/51')
         ]);
         const [dataAhqaf, dataMuhammad, dataFath, dataHujurat, dataQaf, dataDzariyat] = await Promise.all([
             resAhqaf.json(), resMuhammad.json(), resFath.json(), resHujurat.json(), resQaf.json(), resDzariyat.json()
@@ -4951,13 +4241,13 @@ async function loadJuzTwentySeven() {
         // + Al-Qamar 1–55 (penuh) + Ar-Rahman 1–78 (penuh) + Al-Waqi'ah 1–96 (penuh)
         // + Al-Hadid 1–29
         const [resDzariyat, resTur, resNajm, resQamar, resRahman, resWaqiah, resHadid] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/51/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/52/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/53/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/54/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/55/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/56/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/57/quran-uthmani')
+            fetch('/quran/surah/51'),
+            fetch('/quran/surah/52'),
+            fetch('/quran/surah/53'),
+            fetch('/quran/surah/54'),
+            fetch('/quran/surah/55'),
+            fetch('/quran/surah/56'),
+            fetch('/quran/surah/57')
         ]);
         const [dataDzariyat, dataTur, dataNajm, dataQamar, dataRahman, dataWaqiah, dataHadid] = await Promise.all([
             resDzariyat.json(), resTur.json(), resNajm.json(), resQamar.json(), resRahman.json(), resWaqiah.json(), resHadid.json()
@@ -5017,15 +4307,15 @@ async function loadJuzTwentyEight() {
         // + As-Saff 1–14 + Al-Jumu'ah 1–11 + Al-Munafiqun 1–11
         // + At-Taghabun 1–18 + At-Talaq 1–12 + At-Tahrim 1–12
         const [resMujadilah, resHasyr, resMumtahanah, resSaff, resJumuah, resMunafiqun, resTaghabun, resTalaq, resTahrim] = await Promise.all([
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/58/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/59/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/60/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/61/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/62/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/63/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/64/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/65/quran-uthmani'),
-            fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/surah/66/quran-uthmani')
+            fetch('/quran/surah/58'),
+            fetch('/quran/surah/59'),
+            fetch('/quran/surah/60'),
+            fetch('/quran/surah/61'),
+            fetch('/quran/surah/62'),
+            fetch('/quran/surah/63'),
+            fetch('/quran/surah/64'),
+            fetch('/quran/surah/65'),
+            fetch('/quran/surah/66')
         ]);
         const [dataMujadilah, dataHasyr, dataMumtahanah, dataSaff, dataJumuah, dataMunafiqun, dataTaghabun, dataTalaq, dataTahrim] = await Promise.all([
             resMujadilah.json(), resHasyr.json(), resMumtahanah.json(), resSaff.json(),
@@ -5094,7 +4384,7 @@ async function loadJuzTwentyEight() {
 async function loadJuzTwentyNine() {
     try {
         // Juz 29 = Al-Mulk s.d. Al-Mursalat (surah 67–77) — gunakan endpoint /juz/29
-        const res = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/29/quran-uthmani');
+        const res = await fetch('/quran/juz/29');
         const data = await res.json();
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
@@ -5126,7 +4416,7 @@ async function loadJuzTwentyNine() {
 async function loadJuzThirty() {
     try {
         // Juz 30 = An-Naba s.d. An-Nas (surah 78–114) — gunakan endpoint /juz/30 agar 1 request
-        const res = await fetch('https://corsproxy.io/?https://api.alquran.cloud/v1/juz/30/quran-uthmani');
+        const res = await fetch('/quran/juz/30');
         const data = await res.json();
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         // Bangun surahMeta dari field surah yang sudah ada di tiap ayat
@@ -6128,36 +5418,35 @@ const MUQATTAAT_WORDS = {
 function normalizeArabic(s) {
     if (!s) return '';
     let t = s;
-    // 1. Hapus tashkil, harakat, tatweel, tanda Quran
+
+    // 1. Hapus tashkil / harakat & tatweel & tanda baca Quran lainnya
     t = t.replace(/[\u064B-\u065F\u0610-\u061A\u06D6-\u06FF\u0670\u0640]/g, '');
+    // Hapus juga tanda Quran tambahan yang mungkin ada di teks mushaf
     t = t.replace(/[\u0615\u0653\u0654\u0655\u0656\u0657\u0658\u0659\u065A\u065B\u065C\u065D\u065E\u065F]/g, '');
-    // 2. Standarisasi alef & huruf umum
-    t = t.replace(/[\u0622\u0623\u0625\u0627\u0671]/g, '\u0627'); // semua varian alef + wasla
-    t = t.replace(/\u0629/g, '\u0647');   // ة → ه
-    t = t.replace(/\u0649/g, '\u064A');   // ى → ي
-    t = t.replace(/\u0624/g, '\u0648');   // ؤ → و
-    t = t.replace(/\u0626/g, '\u064A');   // ئ → ي
-    t = t.replace(/\u0623\u0648/g, '\u0627\u0648'); // normalize أو → او
-    // 3. Hapus ال (alif lam) dari awal kata — STT sering miss/tambah artikel
-    //    Ini optional tapi membantu saat STT bilang "الرحمن" vs "رحمن"
-    //    JANGAN hapus jika kata pendek (≤2 huruf) karena bisa jadi kata "ال" sendiri
-    // Tidak kita hapus ال untuk hindari over-normalization — biarkan matchWords yang handle
-    // 4. Ganti nama huruf yang dieja STT → huruf tunggal
+
+    // 2. Standarisasi alef & huruf umum DULU (sebelum map muqatta'at)
+    // PENTING: U+0671 (ٱ Wasla) dipakai di teks mushaf Utsmani (quran-madina-html)
+    //          harus dinormalisasi ke alef biasa agar MUQATTAAT_WORDS bisa match
+    t = t.replace(/[\u0622\u0623\u0625\u0627\u0671]/g, '\u0627'); // ا semua varian + ٱ wasla → ا
+    t = t.replace(/\u0629/g, '\u0647');                             // ة → ه
+    t = t.replace(/\u0649/g, '\u064A');                             // ى → ي
+    t = t.replace(/\u0624/g, '\u0648');                             // ؤ → و
+    t = t.replace(/\u0626/g, '\u064A');                             // ئ → ي
+
+    // 3. Ganti nama huruf yang dieja STT → huruf tunggal
+    //    (STT kadang mengembalikan "الف لام ميم" untuk "الم")
+    //    Urutan: kata lebih panjang dulu agar tidak salah potong
     for (const [name, letter] of Object.entries(MUQATTAAT_MAP)) {
         t = t.replace(new RegExp(name, 'g'), letter);
     }
-    // 5. Hapus non-Arab
-    t = t.replace(/[^\u0600-\u06FF\s]/g, '');
-    // 6. Normalisasi spasi
-    t = t.replace(/\s+/g, ' ').trim();
-    return t;
-}
 
-// Normalisasi LUNAK: hapus ال dari awal kata agar bisa fuzzy match
-// Contoh: "الرحمن" → "رحمن", "الله" tetap "الله" (≤4 char — biarkan)
-function stripArticle(w) {
-    if (w.startsWith('\u0627\u0644') && w.length > 4) return w.slice(2);
-    return w;
+    // 4. Hapus non-Arab
+    t = t.replace(/[^\u0600-\u06FF\s]/g, '');
+
+    // 5. Normalisasi spasi
+    t = t.replace(/\s+/g, ' ').trim();
+
+    return t;
 }
 
 // Perluas kata muqatta'at dalam teks:
@@ -6200,30 +5489,14 @@ function wordSim(a, b) {
 }
 
 // Cocokkan got-words ke exp-words, kembalikan {matched, totalSim}
-function matchWords(expWords, gotWords, threshold = 0.52) {
+function matchWords(expWords, gotWords, threshold = 0.55) {
     let matched = 0, totalSim = 0;
     const usedGot = new Set();
     for (const expW of expWords) {
         let best = 0, bIdx = -1;
-        const expStripped = stripArticle(expW);
         for (let gi = 0; gi < gotWords.length; gi++) {
             if (usedGot.has(gi)) continue;
-            const gotW = gotWords[gi];
-            const gotStripped = stripArticle(gotW);
-            // Exact match (setelah strip artikel)
-            let s = 0;
-            if (expW === gotW || expStripped === gotStripped) {
-                s = 1.0;
-            } else {
-                // Prefix match: STT sering potong akhir kata
-                // Jika 4+ karakter awal sama → bonus similarity
-                const prefLen = Math.min(4, Math.min(expW.length, gotW.length));
-                const prefMatch = expW.slice(0,prefLen) === gotW.slice(0,prefLen)
-                               || expStripped.slice(0,prefLen) === gotStripped.slice(0,prefLen);
-                // Levenshtein similarity
-                s = Math.max(wordSim(expW, gotW), wordSim(expStripped, gotStripped));
-                if (prefMatch && s >= 0.45) s = Math.max(s, 0.75); // bonus prefix
-            }
+            const s = wordSim(expW, gotWords[gi]);
             if (s > best) { best = s; bIdx = gi; }
         }
         if (best >= threshold && bIdx !== -1) {
@@ -6234,7 +5507,6 @@ function matchWords(expWords, gotWords, threshold = 0.52) {
     }
     return { matched, totalSim };
 }
-
 
 function initSpeechRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -6247,24 +5519,13 @@ function initSpeechRecognition() {
 
     recognition.onresult = (e) => {
         let finalText = '';
-        let interimText = '';
         for (let i = e.resultIndex; i < e.results.length; i++) {
             if (e.results[i].isFinal) {
+                // Ambil SEMUA alternatif, gabung, agar tidak ada kata yang luput
                 for (let k = 0; k < e.results[i].length; k++) {
                     finalText += e.results[i][k].transcript + ' ';
                 }
-            } else {
-                interimText += e.results[i][0].transcript + ' ';
             }
-        }
-
-        // Tampilkan interim transcript secara real-time di kotak live
-        const liveSpan = document.getElementById('tasmiInterimSpan');
-        if (liveSpan) {
-            const displayText = (interimText || finalText || _tasmiAccum).trim();
-            liveSpan.textContent = displayText || 'Mendengarkan...';
-            liveSpan.style.color = interimText ? 'var(--text-muted)' : 'var(--text-primary)';
-            liveSpan.style.fontStyle = interimText ? 'italic' : 'normal';
         }
 
         if (!finalText.trim()) return;
@@ -6296,14 +5557,14 @@ function initSpeechRecognition() {
                             return;
                         }
                         const now = Date.now();
-                        if (!_lastAlarmTime || now - _lastAlarmTime > 8000) {
+                        if (!_lastAlarmTime || now - _lastAlarmTime > 3000) {
                             _lastAlarmTime = now;
                             _tasmiAccum = '';
                             triggerError();
                         }
-                    }, 3000);
+                    }, 1500);
                 } else {
-                    // partial → user masih membaca. Pasang silence timer 6s → nudge halus
+                    // partial → user masih membaca. Pasang silence timer 3s → nudge halus
                     _silenceTimer = setTimeout(() => {
                         if (!isTasmiMode || !_tasmiAccum) return;
                         const r2 = _accumulationSufficient(_tasmiAccum);
@@ -6313,12 +5574,12 @@ function initSpeechRecognition() {
                             setTimeout(() => advanceTasmi(), 150);
                         } else {
                             const now = Date.now();
-                            if (!_lastAlarmTime || now - _lastAlarmTime > 8000) {
+                            if (!_lastAlarmTime || now - _lastAlarmTime > 3000) {
                                 _lastAlarmTime = now;
                                 triggerNudge(); // beep lembut — jangan clear akumulasi
                             }
                         }
-                    }, 6000);
+                    }, 3000);
                 }
             }, 400);
 
@@ -6348,7 +5609,7 @@ function initSpeechRecognition() {
                     } else {
                         // Coverage turun setelah kata baru masuk — evaluasi penuh
                         const now = Date.now();
-                        if (!_lastAlarmTime || now - _lastAlarmTime > 8000) {
+                        if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
                             _lastAlarmTime = now;
                             handleTasmiResult(_tasmiAccum);
                             _tasmiAccum = '';
@@ -6371,16 +5632,16 @@ function initSpeechRecognition() {
                         // Masih partial/fail setelah diam lama → nudge halus
                         // Jangan clear akumulasi agar user bisa lanjut
                         const now = Date.now();
-                        if (!_lastAlarmTime || now - _lastAlarmTime > 10000) {
+                        if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
                             _lastAlarmTime = now;
                             triggerNudge();
                         }
                     }
-                }, 8000);
+                }, 4000);
 
             } else {
                 // result === 'fail' — coverage cukup tapi kata tidak cocok.
-                // Beri 5 detik window untuk self-correct sebelum alarm.
+                // Beri 2.5 detik window untuk self-correct sebelum alarm.
                 _tasmiEvalTimer = setTimeout(() => {
                     if (!isTasmiMode || !_tasmiAccum) return;
                     const r2 = _accumulationSufficient(_tasmiAccum);
@@ -6393,12 +5654,12 @@ function initSpeechRecognition() {
                     }
                     // Masih fail → alarm dengan cooldown 4 detik
                     const now = Date.now();
-                    if (!_lastAlarmTime || now - _lastAlarmTime > 10000) {
+                    if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
                         _lastAlarmTime = now;
                         _tasmiAccum = '';
                         triggerError();
                     }
-                }, 5000);
+                }, 2500);
             }
         }
     };
@@ -6445,7 +5706,6 @@ function toggleTasmiMode() {
 }
 function activateTasmi() {
     if (!recognition) { showToast('Browser tidak mendukung Speech Recognition'); return; }
-    // Banner ditampilkan dari startTasmiFromModal, bukan di sini
     isTasmiMode = true;
     currentPlayIndex = tasmiStartIndex;
     highlightWords(tasmiStartIndex);
@@ -6462,17 +5722,6 @@ function activateTasmi() {
         if (_tasmiAudioCtx.state === 'suspended') _tasmiAudioCtx.resume();
     } catch(e) {}
 }
-function confirmStartTasmi() {
-    const banner = document.getElementById('tasmiBetaBanner');
-    if (banner) banner.style.display = 'none';
-    closeTasmiModal();
-    activateTasmi();
-}
-function closeTasmiBanner() {
-    const banner = document.getElementById('tasmiBetaBanner');
-    if (banner) banner.style.display = 'none';
-}
-
 function deactivateTasmi() {
     isTasmiMode = false;
     clearTimeout(_tasmiEvalTimer);
@@ -6483,9 +5732,6 @@ function deactivateTasmi() {
     try { recognition.stop(); } catch(e) {}
     document.getElementById('tasmiStatus').style.display = 'none';
     document.getElementById('transcriptDisplay').textContent = 'Menunggu suara...';
-    const liveSpan = document.getElementById('tasmiInterimSpan');
-    if (liveSpan) { liveSpan.textContent = 'Mulai membaca...'; liveSpan.style.color = 'var(--text-muted)'; liveSpan.style.fontStyle = 'italic'; }
-    _updateMatchBar(0);
     removeHighlight();
 }
 function updateTasmiProgressUI() {
@@ -6505,51 +5751,19 @@ function _accumulationSufficient(transcript) {
     if (isBismillahAyah()) {
         const bismWords = expandMuqattaat(normalizeArabic(BISMILLAH_TEXT)).split(' ').filter(Boolean);
         const { matched: bMatch } = matchWords(bismWords, gotWords.slice(0, bismWords.length + 2));
-        if (bMatch >= Math.ceil(bismWords.length * 0.55)) gotWords = gotWords.slice(bMatch);
+        if (bMatch >= Math.ceil(bismWords.length * 0.6)) gotWords = gotWords.slice(bMatch);
         if (!gotWords.length) return 'partial';
     }
 
-    const { matched, totalSim } = matchWords(expWords, gotWords);
+    const { matched } = matchWords(expWords, gotWords);
     const coverage = matched / expWords.length;
-    const avgSim   = matched ? totalSim / matched : 0;
 
-    // Update match bar UI secara real-time
-    _updateMatchBar(coverage);
-
-    // Ayat pendek (≤3 kata): threshold lebih rendah karena STT sering miss 1 kata
-    const shortAyah = expWords.length <= 3;
-    // LEBIH TOLERAN: pass saat 55% kata cocok (down dari 65%)
-    // fail hanya jika < 30% (down dari 50%) — kebanyakan kasus jadi 'partial' bukan 'fail'
-    const passThresh = shortAyah ? 0.52 : 0.55;
-    const failThresh = shortAyah ? 0.28 : 0.30;
-
-    if (coverage >= passThresh && avgSim >= 0.50) return 'pass';
-    if (coverage < failThresh) return 'partial';
+    if (coverage < 0.60) return 'partial';
+    if (coverage >= 0.70) return 'pass';
     return 'fail';
 }
 
-function _updateMatchBar(coverage) {
-    const bar = document.getElementById('tasmiMatchBar');
-    const pct = document.getElementById('tasmiMatchPct');
-    if (!bar || !pct) return;
-    const p = Math.round(Math.min(coverage, 1) * 100);
-    bar.style.width = p + '%';
-    pct.textContent = p + '%';
-    // Warna: merah<50%, kuning 50-65%, hijau≥65%
-    if (p >= 65) {
-        bar.style.background = '#22c55e';
-        pct.style.color = '#16a34a';
-    } else if (p >= 45) {
-        bar.style.background = '#f59e0b';
-        pct.style.color = '#d97706';
-    } else {
-        bar.style.background = '#ef4444';
-        pct.style.color = '#ef4444';
-    }
-}
-
-
-
+// Helper: tampilkan info debug di panel bawah status bar
 function showTasmiDebug(heard, expWords, gotWords, matched, ratio, avgSim, passed, isMuq) {
     const el = document.getElementById('tasmiDebug');
     if (!el) return;
@@ -6594,66 +5808,67 @@ function handleTasmiResult(transcript) {
     let gotWords = getGotWords(transcript);
     if (!gotWords.length) return;
 
-    // ── Bismillah opsional ──────────────────────────────────
+    // ── Bismillah opsional di awal surah ──────────────────────────────────────
     if (isBismillahAyah()) {
         const bismWords = expandMuqattaat(normalizeArabic(BISMILLAH_TEXT)).split(' ').filter(Boolean);
         const { matched: bMatch } = matchWords(bismWords, gotWords.slice(0, bismWords.length + 2));
-        if (bMatch >= Math.ceil(bismWords.length * 0.55)) gotWords = gotWords.slice(bMatch);
+        if (bMatch >= Math.ceil(bismWords.length * 0.6)) {
+            gotWords = gotWords.slice(bMatch);
+        }
         if (!gotWords.length) return;
     }
+    // ─────────────────────────────────────────────────────────────────────────
 
-    // ── Jalur khusus: ayat muqatta'at ──────────────────────
+    // ── Jalur khusus: ayat muqatta'at (الم، يس، طه، حم، ص، ق، ن, dll) ────────
     if (isMuqattaatOnlyAyah()) {
         const rawNorm = normalizeArabic(transcript);
+        const ayahNorm = normalizeArabic(a.text).trim();
         const directMatch = Object.keys(MUQATTAAT_WORDS).some(variant => {
             const varLetters = MUQATTAAT_WORDS[variant];
             if (JSON.stringify(varLetters) !== JSON.stringify(expWords)) return false;
             return rawNorm.includes(normalizeArabic(variant));
         });
-        const { matched, totalSim } = matchWords(expWords, gotWords, 0.50);
+        const { matched, totalSim } = matchWords(expWords, gotWords, 0.55);
         const ratio  = expWords.length ? matched / expWords.length : 0;
         const avgSim = matched ? totalSim / matched : 0;
-        _updateMatchBar(ratio);
-        const passed = directMatch || (ratio >= 0.40 && avgSim >= 0.50);
-        _showLiveResult(passed);
-        if (passed) { triggerCorrect(); setTimeout(() => advanceTasmi(), 150); }
-        else { triggerError(); }
+        const wordMatch = ratio >= 0.45 && avgSim >= 0.55;
+        const passed = directMatch || wordMatch;
+        showTasmiDebug(normalizeArabic(transcript), expWords, gotWords, matched, ratio, avgSim, passed, true);
+        if (passed) {
+            triggerCorrect();
+            setTimeout(() => advanceTasmi(), 150);
+        } else {
+            triggerError();
+        }
         return;
     }
+    // ─────────────────────────────────────────────────────────────────────────
 
-    // ── Evaluasi normal ─────────────────────────────────────
     const { matched, totalSim } = matchWords(expWords, gotWords);
-    const matchRatio  = matched / expWords.length;
-    const avgSim      = matched ? totalSim / matched : 0;
-    const shortAyah   = expWords.length <= 3;
-    // Selaras dengan _accumulationSufficient yang baru
-    const passThresh  = shortAyah ? 0.52 : 0.55;
-    const passed      = matchRatio >= passThresh && avgSim >= 0.48;
+    const matchRatio = matched / expWords.length;
+    const shortAyah  = expWords.length <= 5;
+    const avgSim     = matched ? totalSim / matched : 0;
 
-    _updateMatchBar(matchRatio);
-    _showLiveResult(passed);
+    // Threshold: ayat pendek (≤5 kata) → ≥60% & avgSim ≥60%;
+    //            ayat panjang          → ≥55% & avgSim ≥58%
+    const passed = shortAyah
+        ? (matchRatio >= 0.60 && avgSim >= 0.60)
+        : (matchRatio >= 0.55 && avgSim >= 0.58);
+
+    showTasmiDebug(normalizeArabic(transcript), expWords, gotWords, matched, matchRatio * expWords.length | 0, avgSim, passed, false);
 
     if (passed) {
         triggerCorrect();
         setTimeout(() => advanceTasmi(), 150);
     } else {
+        // Alarm hanya jika cooldown sudah lewat (4 detik) agar tidak bertubi-tubi
         const now = Date.now();
-        if (!_lastAlarmTime || now - _lastAlarmTime > 8000) {
+        if (!_lastAlarmTime || now - _lastAlarmTime > 4000) {
             _lastAlarmTime = now;
             triggerError();
         }
     }
 }
-
-// Flash warna background liveBox sesuai hasil
-function _showLiveResult(passed) {
-    const box = document.getElementById('tasmiLiveBox');
-    if (!box) return;
-    box.style.background = passed ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.12)';
-    setTimeout(() => { box.style.background = 'rgba(0,0,0,0.05)'; }, 900);
-}
-
-
 
 function advanceTasmi() {
     currentPlayIndex++;
@@ -6666,12 +5881,9 @@ function advanceTasmi() {
     }
 }
 function triggerCorrect() {
+    // Flash hijau pada elemen ayat yang sedang aktif
     document.querySelectorAll('.char-active').forEach(el => el.classList.add('tasmi-correct'));
     setTimeout(() => document.querySelectorAll('.tasmi-correct').forEach(el => el.classList.remove('tasmi-correct')), 1100);
-    // Reset live box display
-    const liveSpan = document.getElementById('tasmiInterimSpan');
-    if (liveSpan) { liveSpan.textContent = 'Mulai membaca...'; liveSpan.style.color = 'var(--text-muted)'; liveSpan.style.fontStyle = 'italic'; }
-    _updateMatchBar(0);
 }
 function triggerError() {
     document.querySelectorAll('.char-active').forEach(el => el.classList.add('tasmi-error'));
@@ -6843,10 +6055,8 @@ function startTasmiFromModal() {
     const selIdx = parseInt(document.getElementById('tasmiAyahSel').value);
     if (!isNaN(selIdx)) tasmiStartIndex = selIdx;
     tasmiSpeedMode = document.getElementById('tasmiSpeedToggle')?.checked || false;
-    // Tampilkan banner DULU, baru mulai
-    const banner = document.getElementById('tasmiBetaBanner');
-    if (banner) { banner.style.display = 'flex'; }
-    else { closeTasmiModal(); activateTasmi(); }
+    closeTasmiModal();
+    activateTasmi();
 }
 // Animasi knob toggle mode cepat
 document.addEventListener('DOMContentLoaded', () => {
@@ -8592,96 +7802,6 @@ function updateJuzSelectInfo() {
 </head>
 <body>
 
-<!-- ============================================================
-     LOGIN SCREEN
-============================================================ -->
-<div id="loginScreen">
-    <div class="login-logo-wrap">
-        <div class="login-logo-icon">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        </div>
-        <div class="login-app-name">El<span>Fashih</span></div>
-        <div class="login-app-tagline">Teman Penghafal Qur'an Juz 1–30</div>
-    </div>
-
-    <div class="login-card">
-        <div class="login-title">Masuk ke Akun</div>
-        <div class="login-subtitle">Progres hafalan tersimpan & tidak tercampur antar pengguna</div>
-
-        <!-- Method Tabs -->
-        <div class="login-method-tabs">
-            <button class="login-method-tab active" onclick="switchLoginMethod('gmail')">
-                <i class="fa-solid fa-envelope" style="margin-right:4px"></i> Gmail
-            </button>
-            <button class="login-method-tab" onclick="switchLoginMethod('phone')">
-                <i class="fa-solid fa-phone" style="margin-right:4px"></i> No. Telepon
-            </button>
-            <button class="login-method-tab" onclick="switchLoginMethod('username')">
-                <i class="fa-solid fa-user" style="margin-right:4px"></i> Username
-            </button>
-        </div>
-
-        <!-- Error box -->
-        <div class="login-error" id="loginError"></div>
-
-        <!-- Gmail Form -->
-        <div id="loginFormGmail">
-            <div class="login-input-group">
-                <label class="login-input-label">Alamat Gmail</label>
-                <input type="email" class="login-input" id="inputGmail" placeholder="contoh@gmail.com" autocomplete="email" />
-                <div class="login-input-hint">Username dibuat otomatis dari nama Gmail Anda</div>
-            </div>
-        </div>
-
-        <!-- Phone Form -->
-        <div id="loginFormPhone" style="display:none">
-            <div class="login-input-group">
-                <label class="login-input-label">Nomor Telepon (WhatsApp/HP)</label>
-                <input type="tel" class="login-input" id="inputPhone" placeholder="08xxxxxxxxxx atau +628xxxxxxxx" autocomplete="tel" />
-                <div class="login-input-hint">Nomor digunakan sebagai identitas unik, tidak ada SMS dikirim</div>
-            </div>
-        </div>
-
-        <!-- Username Form -->
-        <div id="loginFormUsername" style="display:none">
-            <div class="login-input-group">
-                <label class="login-input-label">Username</label>
-                <input type="text" class="login-input" id="inputUsername" placeholder="huruf, angka, tanpa spasi (min. 3 karakter)" autocomplete="username" />
-                <div class="login-input-hint">Buat username baru atau masukkan username yang sudah ada</div>
-            </div>
-        </div>
-
-        <button class="login-btn-primary" onclick="doLogin()">
-            <i class="fa-solid fa-right-to-bracket" style="margin-right:8px"></i> Masuk / Daftar
-        </button>
-
-        <div class="login-divider"><span>atau lanjutkan tanpa akun</span></div>
-
-        <button class="login-btn-guest" onclick="loginAsGuest()">
-            <i class="fa-solid fa-user-secret" style="margin-right:8px"></i> Mode Tamu
-        </button>
-        <div class="login-guest-note">
-            ⚠️ Mode tamu: progres hafalan tidak disimpan, quiz dibatasi.<br>
-            Data hilang saat browser ditutup.
-        </div>
-    </div>
-</div>
-
-<!-- ACCOUNT MODAL -->
-<div class="modal-overlay" id="accountModal">
-    <div class="modal-panel" style="max-height:90vh;overflow-y:auto">
-        <div class="modal-header">
-            <div class="modal-title">
-                <i class="fa-solid fa-circle-user" style="color:var(--accent-teal);margin-right:8px"></i>
-                Akun Saya
-            </div>
-            <button class="modal-close" onclick="closeAccountModal()">&times;</button>
-        </div>
-
-        <div id="accountModalContent"></div>
-    </div>
-</div>
-
 <!-- DASHBOARD VIEW -->
 <div id="dashboardView" class="active">
     <div class="dash-header">
@@ -8702,11 +7822,6 @@ function updateJuzSelectInfo() {
                 <strong id="dashDateDay">—</strong>
                 <span id="dashDateFull">—</span>
             </div>
-            <!-- User Button -->
-            <button class="user-btn" onclick="openAccountModal()" id="dashUserBtn" title="Akun Saya">
-                <div class="user-avatar" id="dashUserAvatar">?</div>
-                <span class="user-name-label" id="dashUserName">—</span>
-            </button>
         </div>
     </div>
 
@@ -8719,27 +7834,13 @@ function updateJuzSelectInfo() {
         </button>
     </div>
 
-    <!-- DUKUNG PENGEMBANG — di bawah Buka Mushaf -->
-    <div style="padding:10px 14px 0">
-        <button onclick="openDonateModal()"
-            style="width:100%;display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 16px;border-radius:14px;border:none;cursor:pointer;font-family:var(--ui-font);background:linear-gradient(135deg,#f472b6,#fb923c);color:#fff;font-size:13px;font-weight:800;letter-spacing:.2px;box-shadow:0 3px 14px rgba(244,114,182,.30);transition:opacity .2s"
-            onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            ❤️ Dukung Pengembang
-        </button>
-    </div>
-
     <div class="dash-body">
-        <!-- Greeting + Streak -->
-        <div class="dash-greeting" style="animation:slideUp 0.4s ease both">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                <div>
-                    <div class="dash-greeting-title" id="dashGreetTitle">Assalamu'alaikum 👋</div>
-                    <div class="dash-greeting-sub">Semangat menghafal hari ini!</div>
-                </div>
-                <div class="dash-streak" id="dashStreakBadge">
-                    🔥 <span id="dashStreakNum">0</span> hari
-                </div>
+        <!-- Greeting -->
+        <div class="dash-greeting">
+            <div class="dash-greeting-title" id="dashGreetTitle">Assalamu'alaikum 👋</div>
+            <div class="dash-greeting-sub">Semangat menghafal hari ini!</div>
+            <div class="dash-streak" id="dashStreakBadge">
+                🔥 <span id="dashStreakNum">0</span> hari streak
             </div>
         </div>
 
@@ -9245,26 +8346,10 @@ function updateJuzSelectInfo() {
 <div class="topbar" id="topbar">
     <!-- Baris 1: nama surah + tombol aksi -->
     <div class="topbar-row1">
-        <div style="display:flex;align-items:center;gap:8px">
-            <button onclick="showDashboard()" style="width:32px;height:32px;border-radius:50%;background:rgba(45,106,31,0.08);border:1px solid rgba(184,144,42,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all 0.18s" title="Beranda">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </button>
-            <div class="topbar-title">
-                <div class="topbar-surah-name" id="topbarSurahName">الْفَاتِحَة</div>
-            </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-            <button onclick="openAccountModal()" style="width:32px;height:32px;border-radius:50%;background:rgba(45,106,31,0.08);border:1px solid rgba(184,144,42,0.18);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s" title="Akun">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </button>
+        <div class="topbar-title">
+            <div class="topbar-surah-name" id="topbarSurahName">الْفَاتِحَة</div>
         </div>
         <div class="topbar-actions">
-            <button onclick="openDonateModal()" title="Dukung Pengembang"
-                style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 10px;border-radius:20px;border:none;cursor:pointer;font-family:var(--ui-font);background:linear-gradient(135deg,#f472b6,#fb923c);color:#fff;font-size:10px;font-weight:700;letter-spacing:.3px;box-shadow:0 2px 10px rgba(244,114,182,.45);flex-shrink:0;transition:opacity .2s"
-                onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                <span>Dukung</span>
-            </button>
             <button class="dash-open-btn" onclick="showDashboard()" title="Dashboard">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 <span class="btn-icon-label">Home</span>
@@ -9461,8 +8546,7 @@ function updateJuzSelectInfo() {
 
 <!-- MODAL SETOR HAFALAN -->
 <div class="modal-overlay" id="tasmiModal">
-    <div class="modal-panel" style="padding:0;display:flex;flex-direction:column;max-height:88vh;overflow:hidden">
-        <div style="overflow-y:auto;flex:1;padding:20px 24px 8px">
+    <div class="modal-panel">
         <div class="modal-header">
             <div class="modal-title"><i class="fa-solid fa-microphone" style="color:var(--accent-gold)"></i> Setor Hafalan</div>
             <button class="modal-close" onclick="closeTasmiModal()">&times;</button>
@@ -9531,12 +8615,11 @@ function updateJuzSelectInfo() {
             </div>
         </div>
 
-    </div><!-- end scrollable -->
-    <!-- Tombol sticky di bawah modal, tidak tertutup nav -->
-    <div style="padding:12px 24px max(env(safe-area-inset-bottom,0px),16px);border-top:1px solid rgba(184,144,42,0.12);background:#fff;flex-shrink:0">
-        <button class="modal-btn-gold" onclick="startTasmiFromModal()" style="width:100%">
-            <i class="fa-solid fa-microphone"></i> Mulai Setor Hafalan
-        </button>
+        <div class="modal-btn-row">
+            <button class="modal-btn-gold" onclick="startTasmiFromModal()">
+                <i class="fa-solid fa-microphone"></i> Mulai Setor Hafalan
+            </button>
+        </div>
     </div>
 </div>
 
@@ -9833,60 +8916,6 @@ function updateJuzSelectInfo() {
     .dpr-btn-ghost:active { border-color: rgba(14,145,128,0.4); color: var(--accent-teal); }
     .dpr-btn-icon   { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; padding: 0; }
 }
-
-/* =============================================
-   LOGIN SCREEN & MODALS
-============================================= */
-#loginScreen {
-    position: fixed; inset: 0; z-index: 9999;
-    background: linear-gradient(160deg, #0a1510 0%, #1a2e1a 40%, #0d1f1a 100%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 24px 20px; overflow-y: auto;
-    transition: opacity 0.35s ease;
-}
-#loginScreen.hidden { opacity: 0; pointer-events: none; }
-.login-logo-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 28px; }
-.login-logo-icon { width: 68px; height: 68px; border-radius: 20px; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px rgba(14,145,128,0.4); }
-.login-app-name { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: #fff; }
-.login-app-name span { background: linear-gradient(135deg, #7fffca, #0E9180); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.login-app-tagline { font-size: 12px; color: rgba(255,255,255,0.45); text-align: center; }
-.login-card { width: 100%; max-width: 390px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 24px; padding: 26px 22px; backdrop-filter: blur(20px); }
-.login-title { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 5px; text-align: center; }
-.login-subtitle { font-size: 12px; color: rgba(255,255,255,0.45); text-align: center; margin-bottom: 22px; line-height: 1.5; }
-.login-method-tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; margin-bottom: 18px; }
-.login-method-tab { flex: 1; padding: 8px 4px; border-radius: 9px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; background: transparent; color: rgba(255,255,255,0.4); font-family: var(--ui-font); transition: all 0.2s; text-align: center; }
-.login-method-tab.active { background: rgba(14,145,128,0.4); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
-.login-input-group { margin-bottom: 13px; }
-.login-input-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.55); margin-bottom: 6px; display: block; }
-.login-input { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; color: #fff; font-size: 14px; font-family: var(--ui-font); outline: none; transition: border-color 0.2s; }
-.login-input::placeholder { color: rgba(255,255,255,0.28); }
-.login-input:focus { border-color: rgba(14,145,128,0.65); background: rgba(255,255,255,0.1); }
-.login-input-hint { font-size: 10px; color: rgba(255,255,255,0.32); margin-top: 5px; }
-.login-btn-primary { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); border: none; border-radius: 12px; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--ui-font); box-shadow: 0 4px 18px rgba(14,145,128,0.4); transition: opacity 0.2s; margin-bottom: 12px; }
-.login-btn-primary:hover { opacity: 0.9; }
-.login-divider { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.12); }
-.login-divider span { font-size: 10px; color: rgba(255,255,255,0.32); white-space: nowrap; }
-.login-btn-guest { width: 100%; padding: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; color: rgba(255,255,255,0.65); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--ui-font); transition: all 0.2s; text-align: center; }
-.login-btn-guest:hover { background: rgba(255,255,255,0.1); color: #fff; }
-.login-guest-note { font-size: 10px; color: rgba(255,255,255,0.28); text-align: center; margin-top: 10px; line-height: 1.6; }
-.login-error { background: rgba(219,35,80,0.18); border: 1px solid rgba(219,35,80,0.4); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #ff7096; margin-bottom: 14px; display: none; line-height: 1.4; }
-.login-error.show { display: block; }
-/* User btn in header */
-.user-btn { display: flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 50px; background: rgba(14,145,128,0.1); border: 1px solid rgba(14,145,128,0.22); cursor: pointer; transition: all 0.2s; font-family: var(--ui-font); }
-.user-btn:hover { background: rgba(14,145,128,0.2); }
-.user-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0; }
-.user-name-label { font-size: 11px; font-weight: 700; color: var(--text-primary); max-width: 85px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.guest-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; background: rgba(217,152,26,0.2); color: var(--accent-gold); border-radius: 50px; border: 1px solid rgba(217,152,26,0.35); }
-/* Account modal extras */
-.account-modal-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: #fff; margin: 0 auto 14px; box-shadow: 0 4px 16px rgba(14,145,128,0.3); }
-.account-info-row { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-.account-info-icon { color: var(--accent-teal); flex-shrink: 0; width: 20px; text-align: center; font-size: 14px; }
-.account-info-text { font-size: 13px; color: var(--text-primary); font-weight: 600; }
-.account-info-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
-.guest-restriction-banner { background: rgba(217,152,26,0.08); border: 1px solid rgba(217,152,26,0.28); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; }
-.guest-restriction-title { font-size: 12px; font-weight: 700; color: var(--accent-gold); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-.guest-restriction-list { font-size: 11px; color: var(--text-secondary); line-height: 1.9; }
 </style>
 
 <!-- ============================================================
@@ -9935,7 +8964,6 @@ function updateJuzSelectInfo() {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
         Lainnya
     </button>
-
 </nav>
 
 <!-- ============================================================
@@ -9946,13 +8974,7 @@ function updateJuzSelectInfo() {
 <div id="moreDrawer">
     <div class="drawer-handle"></div>
 
-    <!-- Dukung Pengembang — elegan di atas drawer -->
-    <button onclick="openDonateModal(); closeBNavMore()"
-        style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;margin-bottom:14px;border-radius:16px;border:none;cursor:pointer;font-family:var(--ui-font);background:linear-gradient(135deg,#b8902a,#d4a830);color:#fff;font-size:13px;font-weight:800;letter-spacing:.3px;box-shadow:0 3px 14px rgba(184,144,42,0.32);transition:all 0.18s"
-        onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        ❤️ Dukung Pengembang
-    </button>
+    <!-- Play controls row -->
     <div class="drawer-play-row">
         <button class="dpr-btn dpr-btn-primary" id="drawerPlayAllBtn" onclick="togglePlayAll(); updateBNavPlay()">
             <i class="fa-solid fa-play" id="drawerPlayIcon"></i>
@@ -10017,71 +9039,6 @@ function updateJuzSelectInfo() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
             <span style="color:#a78bfa">Quiz</span>
         </button>
-
-        <button class="drawer-item" onclick="openAccountModal(); closeBNavMore()" id="drawerAccountBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>Akun</span>
-        </button>
-    </div>
-
-    <!-- Logout cepat di bawah drawer -->
-    <div id="drawerLogoutRow" style="margin-top:8px;padding:0 4px">
-        <button onclick="confirmLogout(); closeBNavMore()"
-            style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:12px;border:1.5px solid rgba(219,35,80,0.35);background:rgba(219,35,80,0.07);color:#db2350;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--ui-font)">
-            <i class="fa-solid fa-right-from-bracket"></i> Keluar / Ganti Akun
-        </button>
-    </div>
-</div>
-
-<!-- MODAL DUKUNG PENGEMBANG -->
-<div class="modal-overlay" id="donateModal" onclick="if(event.target===this)closeDonateModal()">
-    <div class="modal-panel" style="max-width:380px">
-        <div class="modal-header">
-            <div class="modal-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#f472b6" stroke="none" style="vertical-align:-3px;margin-right:6px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                Dukung Pengembang
-            </div>
-            <button class="modal-close" onclick="closeDonateModal()">&times;</button>
-        </div>
-
-        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:18px;line-height:1.6;text-align:center">
-            Sumbangan anda sangat berarti bagi pengembangan aplikasi ini,<br>
-            <strong style="color:var(--accent-green)">Jazakumullah !</strong>
-        </p>
-
-        <!-- Saweria -->
-        <a href="https://saweria.co/elFashih" target="_blank" rel="noopener"
-           style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#ff6b35,#ff9a3c);border-radius:var(--radius-md);color:#fff;text-decoration:none;margin-bottom:14px;font-weight:600;font-size:14px;box-shadow:0 4px 14px rgba(255,107,53,0.35);transition:opacity .2s"
-           onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <div>
-                <div style="font-size:13px;opacity:.85;font-weight:400">Dukung lewat Saweria</div>
-                <div style="font-size:15px">saweria.co/elFashih</div>
-            </div>
-        </a>
-
-        <!-- Bank BRI -->
-        <div style="border:1.5px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;background:var(--bg-secondary)">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                <span style="font-weight:700;font-size:14px;color:var(--text-primary)">Transfer Bank BRI</span>
-            </div>
-            <div style="display:grid;gap:6px;font-size:13px">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                    <span style="color:var(--text-muted)">No. Rekening</span>
-                    <span style="font-weight:700;color:var(--text-primary);font-size:15px;letter-spacing:.5px" id="rekening-number">667601029194536</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                    <span style="color:var(--text-muted)">Atas Nama</span>
-                    <span style="font-weight:600;color:var(--text-primary)">Imam Soimul Fajri</span>
-                </div>
-            </div>
-            <button onclick="copyRekening()" style="margin-top:12px;width:100%;padding:9px;background:var(--accent-teal);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" id="copyRekeningBtn">
-                <i class="fa-regular fa-copy"></i> Salin Nomor Rekening
-            </button>
-        </div>
-
-        <button class="modal-btn-secondary" onclick="closeDonateModal()" style="margin-top:14px;width:100%">Tutup</button>
     </div>
 </div>
 
@@ -10170,465 +9127,7 @@ function syncUIStates() {
     if (bnavLoop) bnavLoop.classList.toggle('active', !!window.isRepeatAyah);
 }
 setInterval(syncUIStates, 1000);
-
-// =============================================
-// DUKUNG PENGEMBANG
-// =============================================
-function openDonateModal() {
-    document.getElementById('donateModal').classList.add('visible');
-}
-function closeDonateModal() {
-    document.getElementById('donateModal').classList.remove('visible');
-}
-function copyRekening() {
-    const btn = document.getElementById('copyRekeningBtn');
-    navigator.clipboard.writeText('667601029194536').then(() => {
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
-        btn.style.background = 'var(--accent-green)';
-        setTimeout(() => {
-            btn.innerHTML = '<i class="fa-regular fa-copy"></i> Salin Nomor Rekening';
-            btn.style.background = 'var(--accent-teal)';
-        }, 2000);
-    }).catch(() => {
-        btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Gagal menyalin';
-        setTimeout(() => {
-            btn.innerHTML = '<i class="fa-regular fa-copy"></i> Salin Nomor Rekening';
-        }, 2000);
-    });
-}
 </script>
 
-<script>
-// =============================================
-// AUTH / LOGIN SYSTEM
-// =============================================
-
-const AUTH_KEY     = 'elfashih_auth';        // {uid, username, method, loginTime}
-const USERS_KEY    = 'elfashih_users';       // {uid: {username, method, id, created}}
-const IS_GUEST     = '__guest__';
-
-// --- Fitur yang dibatasi untuk tamu ---
-const GUEST_RESTRICTED = ['hafalan', 'murojaah', 'quiz_save', 'schedule'];
-
-let _currentUser = null; // {uid, username, method, isGuest}
-
-/* ---- Inisialisasi sesi ---- */
-function authInit() {
-    const saved = (() => { try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }})();
-    if (saved && saved.uid) {
-        _currentUser = saved;
-        _applySession();
-    } else {
-        // Tampilkan layar login
-        document.getElementById('loginScreen').style.display = 'flex';
-    }
-}
-
-/* ---- Terapkan sesi yang sudah ada ---- */
-function _applySession() {
-    document.getElementById('loginScreen').classList.add('hidden');
-    setTimeout(() => { document.getElementById('loginScreen').style.display = 'none'; }, 400);
-    _updateUserBadge();
-    _patchStorageKeys();
-}
-
-/* ---- Update badge nama di dashboard ---- */
-function _updateUserBadge() {
-    const nameEl   = document.getElementById('dashUserName');
-    const avatarEl = document.getElementById('dashUserAvatar');
-    if (!_currentUser) return;
-    if (_currentUser.isGuest) {
-        if (nameEl) nameEl.textContent = 'Tamu';
-        if (avatarEl) avatarEl.textContent = '👤';
-    } else {
-        const name = _currentUser.username || '?';
-        if (nameEl) nameEl.textContent = name;
-        if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
-    }
-}
-
-/* ---- Patch localStorage agar tiap user punya namespace sendiri ---- */
-function _patchStorageKeys() {
-    if (!_currentUser || _currentUser.isGuest) return; // tamu pakai key default (ephemeral)
-    const uid = _currentUser.uid;
-    const prefix = `u_${uid}_`;
-
-    // Override fungsi hafalan agar pakai key berprefix
-    const origGetHafalanAll = window.getHafalanAll;
-    const origSetHafalanStatus = window.setHafalanStatus;
-
-    window.getHafalanAll = function() {
-        try { return JSON.parse(localStorage.getItem(prefix + 'elfashih_hafalan') || '{}'); } catch { return {}; }
-    };
-    window.setHafalanStatus = function(surah, ayah, status) {
-        const all = window.getHafalanAll();
-        const k = surah + ':' + ayah;
-        if (status === 'belum') delete all[k];
-        else all[k] = status;
-        localStorage.setItem(prefix + 'elfashih_hafalan', JSON.stringify(all));
-    };
-
-    // Leitner
-    window.getLeitnerAll = function() {
-        try { return JSON.parse(localStorage.getItem(prefix + 'elfashih_leitner') || '{}'); } catch { return {}; }
-    };
-    window.saveLeitnerAll = function(data) {
-        try { localStorage.setItem(prefix + 'elfashih_leitner', JSON.stringify(data)); } catch {}
-    };
-
-    // Jadwal
-    try { schedules = JSON.parse(localStorage.getItem(prefix + 'elfashih_schedules') || '[]'); } catch {}
-    window._origSaveSchedules = window.saveSchedules;
-    window.saveSchedules = function() {
-        try { localStorage.setItem(prefix + 'elfashih_schedules', JSON.stringify(schedules)); } catch {}
-    };
-
-    // Streak
-    window._getStreak = function() {
-        try { return JSON.parse(localStorage.getItem(prefix + 'elfashih_streak') || '{"count":0,"lastDate":""}'); } catch { return {count:0,lastDate:''}; }
-    };
-    window._saveStreak = function(data) {
-        try { localStorage.setItem(prefix + 'elfashih_streak', JSON.stringify(data)); } catch {}
-    };
-
-    // Quiz scores
-    window.saveQuizScore = function(score, mode, total) {
-        let scores = [];
-        try { scores = JSON.parse(localStorage.getItem(prefix + 'elfashih_quiz_scores') || '[]'); } catch {}
-        scores.unshift({ score, mode, total, date: new Date().toISOString() });
-        try { localStorage.setItem(prefix + 'elfashih_quiz_scores', JSON.stringify(scores.slice(0, 50))); } catch {}
-    };
-    window.getQuizScores = function() {
-        try { return JSON.parse(localStorage.getItem(prefix + 'elfashih_quiz_scores') || '[]'); } catch { return []; }
-    };
-}
-
-/* ---- Generate UID dari identitas ---- */
-function _genUID(method, id) {
-    // Simple deterministic UID dari method + id
-    let hash = 0;
-    const str = method + ':' + id.toLowerCase().trim();
-    for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        hash |= 0;
-    }
-    return 'u' + Math.abs(hash).toString(36);
-}
-
-/* ---- Validasi input ---- */
-function _validateInput(method, value) {
-    value = value.trim();
-    if (!value) return { ok: false, msg: 'Field tidak boleh kosong.' };
-    if (method === 'gmail') {
-        if (!/^[^\s@]+@(gmail\.com|googlemail\.com)$/i.test(value))
-            return { ok: false, msg: 'Masukkan alamat Gmail yang valid (contoh: nama@gmail.com).' };
-    } else if (method === 'phone') {
-        const cleaned = value.replace(/[\s\-\(\)]/g, '');
-        if (!/^(\+62|0)8\d{7,13}$/.test(cleaned))
-            return { ok: false, msg: 'Nomor telepon tidak valid. Gunakan format: 08xxx atau +628xxx.' };
-    } else if (method === 'username') {
-        if (value.length < 3) return { ok: false, msg: 'Username minimal 3 karakter.' };
-        if (value.length > 24) return { ok: false, msg: 'Username maksimal 24 karakter.' };
-        if (!/^[a-zA-Z0-9_\.]+$/.test(value)) return { ok: false, msg: 'Username hanya boleh huruf, angka, titik, dan underscore.' };
-    }
-    return { ok: true };
-}
-
-/* ---- Derive username dari email/phone ---- */
-function _deriveUsername(method, value) {
-    if (method === 'gmail') {
-        return value.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').slice(0, 20) || 'user';
-    } else if (method === 'phone') {
-        const c = value.replace(/\D/g, '');
-        return 'hp_' + c.slice(-6);
-    }
-    return value;
-}
-
-/* ---- Do Login ---- */
-let _activeLoginMethod = 'gmail';
-function switchLoginMethod(method) {
-    _activeLoginMethod = method;
-    ['gmail', 'phone', 'username'].forEach(m => {
-        document.getElementById('loginForm' + m.charAt(0).toUpperCase() + m.slice(1)).style.display = m === method ? '' : 'none';
-        document.querySelectorAll('.login-method-tab')[['gmail','phone','username'].indexOf(m)].classList.toggle('active', m === method);
-    });
-    document.getElementById('loginError').classList.remove('show');
-}
-
-function doLogin() {
-    const method = _activeLoginMethod;
-    let rawValue = '';
-    if (method === 'gmail')    rawValue = document.getElementById('inputGmail').value;
-    if (method === 'phone')    rawValue = document.getElementById('inputPhone').value;
-    if (method === 'username') rawValue = document.getElementById('inputUsername').value;
-
-    const errEl = document.getElementById('loginError');
-    errEl.classList.remove('show');
-
-    const validation = _validateInput(method, rawValue);
-    if (!validation.ok) {
-        errEl.textContent = validation.msg;
-        errEl.classList.add('show');
-        return;
-    }
-
-    const cleanValue = rawValue.trim();
-    const uid = _genUID(method, cleanValue);
-    const username = method === 'username' ? cleanValue : _deriveUsername(method, cleanValue);
-
-    // Simpan/update user registry
-    let users = {};
-    try { users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); } catch {}
-    if (!users[uid]) {
-        users[uid] = { username, method, id: cleanValue, created: new Date().toISOString() };
-    }
-    try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); } catch {}
-
-    // Simpan sesi
-    _currentUser = { uid, username: users[uid].username, method, isGuest: false, loginTime: new Date().toISOString() };
-    try { localStorage.setItem(AUTH_KEY, JSON.stringify(_currentUser)); } catch {}
-
-    _applySession();
-    showToast(`✅ Ahlan, ${_currentUser.username}! Progres hafalan tersinkron.`);
-    setTimeout(updateDashboard, 300);
-}
-
-function loginAsGuest() {
-    _currentUser = { uid: IS_GUEST, username: 'Tamu', method: 'guest', isGuest: true };
-    // Jangan simpan ke localStorage — sesi tamu hilang saat tutup tab
-    _applySession();
-    showToast('👤 Mode Tamu aktif — progres tidak disimpan');
-    setTimeout(updateDashboard, 300);
-}
-
-/* ---- Guard untuk fitur yang perlu login ---- */
-function requireLogin(featureName, callback) {
-    if (_currentUser && !_currentUser.isGuest) {
-        callback();
-        return;
-    }
-    // Tamu: tampilkan prompt login
-    _showLoginPromptForGuest(featureName);
-}
-
-function _showLoginPromptForGuest(featureName) {
-    const modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;';
-    modal.innerHTML = `
-        <div style="background:var(--bg-card);border-radius:24px;padding:28px 22px;max-width:340px;width:100%;text-align:center;border:1px solid var(--border);">
-            <div style="font-size:40px;margin-bottom:12px">🔒</div>
-            <div style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:8px">Perlu Login</div>
-            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6">
-                Fitur <strong>${featureName}</strong> memerlukan akun agar data tidak tercampur antar pengguna.
-            </div>
-            <button onclick="this.closest('[style]').remove();reShowLogin();" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--accent-green),var(--accent-teal));border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:var(--ui-font);">
-                <i class="fa-solid fa-right-to-bracket" style="margin-right:8px"></i> Masuk Sekarang
-            </button>
-            <button onclick="this.closest('[style]').remove();" style="width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:var(--ui-font);">
-                Lanjut sebagai Tamu
-            </button>
-        </div>`;
-    document.body.appendChild(modal);
-}
-
-function reShowLogin() {
-    // Reset current user dan tampilkan layar login lagi
-    _currentUser = null;
-    try { localStorage.removeItem(AUTH_KEY); } catch {}
-    const ls = document.getElementById('loginScreen');
-    ls.style.display = 'flex';
-    ls.classList.remove('hidden');
-}
-
-/* ---- Account Modal ---- */
-function openAccountModal() {
-    const modal = document.getElementById('accountModal');
-    const content = document.getElementById('accountModalContent');
-    if (!_currentUser) return;
-
-    if (_currentUser.isGuest) {
-        content.innerHTML = `
-            <div style="text-align:center;margin-bottom:18px">
-                <div class="account-modal-avatar" style="background:rgba(217,152,26,0.25);box-shadow:0 4px 16px rgba(217,152,26,0.2)">👤</div>
-                <div style="font-size:17px;font-weight:700;color:var(--text-primary)">Mode Tamu</div>
-                <div class="guest-badge" style="display:inline-block;margin-top:6px">TAMU</div>
-            </div>
-            <div class="guest-restriction-banner">
-                <div class="guest-restriction-title"><i class="fa-solid fa-triangle-exclamation"></i> Fitur Dibatasi di Mode Tamu</div>
-                <div class="guest-restriction-list">
-                    ❌ Progres hafalan tidak tersimpan<br>
-                    ❌ Murojaah / Leitner tidak disimpan<br>
-                    ❌ Skor Quiz tidak disimpan<br>
-                    ❌ Jadwal & pengingat tidak disimpan<br>
-                    ✅ Baca Mushaf & murottal tetap bisa
-                </div>
-            </div>
-            <button class="modal-btn-primary" onclick="closeAccountModal();reShowLogin();" style="width:100%;margin-bottom:8px">
-                <i class="fa-solid fa-right-to-bracket" style="margin-right:8px"></i> Masuk dengan Akun
-            </button>
-            <button class="modal-btn-secondary" onclick="closeAccountModal()" style="width:100%">Tutup</button>
-        `;
-    } else {
-        // Hitung stats hafalan user
-        const hafalanData = window.getHafalanAll();
-        const total = Object.keys(hafalanData).length;
-        const lancar = Object.values(hafalanData).filter(s => s === 'lancar').length;
-        const proses = Object.values(hafalanData).filter(s => s === 'proses').length;
-        const initial = (_currentUser.username || '?').charAt(0).toUpperCase();
-        const methodIcon = { gmail: '✉️', phone: '📱', username: '👤' }[_currentUser.method] || '👤';
-
-        content.innerHTML = `
-            <div style="text-align:center;margin-bottom:18px">
-                <div class="account-modal-avatar">${initial}</div>
-                <div style="font-size:17px;font-weight:700;color:var(--text-primary)">${_currentUser.username}</div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">${methodIcon} Login via ${_currentUser.method}</div>
-            </div>
-            <div class="account-info-row">
-                <div class="account-info-icon"><i class="fa-solid fa-check-circle"></i></div>
-                <div>
-                    <div class="account-info-text">${lancar} Ayat Lancar · ${proses} Proses</div>
-                    <div class="account-info-sub">${total} ayat tercatat dalam progres hafalan</div>
-                </div>
-            </div>
-            <div class="account-info-row">
-                <div class="account-info-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                <div>
-                    <div class="account-info-text">Data Terisolasi</div>
-                    <div class="account-info-sub">Progres Anda tidak tercampur dengan pengguna lain</div>
-                </div>
-            </div>
-            <div class="account-info-row">
-                <div class="account-info-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <div>
-                    <div class="account-info-text">Sesi Aktif</div>
-                    <div class="account-info-sub">Login: ${new Date(_currentUser.loginTime || Date.now()).toLocaleString('id-ID')}</div>
-                </div>
-            </div>
-            <div style="margin-top:16px">
-                <button class="modal-btn-secondary" onclick="confirmLogout()" style="width:100%;margin-bottom:8px;color:var(--accent-pink);border-color:rgba(219,35,80,0.4)">
-                    <i class="fa-solid fa-right-from-bracket" style="margin-right:8px"></i> Keluar / Ganti Akun
-                </button>
-                <button class="modal-btn-secondary" onclick="closeAccountModal()" style="width:100%">Tutup</button>
-            </div>
-        `;
-    }
-    modal.classList.add('visible');
-}
-
-function closeAccountModal() {
-    document.getElementById('accountModal').classList.remove('visible');
-}
-
-function confirmLogout() {
-    closeAccountModal();
-    const panel = document.createElement('div');
-    panel.style.cssText = 'position:fixed;inset:0;z-index:8001;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;';
-    panel.innerHTML = `
-        <div style="background:var(--bg-card);border-radius:24px;padding:26px 22px;max-width:320px;width:100%;text-align:center;border:1px solid var(--border);">
-            <div style="font-size:36px;margin-bottom:10px">👋</div>
-            <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:8px">Keluar Akun?</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6">
-                Progres Anda tetap tersimpan. Anda bisa masuk lagi kapan saja dengan identitas yang sama.
-            </div>
-            <button onclick="doLogout();this.closest('[style]').remove();" style="width:100%;padding:12px;background:linear-gradient(135deg,#db2350,#9b0f35);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;font-family:var(--ui-font);">
-                Ya, Keluar
-            </button>
-            <button onclick="this.closest('[style]').remove();" style="width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:var(--ui-font);">
-                Batal
-            </button>
-        </div>`;
-    document.body.appendChild(panel);
-}
-
-function doLogout() {
-    _currentUser = null;
-    try { localStorage.removeItem(AUTH_KEY); } catch {}
-    // Reload halaman agar semua state kembali bersih
-    location.reload();
-}
-
-/* ---- Guard untuk hafalan: jika tamu, tampilkan prompt ---- */
-// Override handleHafalanBtnClick agar tamu tidak bisa ubah status
-const _origHandleHafalanBtnClick = window.handleHafalanBtnClick;
-document.addEventListener('DOMContentLoaded', () => {
-    // Patch after DOMContentLoaded so the original is already defined
-    if (typeof handleHafalanBtnClick === 'function') {
-        const orig = handleHafalanBtnClick;
-        window.handleHafalanBtnClick = function(e, surah, ayah) {
-            if (_currentUser && _currentUser.isGuest) {
-                e.stopPropagation();
-                _showLoginPromptForGuest('Progress Hafalan');
-                return;
-            }
-            orig(e, surah, ayah);
-        };
-    }
-    // Patch openMurojaahView untuk tamu
-    if (typeof openMurojaahView === 'function') {
-        const origMrj = openMurojaahView;
-        window.openMurojaahView = function() {
-            if (_currentUser && _currentUser.isGuest) {
-                _showLoginPromptForGuest('Murojaah Terjadwal');
-                return;
-            }
-            origMrj();
-        };
-    }
-    // Patch finishQuiz save untuk tamu
-    if (typeof saveQuizScore === 'function') {
-        const origQS = saveQuizScore;
-        window.saveQuizScore = function(...args) {
-            if (_currentUser && _currentUser.isGuest) return; // tamu tidak simpan skor
-            origQS(...args);
-        };
-    }
-    // Patch openScheduleModal untuk tamu
-    if (typeof openScheduleModal === 'function') {
-        const origSched = openScheduleModal;
-        window.openScheduleModal = function() {
-            if (_currentUser && _currentUser.isGuest) {
-                _showLoginPromptForGuest('Jadwal & Pengingat');
-                return;
-            }
-            origSched();
-        };
-    }
-
-    // Jalankan auth
-    authInit();
-});
-</script>
-
-
-<!-- TASMI BETA BANNER MODAL -->
-<div id="tasmiBetaBanner" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
-    <div style="background:var(--surface);border-radius:24px;max-width:360px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.35);overflow:hidden;font-family:var(--ui-font)">
-        <!-- Header oranye -->
-        <div style="background:linear-gradient(135deg,#f59e0b,#ef4444);padding:22px 20px 18px;text-align:center">
-            <div style="font-size:36px;margin-bottom:6px">🚧</div>
-            <div style="color:white;font-size:15px;font-weight:900;letter-spacing:0.3px">FITUR DALAM PENGEMBANGAN</div>
-        </div>
-        <!-- Body -->
-        <div style="padding:20px 22px 24px">
-            <p style="text-align:center;background:rgba(245,158,11,0.1);border:1.5px solid rgba(245,158,11,0.3);border-radius:14px;padding:14px 16px;font-size:13.5px;font-weight:700;color:#b45309;line-height:1.7;margin:0 0 16px">
-                ⚠️ Tingkat akurasi koreksi fitur Tasmi' ini masih <u>sangat lemah</u>.<br>
-                Setorkan ayat secara <strong>santai dan pelan</strong> agar deteksi lebih akurat.
-            </p>
-            <ul style="font-size:12.5px;color:var(--text-secondary);line-height:2;padding-left:18px;margin:0 0 20px">
-                <li>Baca <strong>1 ayat</strong> dengan jeda yang cukup</li>
-                <li>Ucapkan tiap kata dengan <strong>jelas & pelan</strong></li>
-                <li>Pastikan <strong>tidak ada suara lain</strong> di sekitar</li>
-                <li>Koreksi salah/benar bisa <strong>tidak 100% tepat</strong></li>
-            </ul>
-            <button onclick="confirmStartTasmi()" style="width:100%;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#059669,#0d9488);color:white;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--ui-font);margin-bottom:10px;letter-spacing:0.3px">
-                ✅ Mengerti, Mulai Tasmi'
-            </button>
-            <button onclick="closeTasmiBanner()" style="width:100%;padding:10px;border-radius:14px;border:1.5px solid rgba(0,0,0,0.12);background:transparent;color:var(--text-secondary);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--ui-font)">
-                Batal
-            </button>
-        </div>
-    </div>
-</div>
 </body>
 </html>

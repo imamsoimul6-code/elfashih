@@ -2992,24 +2992,17 @@
     .dash-body { padding: 0 0 20px; }
     .dash-body .dash-section-title { margin-top: 18px; }
 
-    /* ── LOGIN SCREEN ── */
-    #loginContainer, .login-card {
-        background: var(--bg-primary) !important;
-    }
-    .login-card {
-        border: 1px solid rgba(184,144,42,0.15) !important;
-        box-shadow: var(--shadow-card) !important;
-    }
+    /* ── LOGIN SCREEN — jaga dark theme, jangan override ke warna terang ── */
     .login-btn-google {
-        background: #fff !important;
-        border: 1.5px solid rgba(184,144,42,0.2) !important;
+        background: rgba(255,255,255,0.12) !important;
+        border: 1.5px solid rgba(255,255,255,0.2) !important;
+        color: #fff !important;
         font-weight: 800 !important;
-        box-shadow: var(--shadow-card) !important;
     }
     .login-btn-guest {
-        background: rgba(45,106,31,0.07) !important;
-        border: 1.5px solid rgba(45,106,31,0.2) !important;
-        color: var(--accent-green) !important;
+        background: rgba(255,255,255,0.06) !important;
+        border: 1.5px solid rgba(255,255,255,0.14) !important;
+        color: rgba(255,255,255,0.7) !important;
         font-weight: 800 !important;
     }
 

@@ -9602,6 +9602,11 @@ function updateJuzSelectInfo() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3" stroke-linecap="round"/></svg>
             <span style="color:#a78bfa">Quiz</span>
         </button>
+
+        <button class="drawer-item" onclick="logoutUser(); closeBNavMore()" id="drawerLogoutBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span id="drawerLogoutLabel" style="color:#ef4444">Keluar</span>
+        </button>
     </div>
 </div>
 
@@ -9774,6 +9779,11 @@ function _applyUser(userObj) {
             lbl.textContent = short;
         }
     }
+    // Update drawer logout label
+    const dlbl = document.getElementById('drawerLogoutLabel');
+    if (dlbl) {
+        dlbl.textContent = userObj.type === 'guest' ? 'Keluar (Tamu)' : 'Keluar';
+    }
     // Show welcome tutorial on first login
     setTimeout(() => {
         if (typeof showTutorial === 'function') showTutorial('welcome');
@@ -9942,9 +9952,9 @@ const TUTORIALS = {
                 icon: '🌟',
                 badge: 'Selamat Datang',
                 title: 'Selamat Datang di ELfashih!',
-                desc: 'ELfashih adalah teman hafalan Al-Qur'an Juz 1–30. Semua fitur dirancang untuk memudahkan perjalanan hafalan Anda.',
+                desc: 'ELfashih adalah teman hafalan Al-Qur\'an Juz 1–30. Semua fitur dirancang untuk memudahkan perjalanan hafalan Anda.',
                 tips: [
-                    { icon: '📖', text: '<b>Mushaf</b> — Baca & dengarkan Al-Qur'an mushaf digital dengan tampilan halaman asli.' },
+                    { icon: '📖', text: '<b>Mushaf</b> — Baca & dengarkan Al-Qur\'an mushaf digital dengan tampilan halaman asli.' },
                     { icon: '✅', text: '<b>Hafalan</b> — Tandai ayat Belum / Proses / Lancar dan pantau progress Anda.' },
                     { icon: '🎙️', text: '<b>Setor</b> — Latih hafalan dengan deteksi suara otomatis.' },
                     { icon: '🔁', text: '<b>Ulang</b> — Loop ayat tertentu untuk memperkuat hafalan.' },
@@ -9994,7 +10004,7 @@ const TUTORIALS = {
         id: 'setor',
         icon: '🎙️',
         badge: 'Fitur Setor Hafalan',
-        title: 'Setor Hafalan (Tasmi')',
+        title: 'Setor Hafalan (Tasmi\')',
         desc: 'Baca ayat dengan lantang, sistem akan mendeteksi dan mengevaluasi bacaan Anda secara otomatis.',
         tips: [
             { icon: '🟢', text: '<b>Hijau</b> — Bacaan benar, otomatis lanjut ke ayat berikutnya.' },

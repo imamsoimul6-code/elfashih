@@ -17,6 +17,37 @@
 
     <title>ElFashih - Teman Penghafal Qur'an</title>
 
+    <!-- ═══════════════════════════════════════════
+         GOOGLE ANALYTICS 4 — elFashih
+         Ganti G-XXXXXXXXXX dengan Measurement ID
+         dari: analytics.google.com → Admin → Data Streams
+    ════════════════════════════════════════════ -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+
+        // ── Helper: kirim event ke GA4 ──────────────
+        function gaEvent(eventName, params) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', eventName, params || {});
+            }
+        }
+
+        // ── Event: PWA Install ───────────────────────
+        window.addEventListener('appinstalled', function() {
+            gaEvent('pwa_installed', { method: 'browser_prompt' });
+        });
+
+        // ── Event: PWA Install Prompt Shown ─────────
+        window.addEventListener('beforeinstallprompt', function(e) {
+            gaEvent('pwa_install_prompt_shown');
+        });
+    </script>
+    <!-- ══════════════════════════════════════════ -->
+
     <!-- quran-madina-html Web Component -->
     <script type="text/javascript" src="https://unpkg.com/quran-madina-html" data-font="hafs"></script>
 
@@ -2828,6 +2859,8 @@ function hideDashboard() {
 }
 function openJuz(juz) {
     hideDashboard();
+    // ── GA4: catat juz yang dibuka ──
+    gaEvent('open_juz', { juz_number: juz });
     if (juz !== activeJuz) {
         switchJuz(juz);
     } else {
@@ -7578,6 +7611,8 @@ function startQuiz() {
     document.getElementById('quizSetupWrap').style.display = 'none';
     document.getElementById('quizResultWrap').classList.remove('active');
     document.getElementById('quizQuestionWrap').classList.add('active');
+    // ── GA4: catat mulai quiz ──
+    gaEvent('start_quiz', { mode: quizMode, total: quizTotal });
     renderQuizQuestion();
 }
 
@@ -8023,6 +8058,8 @@ function startMurojaahSession() {
     mrjSessionIngat   = 0;
     mrjSessionLupa    = 0;
     mrjSessionResults = [];
+    // ── GA4: catat mulai murojaah ──
+    gaEvent('start_murojaah', { ayat_count: dueList.length });
 
     document.getElementById('mrjSessResultBody').style.display = 'none';
     document.getElementById('mrjSessBody').style.display = '';
@@ -9912,12 +9949,16 @@ function doLogin() {
     const userObj = { id, type: 'account', prefix: _makePrefix(id) };
     _setAuth(userObj);
     _applyUser(userObj);
+    // ── GA4: catat login akun ──
+    gaEvent('login', { method: _loginTab === 'gmail' ? 'gmail' : 'phone' });
 }
 
 function doLoginGuest() {
     const userObj = { id: 'guest', type: 'guest', prefix: 'guest_' };
     // Don't persist guest auth — so next open shows login again
     _applyUser(userObj);
+    // ── GA4: catat masuk sebagai tamu ──
+    gaEvent('login', { method: 'guest' });
 }
 
 function logoutUser() {

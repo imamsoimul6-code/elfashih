@@ -9841,6 +9841,243 @@ function updateJuzSelectInfo() {
     .dpr-btn-ghost:active { border-color: rgba(14,145,128,0.4); color: var(--accent-teal); }
     .dpr-btn-icon   { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; padding: 0; }
 }
+
+
+/* =========================================================
+   ELFASHIH VISUAL REDESIGN v2 — MODERN / GEN ALPHA
+   Visual only: preserves existing HTML + JavaScript behaviour.
+   Direction: bold typography, high contrast, neo-islamic,
+   clean cards, expressive accents, mobile-first.
+========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+
+:root {
+  --ui-font: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  --display-font: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  --arabic-font: 'Noto Naskh Arabic', 'Amiri Quran', serif !important;
+
+  /* Neo Islamic palette */
+  --bg-primary: #F4F7F3 !important;
+  --bg-secondary: #E9F1EA !important;
+  --bg-card: #FFFFFF !important;
+  --text-primary: #101814 !important;
+  --text-secondary: #425149 !important;
+  --text-muted: #718078 !important;
+  --accent-green: #087F5B !important;
+  --accent-green-lt: #12A875 !important;
+  --accent-green-dk: #04533D !important;
+  --accent-teal: #00A88A !important;
+  --accent-teal-lt: #29C7A9 !important;
+  --accent-gold: #D6A62A !important;
+  --accent-pink: #E34A72 !important;
+  --accent-blue: #635BFF !important;
+  --border: rgba(16,24,20,.10) !important;
+  --border-hover: rgba(0,168,138,.35) !important;
+  --accent-green-glow: rgba(0,168,138,.13) !important;
+  --radius-sm: 12px !important;
+  --radius-md: 18px !important;
+  --radius-lg: 24px !important;
+  --radius-xl: 32px !important;
+  --shadow-card: 0 8px 30px rgba(16,24,20,.07) !important;
+  --shadow-glow: 0 14px 45px rgba(0,168,138,.12) !important;
+}
+
+html, body, button, input, select, textarea { font-family: var(--ui-font) !important; }
+body { background: var(--bg-primary) !important; color: var(--text-primary) !important; letter-spacing: -0.01em; }
+
+/* Strong, contemporary headings */
+.dash-logo-name, .dash-greeting-title, .dash-section-title, .dash-progress-pct,
+.dash-quick-title, .login-title, .login-brand-name, .toolbar-title, .topbar-title,
+.modal-title, .qari-name { font-family: var(--display-font), var(--ui-font) !important; }
+.dash-greeting-title { font-weight: 800 !important; letter-spacing: -0.045em !important; }
+.dash-section-title { font-weight: 800 !important; letter-spacing: -0.025em !important; }
+.dash-quick-title, .dash-progress-pct { font-weight: 800 !important; }
+
+/* Background: subtle mesh, not glossy overload */
+#dashboardView, #mushafView, #digitalView, #quizView {
+  background:
+    radial-gradient(circle at 90% 0%, rgba(0,168,138,.10), transparent 28%),
+    radial-gradient(circle at 0% 30%, rgba(99,91,255,.055), transparent 24%),
+    var(--bg-primary) !important;
+}
+
+/* Dashboard header */
+.dash-header {
+  background: rgba(255,255,255,.92) !important;
+  border-bottom: 1px solid rgba(16,24,20,.08) !important;
+  box-shadow: 0 4px 22px rgba(16,24,20,.055) !important;
+  padding: 12px clamp(14px,3vw,28px) !important;
+}
+.dash-logo-icon {
+  width: 44px !important; height: 44px !important; border-radius: 15px !important;
+  background: linear-gradient(135deg,#04533D,#00A88A) !important;
+  box-shadow: 0 8px 20px rgba(0,168,138,.20) !important;
+}
+.dash-logo-name { font-size: 18px !important; font-weight: 800 !important; letter-spacing: -.04em !important; }
+.dash-logo-sub { color: var(--text-muted) !important; font-weight: 600 !important; }
+.offline-badge { border-radius: 999px !important; font-weight: 800 !important; }
+#logoutBtn { border-radius: 14px !important; font-weight: 800 !important; }
+
+/* Hero / greeting */
+.dash-body { max-width: 1080px !important; margin: 0 auto !important; padding: 22px clamp(14px,3vw,30px) 110px !important; }
+.dash-greeting {
+  position: relative; overflow: hidden; border-radius: 28px !important;
+  padding: clamp(22px,4vw,34px) !important;
+  background: linear-gradient(135deg,#073D2D 0%,#087F5B 58%,#00A88A 100%) !important;
+  color: white !important;
+  box-shadow: 0 18px 42px rgba(4,83,61,.20) !important;
+  margin-bottom: 24px !important;
+}
+.dash-greeting::after {
+  content:''; position:absolute; width:180px; height:180px; right:-60px; top:-70px;
+  border-radius:50%; border:30px solid rgba(255,255,255,.08);
+  box-shadow:0 0 0 28px rgba(255,255,255,.035);
+}
+.dash-greeting-title { font-size: clamp(24px,4vw,34px) !important; }
+.dash-greeting-sub { color: rgba(255,255,255,.78) !important; font-weight: 600 !important; margin-top: 6px !important; }
+.dash-streak { display:inline-flex !important; margin-top:16px !important; padding:8px 12px !important; border-radius:999px !important; background:rgba(255,255,255,.13) !important; border:1px solid rgba(255,255,255,.16) !important; font-weight:800 !important; }
+
+/* Section labels */
+.dash-section-title { margin: 24px 0 11px !important; font-size: 13px !important; text-transform: uppercase !important; letter-spacing: .08em !important; color: #304139 !important; }
+.dash-section-title svg { width:16px !important; height:16px !important; }
+
+/* Progress card */
+.dash-progress-card {
+  border: 1px solid rgba(16,24,20,.08) !important;
+  border-radius: 24px !important;
+  background: #fff !important;
+  box-shadow: var(--shadow-card) !important;
+  padding: 20px !important;
+}
+.dash-progress-pct { font-size: 32px !important; color: #063D2D !important; }
+.dash-progress-label { font-weight: 700 !important; color: var(--text-muted) !important; }
+.dash-mini-stats { gap: 10px !important; margin-top: 18px !important; }
+.dash-mini-stat { border-radius: 16px !important; background:#F5F8F5 !important; border:1px solid rgba(16,24,20,.06) !important; padding: 12px 8px !important; }
+.dash-mini-stat-num { font-family:var(--display-font) !important; font-weight:800 !important; font-size:20px !important; }
+.dash-mini-stat-label { font-weight:700 !important; color:#617069 !important; }
+
+/* Mushaf CTA — pill with strong visual */
+.dash-mushaf-sticky { background: transparent !important; padding: 10px clamp(14px,3vw,28px) !important; }
+.dash-mushaf-btn {
+  width: min(1080px,100%) !important; margin:auto !important; border:0 !important;
+  border-radius: 17px !important; min-height: 48px !important;
+  background: #101814 !important; color:#fff !important;
+  font-weight:800 !important; letter-spacing:-.02em !important;
+  box-shadow: 0 10px 25px rgba(16,24,20,.16) !important;
+}
+.dash-mushaf-btn:hover { transform:translateY(-1px); background:#073D2D !important; }
+
+/* Select */
+.dash-juz-select-row { gap:10px !important; }
+.dash-juz-select { border:1px solid rgba(16,24,20,.12) !important; border-radius:16px !important; background:#fff !important; min-height:48px !important; font-weight:700 !important; color:#17231d !important; box-shadow:0 5px 18px rgba(16,24,20,.05) !important; }
+.dash-juz-go-btn { border:0 !important; border-radius:16px !important; min-height:48px !important; background:#087F5B !important; color:#fff !important; font-weight:800 !important; padding:0 18px !important; box-shadow:0 8px 20px rgba(8,127,91,.18) !important; }
+
+/* Quick action cards — Gen Alpha compact cards */
+.dash-quick-grid { gap:12px !important; }
+.dash-quick-btn {
+  position:relative; overflow:hidden; border-radius:20px !important;
+  border:1px solid rgba(16,24,20,.075) !important; background:#fff !important;
+  box-shadow:0 7px 24px rgba(16,24,20,.055) !important;
+  padding:16px !important; min-height:78px !important;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+.dash-quick-btn:hover { transform:translateY(-3px) !important; box-shadow:0 14px 30px rgba(16,24,20,.10) !important; border-color:rgba(0,168,138,.25) !important; }
+.dash-quick-icon { width:42px !important; height:42px !important; border-radius:14px !important; display:grid !important; place-items:center !important; }
+.dash-quick-title { font-size:13px !important; }
+.dash-quick-desc { font-size:11px !important; color:#718078 !important; font-weight:600 !important; margin-top:3px !important; }
+
+/* Support banner: less old-fashioned */
+.support-banner { border-radius:22px !important; border:1px solid rgba(16,24,20,.07) !important; background:#101814 !important; color:#fff !important; box-shadow:0 12px 30px rgba(16,24,20,.12) !important; }
+.support-banner-title { font-weight:800 !important; }
+.support-banner-sub { color:rgba(255,255,255,.68) !important; }
+.support-banner-btn { border-radius:13px !important; background:#fff !important; color:#101814 !important; font-weight:800 !important; }
+
+/* Login redesign */
+#loginPage { background:
+  radial-gradient(circle at 20% 10%,rgba(0,168,138,.22),transparent 30%),
+  radial-gradient(circle at 85% 80%,rgba(99,91,255,.18),transparent 32%),
+  linear-gradient(145deg,#06130F,#0B2D22 55%,#101814) !important; }
+.login-brand-icon { width:64px !important; height:64px !important; border-radius:20px !important; background:linear-gradient(135deg,#087F5B,#00A88A) !important; box-shadow:0 15px 35px rgba(0,168,138,.24) !important; }
+.login-brand-name { font-size:34px !important; font-weight:800 !important; letter-spacing:-.06em !important; }
+.login-brand-tagline { color:rgba(255,255,255,.64) !important; font-weight:600 !important; }
+.login-card { border:1px solid rgba(255,255,255,.12) !important; background:rgba(255,255,255,.96) !important; border-radius:28px !important; box-shadow:0 25px 80px rgba(0,0,0,.28) !important; }
+.login-title { font-weight:800 !important; letter-spacing:-.04em !important; }
+.login-subtitle { color:#65736b !important; font-weight:600 !important; }
+.login-tab { border-radius:13px !important; font-weight:800 !important; }
+.login-input { min-height:50px !important; border-radius:14px !important; border:1px solid rgba(16,24,20,.12) !important; font-weight:600 !important; }
+.login-btn-primary { min-height:50px !important; border-radius:15px !important; background:#087F5B !important; font-weight:800 !important; box-shadow:0 10px 24px rgba(8,127,91,.20) !important; }
+.login-btn-guest { min-height:48px !important; border-radius:15px !important; font-weight:800 !important; }
+
+/* Quran view: calm and premium */
+.topbar { background:rgba(255,255,255,.94) !important; border-bottom:1px solid rgba(16,24,20,.08) !important; box-shadow:0 4px 18px rgba(16,24,20,.055) !important; }
+.toolbar { background:rgba(255,255,255,.95) !important; border-bottom:1px solid rgba(16,24,20,.08) !important; box-shadow:0 3px 15px rgba(16,24,20,.04) !important; }
+.tool-btn { border-radius:13px !important; font-weight:800 !important; }
+.tool-btn-primary { background:#101814 !important; color:#fff !important; }
+
+/* Digital ayah cards */
+.digital-ayah-card {
+  border:1px solid rgba(16,24,20,.08) !important; border-radius:22px !important;
+  background:#fff !important; box-shadow:0 7px 24px rgba(16,24,20,.045) !important;
+}
+.digital-ayah-card.card-active { border-color:rgba(0,168,138,.38) !important; background:linear-gradient(135deg,#F0FBF7,#fff) !important; box-shadow:0 10px 30px rgba(0,168,138,.10) !important; }
+.verse-circle-num { color:#087F5B !important; font-weight:800 !important; }
+
+/* Audio player: make it feel like a real app control */
+.audio-player { background:rgba(255,255,255,.98) !important; border-top:1px solid rgba(16,24,20,.08) !important; box-shadow:0 -10px 30px rgba(16,24,20,.08) !important; }
+.audio-player button { font-weight:800 !important; }
+
+/* Bottom navigation */
+#bottomNav { background:rgba(255,255,255,.96) !important; border-top:1px solid rgba(16,24,20,.08) !important; box-shadow:0 -8px 25px rgba(16,24,20,.07) !important; }
+#bottomNav button, #bottomNav a { font-weight:800 !important; }
+
+/* Modals / drawers */
+.modal-panel, #moreDrawer { background:#fff !important; border:1px solid rgba(16,24,20,.08) !important; border-radius:26px !important; box-shadow:0 25px 80px rgba(16,24,20,.20) !important; }
+.modal-title { font-weight:800 !important; letter-spacing:-.03em !important; }
+
+/* Qari list */
+.qari-item { border-radius:16px !important; border:1px solid rgba(16,24,20,.07) !important; background:#fff !important; }
+.qari-item.active { background:#ECF9F4 !important; border-color:rgba(0,168,138,.28) !important; }
+.qari-avatar { border-radius:13px !important; background:linear-gradient(135deg,#087F5B,#00A88A) !important; }
+.qari-name { font-weight:800 !important; }
+.qari-style { font-weight:600 !important; }
+
+/* Tables / generic buttons */
+button { font-family:var(--ui-font) !important; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid rgba(0,168,138,.20) !important; outline-offset:2px !important; }
+
+/* Emoji/icon containers: tighter, less childish */
+.support-banner-icon, .dash-quick-icon { font-family:var(--ui-font) !important; }
+
+/* Mobile: stronger hierarchy and thumb-friendly controls */
+@media (max-width: 680px) {
+  .dash-header { padding:10px 12px !important; }
+  .dash-logo-icon { width:40px !important; height:40px !important; border-radius:13px !important; }
+  .dash-logo-name { font-size:16px !important; }
+  .dash-date { display:none !important; }
+  #logoutBtn { padding:8px 10px !important; }
+  .dash-body { padding:14px 12px 115px !important; }
+  .dash-greeting { border-radius:24px !important; padding:22px !important; }
+  .dash-greeting-title { font-size:25px !important; }
+  .dash-progress-card { border-radius:21px !important; padding:16px !important; }
+  .dash-mini-stats { grid-template-columns:repeat(3,1fr) !important; }
+  .dash-mini-stat { border-radius:14px !important; }
+  .dash-quick-grid { grid-template-columns:1fr 1fr !important; }
+  .dash-quick-btn { border-radius:17px !important; padding:13px !important; }
+  .dash-quick-icon { width:38px !important; height:38px !important; border-radius:12px !important; }
+  .dash-quick-title { font-size:12px !important; }
+  .dash-quick-desc { font-size:10px !important; }
+  .dash-mushaf-btn { border-radius:15px !important; }
+  .support-banner { border-radius:19px !important; }
+  .login-card { width:calc(100% - 28px) !important; border-radius:24px !important; }
+  .login-brand-name { font-size:30px !important; }
+  .digital-ayah-card { border-radius:18px !important; }
+}
+
+/* Accessibility: respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
 </style>
 
 <!-- ============================================================

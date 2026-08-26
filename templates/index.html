@@ -5725,7 +5725,16 @@ function initAudioEvents() {
         if (isRepeatAyah && !isLoopMode) {
             repeatAyahCount++;
             if (repeatAyahCount < repeatAyahMax) {
-                playAyah(currentPlayIndex, isPlayingAll);
+                // BUG FIX (Ulangi Ayat berputar tanpa henti): sebelumnya
+                // dipanggil dengan `isPlayingAll` sebagai continuous. Kalau
+                // ayat diputar dari klik biasa (bukan mode Putar Semua),
+                // isPlayingAll = false → playAyah() ikut me-reset
+                // repeatAyahCount ke 0 tiap kali diputar ulang, sehingga
+                // hitungan repeat tidak pernah mencapai repeatAyahMax dan
+                // ayat terus berputar tanpa henti. continuous harus `true`
+                // di sini karena ini murni replay internal, bukan klik baru
+                // dari pengguna — isPlayingAll tetap dijaga apa adanya.
+                playAyah(currentPlayIndex, true);
             } else {
                 repeatAyahCount = 0;
                 if (isPlayingAll) skipToNext();

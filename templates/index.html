@@ -5104,18 +5104,54 @@ function getCdnAudioPath(ayah) {
     const edition = QARI_CDN_MAP[selectedQariId] || 'ar.alafasy';
     return `https://cdn.islamic.network/quran/audio/128/${edition}/${globalNumber}.mp3`;
 }
+// Audio dibuat responsif: jangan memanggil play() dua kali dan jangan memaksa
+// load() pada setiap klik. Browser akan mulai mengambil data saat src berubah.
+// CDN 64kbps diprioritaskan untuk start yang lebih cepat, EveryAyah menjadi fallback.
 function playAudioCandidates(audio, ayah, continuous = false) {
-    const urls = [getLocalAudioPath(ayah), getCdnAudioPath(ayah)].filter(Boolean);
+    const urls = [getCdnAudioPath(ayah), getLocalAudioPath(ayah)].filter(Boolean);
     let attempt = 0;
+    let settled = false;
+
     const tryNext = () => {
-        if (attempt >= urls.length) { if (continuous) skipToNext(); return; }
+        if (attempt >= urls.length) {
+            settled = true;
+            updatePlayerPlayIcon(false);
+            if (continuous) skipToNext();
+            return;
+        }
         const url = urls[attempt++];
-        audio.src = url; audio.load();
+        settled = false;
+        audio.pause();
+        audio.src = url;
+        // Tidak perlu audio.load(); perubahan src sudah memulai loading.
+        const onError = () => {
+            if (settled) return;
+            audio.removeEventListener('error', onError);
+            tryNext();
+        };
+        audio.addEventListener('error', onError, { once: true });
+
         const p = audio.play();
-        if (p && p.catch) p.catch(() => tryNext());
-        audio.addEventListener('error', () => tryNext(), {once:true});
+        if (p && p.catch) {
+            p.catch(() => {
+                if (!settled) tryNext();
+            });
+        }
     };
     tryNext();
+}
+
+// Mulai mengambil audio lebih awal ketika pengguna menyentuh/mengarahkan ayat.
+// Ini membuat klik berikutnya terasa jauh lebih instan, terutama di HP.
+const audioPreloadCache = new Map();
+function preloadAyahAudio(ayah) {
+    if (!ayah) return;
+    const url = getCdnAudioPath(ayah) || getLocalAudioPath(ayah);
+    if (!url || audioPreloadCache.has(url)) return;
+    const pre = new Audio();
+    pre.preload = 'auto';
+    pre.src = url;
+    audioPreloadCache.set(url, pre);
 }
 
 // =============================================
@@ -5746,12 +5782,14 @@ function playAyah(index, continuous = false) {
     const mainEl = document.getElementById('mainContainer');
     const savedScroll = mainEl.scrollTop;
     playAudioCandidates(getAudioPlayer(), ayahsData[index], continuous);
+    // Preload ayat berikutnya agar mode Putar Semua berpindah lebih cepat.
+    if (ayahsData[index + 1]) preloadAyahAudio(ayahsData[index + 1]);
     // Restore scroll if audio src assignment caused a reset
     if (mainEl.scrollTop !== savedScroll) mainEl.scrollTop = savedScroll;
     requestAnimationFrame(() => {
         if (mainEl.scrollTop !== savedScroll) mainEl.scrollTop = savedScroll;
     });
-    getAudioPlayer().play().catch(() => { if (continuous) skipToNext(); });
+    // play() sudah dijalankan oleh playAudioCandidates(); jangan dipanggil lagi.
     scrollToAyah(index);
     // Update player info
     const a = ayahsData[index];

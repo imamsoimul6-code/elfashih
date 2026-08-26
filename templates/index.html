@@ -5386,11 +5386,28 @@ function renderMushaf() {
                     className: `quran-madina-html-${String(surahNum).padStart(3,'0')}-${String(ayah.numberInSurah).padStart(3,'0')}`
                 };
             });
+            // BUG FIX (klik ayat tidak memutar audio): resolusi gIdx dari titik
+            // klik dilakukan bertahap — dari elemen yang diklik, lalu dari posisi
+            // klik di layar, dan sebagai jaring pengaman terakhir memakai ayat
+            // pertama dari subSeg ini (comp ini hanya merender ayat sStart..sEnd,
+            // jadi klik pada teksnya tetap harus memutar salah satu ayat tsb,
+            // bukan diam tanpa aksi).
+            const resolveClickGIdx = (e) => {
+                const clickedEl = e.target.closest('.quran-madina-html-part') || e.target;
+                let gIdx = getGIdxFromPart(clickedEl);
+                if (gIdx === null && typeof e.clientX === 'number') {
+                    gIdx = getGIdxNearPoint(e.clientX, e.clientY);
+                }
+                if (gIdx === null) {
+                    // Fallback terakhir: pakai ayat pertama pada subSeg yang dirender
+                    // komponen ini, supaya klik tetap terasa responsif.
+                    gIdx = subSeg[0].gIdx;
+                }
+                return gIdx;
+            };
             comp.addEventListener('click', (e) => {
-                const part = e.target.closest('.quran-madina-html-part');
-                if (!part) return;
-                const gIdx = getGIdxFromPart(part);
-                if (gIdx === null) return;
+                const gIdx = resolveClickGIdx(e);
+                if (gIdx === null || gIdx === undefined) return;
                 if (handleSelectModeClick(gIdx)) return;
                 if (isLoopMode && gIdx >= loopStart && gIdx <= loopEnd) {
                     loopCount = 0; currentPlayIndex = gIdx; playAyah(gIdx, true); return;
@@ -5399,10 +5416,8 @@ function renderMushaf() {
             });
             comp.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-                const part = e.target.closest('.quran-madina-html-part');
-                if (!part) return;
-                const gIdx = getGIdxFromPart(part);
-                if (gIdx !== null) {
+                const gIdx = resolveClickGIdx(e);
+                if (gIdx !== null && gIdx !== undefined) {
                     setTasmiStartFromClick(gIdx);
                     const a = ayahsData[gIdx];
                     showToast(`Titik mulai setoran: ${a.surah.name} ${a.numberInSurah}`);
@@ -5484,13 +5499,47 @@ function groupBySurah(ayahs) {
     return groups;
 }
 function getGIdxFromPart(el) {
-    for (const cls of el.classList) {
-        const m = cls.match(/^quran-madina-html-(\d{3})-(\d{3})$/);
-        if (m) {
-            const sura = parseInt(m[1]), aya = parseInt(m[2]);
-            for (const [idx, info] of Object.entries(ayahElementMap)) {
-                if (info.surahNum === sura && info.ayahNum === aya) return parseInt(idx);
+    // 1) Coba baca langsung dari class elemen yang diklik (kasus ideal:
+    //    elemen ini sendiri sudah membawa class quran-madina-html-XXX-YYY)
+    const fromClassList = (classList) => {
+        for (const cls of classList) {
+            const m = cls.match(/^quran-madina-html-(\d{3})-(\d{3})$/);
+            if (m) {
+                const sura = parseInt(m[1]), aya = parseInt(m[2]);
+                for (const [idx, info] of Object.entries(ayahElementMap)) {
+                    if (info.surahNum === sura && info.ayahNum === aya) return parseInt(idx);
+                }
             }
+        }
+        return null;
+    };
+    let direct = fromClassList(el.classList);
+    if (direct !== null) return direct;
+
+    // 2) BUG FIX: class penanda surah:ayat (quran-madina-html-XXX-YYY) biasanya
+    //    hanya menempel di badge nomor ayat (.quran-madina-html-ayah-num), BUKAN
+    //    di elemen kata/huruf (.quran-madina-html-part) yang sebenarnya diklik
+    //    pengguna. Maka kita naik ke elemen-elemen leluhur terdekat dulu.
+    let node = el.parentElement;
+    let hops = 0;
+    while (node && hops < 8 && node.tagName !== 'QURAN-MADINA-HTML') {
+        const r = fromClassList(node.classList);
+        if (r !== null) return r;
+        node = node.parentElement;
+        hops++;
+    }
+    return null;
+}
+
+// Fallback tambahan: cari gIdx berdasarkan badge nomor ayat terdekat dari
+// posisi klik (menangani kasus badge nomor ayat tidak berada di jalur
+// leluhur elemen yang diklik, misalnya diposisikan absolut/mengambang).
+function getGIdxNearPoint(x, y) {
+    const stack = document.elementsFromPoint(x, y);
+    for (const node of stack) {
+        if (node.classList && node.classList.contains('quran-madina-html-ayah-num')) {
+            const g = getGIdxFromPart(node);
+            if (g !== null) return g;
         }
     }
     return null;

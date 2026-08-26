@@ -5454,24 +5454,36 @@ function renderMushaf() {
                 }
                 return gIdx;
             };
+            // BUG FIX (klik ayat tidak memutar audio, lanjutan): library
+            // <quran-madina-html> punya popup copy/translate bawaan yang
+            // "menangkap" klik pada teks ayat untuk dirinya sendiri (lihat
+            // dokumentasi resminya). Karena listener ini sebelumnya dipasang
+            // di fase bubble (default), event klik keburu ditangani lebih
+            // dulu oleh handler internal library sebelum sempat memicu
+            // playAyah() di sini. Solusinya: pasang listener di FASE CAPTURE
+            // (useCapture = true) supaya kode kita jalan LEBIH DULU, sebelum
+            // event turun ke elemen dalam library — lalu stopPropagation()
+            // supaya popup bawaan library tidak ikut muncul setelahnya.
             comp.addEventListener('click', (e) => {
                 const gIdx = resolveClickGIdx(e);
                 if (gIdx === null || gIdx === undefined) return;
+                e.stopPropagation();
                 if (handleSelectModeClick(gIdx)) return;
                 if (isLoopMode && gIdx >= loopStart && gIdx <= loopEnd) {
                     loopCount = 0; currentPlayIndex = gIdx; playAyah(gIdx, true); return;
                 }
                 playAyah(gIdx);
-            });
+            }, true);
             comp.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const gIdx = resolveClickGIdx(e);
                 if (gIdx !== null && gIdx !== undefined) {
                     setTasmiStartFromClick(gIdx);
                     const a = ayahsData[gIdx];
                     showToast(`Titik mulai setoran: ${a.surah.name} ${a.numberInSurah}`);
                 }
-            });
+            }, true);
             body.appendChild(comp);
         });
     }

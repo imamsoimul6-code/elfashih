@@ -68,6 +68,17 @@ function getAudioPlayer() {
     if (!audioPlayer) audioPlayer = document.getElementById('quranAudio');
     return audioPlayer;
 }
+
+// =============================================
+// AUDIO ERROR HANDLING (retry + fallback)
+// =============================================
+// Server everyayah.com kadang membalas 503 (server sedang sibuk/overload).
+// Ini murni masalah dari sisi server sumber audio, bukan bug di aplikasi.
+// Supaya user tidak mengalami "audio diam saja tanpa keterangan", kita coba
+// ulang otomatis beberapa kali dengan jeda sebelum menyerah.
+let audioRetryCount = 0;
+const AUDIO_MAX_RETRIES = 3;
+const AUDIO_RETRY_DELAY_MS = 900;
 let recognition      = null;
 let ayahElementMap   = {};
 let isLoopMode       = false;
@@ -2954,6 +2965,7 @@ function playAyah(index, continuous = false) {
     if (!continuous) { isPlayingAll = false; repeatAyahCount = 0; }
     if (continuous && currentPlayIndex !== index) repeatAyahCount = 0;
     currentPlayIndex = index;
+    audioRetryCount = 0; // ayat baru → reset percobaan ulang
     highlightWords(index);
     const mainEl = document.getElementById('mainContainer');
     const savedScroll = mainEl.scrollTop;
@@ -3107,6 +3119,35 @@ function initAudioEvents() {
     });
     getAudioPlayer().addEventListener('play', () => updatePlayerPlayIcon(true));
     getAudioPlayer().addEventListener('pause', () => updatePlayerPlayIcon(false));
+
+    // BUG FIX (audio diam tanpa keterangan saat everyayah.com balas 503):
+    // sebelumnya tidak ada penanganan event 'error' pada elemen <audio>,
+    // jadi kalau server sumber audio sedang overload/503, audio hanya diam
+    // tanpa retry maupun pemberitahuan. 503 biasanya bersifat sementara,
+    // jadi kita coba ulang otomatis beberapa kali sebelum menyerah.
+    getAudioPlayer().addEventListener('error', () => {
+        const audio = getAudioPlayer();
+        if (!audio.src) return; // src kosong (mis. saat reset), abaikan
+        if (audioRetryCount < AUDIO_MAX_RETRIES) {
+            audioRetryCount++;
+            const retryingIndex = currentPlayIndex;
+            setTimeout(() => {
+                // Pastikan user belum pindah ke ayat lain selagi menunggu
+                if (currentPlayIndex !== retryingIndex) return;
+                const src = audio.src;
+                audio.src = ''; // paksa reload bersih
+                audio.src = src;
+                audio.play().catch(() => {});
+            }, AUDIO_RETRY_DELAY_MS);
+        } else {
+            audioRetryCount = 0;
+            updatePlayerPlayIcon(false);
+            showToast('⚠️ Audio gagal dimuat (server sedang sibuk). Coba lagi sebentar lagi.');
+            // Kalau sedang mode Putar Semua/Loop, jangan macet diam —
+            // lanjut ke ayat berikutnya supaya sesi hafalan tidak terhenti.
+            if (isPlayingAll || isLoopMode) skipToNext();
+        }
+    });
 }
 function skipToNext() {
     currentPlayIndex++;

@@ -521,6 +521,29 @@
     .hafalan-btn.lancar { background: rgba(46,204,113,0.13); color: var(--accent-teal); border-color: var(--accent-teal); }
     .hafalan-btn:hover { filter: brightness(1.2); transform: scale(1.04); }
 
+    /* =============================================
+       TERJEMAHAN PER AYAT (tersembunyi, muncul saat diklik)
+    ============================================= */
+    .translate-btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+        width: 26px; height: 26px; border-radius: 50%;
+        font-size: 11px; cursor: pointer;
+        border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-muted);
+        transition: all 0.18s; outline: none; flex-shrink: 0;
+    }
+    .translate-btn.active { background: rgba(14,145,128,0.14); color: var(--accent-teal); border-color: var(--accent-teal); }
+    .translate-btn:hover { filter: brightness(1.15); transform: scale(1.05); }
+    .digital-ayah-translation {
+        display: none;
+        margin-top: 12px; padding-top: 12px;
+        border-top: 1px dashed rgba(71,126,16,0.25);
+        font-size: 13px; line-height: 1.7; color: var(--text-secondary, #4a6080);
+        direction: ltr; text-align: left; font-family: var(--ui-font);
+    }
+    .digital-ayah-translation.show { display: block; animation: fadeInTranslation 0.2s ease; }
+    @keyframes fadeInTranslation { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform: translateY(0); } }
+    .digital-ayah-translation .translation-loading { color: var(--text-muted); font-style: italic; }
+
     /* Dot on mushaf ayah-number element */
     .quran-madina-html-ayah-num[data-hafalan="proses"] {
         outline: 2.5px solid #f59e0b !important;
@@ -2794,6 +2817,10 @@ let isTasmiMode      = false;
 let isPlayingAll     = false;
 let currentPlayIndex = 0;
 let audioPlayer      = null;
+// Cache terjemahan per surah: { 1: {1: 'teks...', 2: 'teks...'}, ... }
+// Diambil on-demand (baru fetch saat ayat pertama di surah itu diklik untuk
+// dilihat terjemahannya), supaya tidak perlu request tambahan di awal load.
+let translationCache  = {};
 function getAudioPlayer() {
     if (!audioPlayer) audioPlayer = document.getElementById('quranAudio');
     return audioPlayer;
@@ -5296,6 +5323,64 @@ function getJuzNumFromStart(surahNum, ayahNum) {
     return JUZ_START[`${surahNum}:${ayahNum}`];
 }
 
+// =============================================
+// TERJEMAHAN PER AYAT — lazy fetch per surah + toggle tampil/sembunyi
+// =============================================
+async function ensureSurahTranslation(surahNumber) {
+    if (translationCache[surahNumber]) return translationCache[surahNumber];
+    const res = await fetchWithRetry(`https://api.alquran.cloud/v1/surah/${surahNumber}/id.indonesian`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const map = {};
+    (data.data?.ayahs || []).forEach(a => { map[a.numberInSurah] = a.text; });
+    translationCache[surahNumber] = map;
+    return map;
+}
+
+async function toggleTranslation(idx, btnEl) {
+    const ayah = ayahsData[idx];
+    if (!ayah) return;
+    const wrap = document.getElementById(`translation-${idx}`);
+    if (!wrap) return;
+    const isShown = wrap.classList.contains('show');
+    if (isShown) {
+        wrap.classList.remove('show');
+        if (btnEl) btnEl.classList.remove('active');
+        return;
+    }
+    wrap.classList.add('show');
+    if (btnEl) btnEl.classList.add('active');
+    // Sudah pernah di-fetch sebelumnya untuk surah ini → langsung tampilkan
+    const cached = translationCache[ayah.surah.number];
+    if (cached) {
+        wrap.textContent = cached[ayah.numberInSurah] || 'Terjemahan tidak tersedia untuk ayat ini.';
+        return;
+    }
+    wrap.innerHTML = `<span class="translation-loading">Memuat terjemahan...</span>`;
+    try {
+        const map = await ensureSurahTranslation(ayah.surah.number);
+        // Cek lagi user belum menutupnya sebelum fetch selesai
+        if (!wrap.classList.contains('show')) return;
+        wrap.textContent = map[ayah.numberInSurah] || 'Terjemahan tidak tersedia untuk ayat ini.';
+    } catch (e) {
+        wrap.innerHTML = `<span class="translation-loading">Gagal memuat terjemahan. <a href="#" onclick="retryTranslation(event, ${idx})" style="color:var(--accent-teal)">Coba lagi</a></span>`;
+    }
+}
+function retryTranslation(e, idx) {
+    e.preventDefault();
+    const ayah = ayahsData[idx];
+    const wrap = document.getElementById(`translation-${idx}`);
+    if (!ayah || !wrap) return;
+    delete translationCache[ayah.surah.number]; // paksa fetch ulang
+    wrap.innerHTML = `<span class="translation-loading">Memuat terjemahan...</span>`;
+    ensureSurahTranslation(ayah.surah.number).then(map => {
+        if (!wrap.classList.contains('show')) return;
+        wrap.textContent = map[ayah.numberInSurah] || 'Terjemahan tidak tersedia untuk ayat ini.';
+    }).catch(() => {
+        wrap.innerHTML = `<span class="translation-loading">Gagal memuat terjemahan. <a href="#" onclick="retryTranslation(event, ${idx})" style="color:var(--accent-teal)">Coba lagi</a></span>`;
+    });
+}
+
 function renderDigital() {
     const container = document.getElementById('digitalView');
     container.innerHTML = '';
@@ -5345,6 +5430,10 @@ function renderDigital() {
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px">
+                    <button class="translate-btn" title="Lihat/sembunyikan terjemahan"
+                        onclick="event.stopPropagation(); toggleTranslation(${idx}, this)">
+                        <i class="fa-solid fa-language"></i>
+                    </button>
                     <button class="hafalan-btn ${getHafalanStatus(ayah.surah.number, ayah.numberInSurah)}"
                         data-surah="${ayah.surah.number}" data-ayah="${ayah.numberInSurah}"
                         onclick="handleHafalanBtnClick(event,${ayah.surah.number},${ayah.numberInSurah})"
@@ -5357,7 +5446,8 @@ function renderDigital() {
             <div class="digital-ayah-text" dir="rtl">
                 ${wordsHtml}
                 <span class="ayah-marker" onclick="handleDigitalAyahClick(${idx})">${toArabicNum(ayah.numberInSurah)}</span>
-            </div>`;
+            </div>
+            <div class="digital-ayah-translation" id="translation-${idx}"></div>`;
         card.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             setTasmiStartFromClick(idx);

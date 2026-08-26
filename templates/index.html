@@ -3090,8 +3090,8 @@ async function startCacheDownload() {
             let ayahs;
             if (step.juz === 4) {
                 const [r3, r4] = await Promise.all([
-                    fetch('https://api.alquran.cloud/v1/surah/3'),
-                    fetch('https://api.alquran.cloud/v1/surah/4')
+                    fetchWithRetry('https://api.alquran.cloud/v1/surah/3'),
+                    fetchWithRetry('https://api.alquran.cloud/v1/surah/4')
                 ]);
                 const [d3, d4] = await Promise.all([r3.json(), r4.json()]);
                 const sm3 = { number: d3.data.number, name: d3.data.name, englishName: d3.data.englishName, numberOfAyahs: d3.data.numberOfAyahs };
@@ -3101,7 +3101,7 @@ async function startCacheDownload() {
                     ...d4.data.ayahs.filter(a => a.numberInSurah <= 23).map(a => ({ ...a, surah: sm4, juz: 4 }))
                 ];
             } else if (step.juz === 5) {
-                const r4 = await fetch('https://api.alquran.cloud/v1/surah/4');
+                const r4 = await fetchWithRetry('https://api.alquran.cloud/v1/surah/4');
                 const d4 = await r4.json();
                 const sm4 = { number: d4.data.number, name: d4.data.name, englishName: d4.data.englishName, numberOfAyahs: d4.data.numberOfAyahs };
                 ayahs = d4.data.ayahs
@@ -3207,6 +3207,40 @@ function installPWA() {
 function dismissInstall() {
     document.getElementById('installBanner').classList.remove('visible');
     localStorage.setItem('pwa-dismissed', '1');
+}
+
+// =============================================
+// FETCH HELPER — retry otomatis + timeout + cek status HTTP
+// Signature-nya sama seperti fetch() bawaan (return Response),
+// jadi bisa langsung menggantikan semua fetch() ke api.alquran.cloud
+// tanpa mengubah kode res.json() yang sudah ada.
+// Tujuannya: tahan terhadap koneksi lambat, rate-limit (429), atau
+// error sesaat dari server — bukan langsung gagal & tampil error.
+// =============================================
+async function fetchWithRetry(url, { retries = 3, timeoutMs = 12000, backoffMs = 800 } = {}) {
+    let lastErr;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timer);
+            // 429 (rate limit) / 5xx layak di-retry; selain itu langsung kembalikan
+            // apa adanya (biar caller yang tangani, mis. 404) tanpa buang-buang retry.
+            if (res.status === 429 || res.status >= 500) {
+                throw new Error('HTTP ' + res.status);
+            }
+            return res;
+        } catch (err) {
+            clearTimeout(timer);
+            lastErr = err;
+            const isLast = attempt === retries;
+            console.warn(`[fetchWithRetry] Percobaan ${attempt + 1}/${retries + 1} gagal untuk ${url}:`, err.message || err);
+            if (isLast) break;
+            await new Promise(r => setTimeout(r, backoffMs * Math.pow(2, attempt)));
+        }
+    }
+    throw lastErr;
 }
 
 // =============================================
@@ -3590,7 +3624,7 @@ async function loadAllData() {
 }
 
 async function fetchFromNetwork() {
-    const res1  = await fetch('https://api.alquran.cloud/v1/juz/1/quran-simple');
+    const res1  = await fetchWithRetry('https://api.alquran.cloud/v1/juz/1/quran-simple');
     const data1 = await res1.json();
     juzDataCache[1] = data1.data.ayahs;
     ayahsData = juzDataCache[1];
@@ -3632,7 +3666,7 @@ async function fetchFromNetwork() {
 async function refreshFromNetwork() {
     if (!navigator.onLine) return;
     try {
-        const res1 = await fetch('https://api.alquran.cloud/v1/juz/1/quran-simple');
+        const res1 = await fetchWithRetry('https://api.alquran.cloud/v1/juz/1/quran-simple');
         const d1   = await res1.json();
         juzDataCache[1] = d1.data.ayahs;
         saveJuzToIDB(1, juzDataCache[1]).catch(() => {});
@@ -3673,15 +3707,30 @@ function showLoadError() {
         <div style="text-align:center;padding:40px">
             <i class="fa-solid fa-wifi" style="font-size:48px;color:var(--text-muted);margin-bottom:16px;display:block"></i>
             <p style="font-weight:700;color:var(--text-primary)">Gagal memuat data Qur'an</p>
-            <p style="font-size:13px;margin-top:6px;color:var(--text-muted)">Periksa koneksi internet Anda<br>atau unduh data offline dari Dashboard</p>
-            <button onclick="showDashboard()" style="margin-top:16px;background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));color:#000;border:none;padding:10px 24px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer">Ke Dashboard</button>
+            <p style="font-size:13px;margin-top:6px;color:var(--text-muted)">Server data Qur'an mungkin sedang sibuk/lambat,<br>atau periksa koneksi internet Anda</p>
+            <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                <button onclick="retryLoadData()" style="background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));color:#000;border:none;padding:10px 24px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer">
+                    <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+                </button>
+                <button onclick="showDashboard()" style="background:transparent;color:var(--text-primary);border:1.5px solid var(--border);padding:10px 24px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer">Ke Dashboard</button>
+            </div>
         </div>`;
+}
+
+let _retryingLoad = false;
+function retryLoadData() {
+    if (_retryingLoad) return;
+    _retryingLoad = true;
+    document.getElementById('loading').innerHTML = `
+        <div class="loader"></div>
+        <div class="loading-text">MENCOBA LAGI...</div>`;
+    loadAllData().finally(() => { _retryingLoad = false; });
 }
 
 async function loadJuzTwo() {
     try {
         // Gunakan endpoint juz/2 agar field 'page' tersedia (sama seperti Juz 1)
-        const res  = await fetch('https://api.alquran.cloud/v1/juz/2/quran-simple');
+        const res  = await fetchWithRetry('https://api.alquran.cloud/v1/juz/2/quran-simple');
         const data = await res.json();
         const allJuz2 = data.data.ayahs;
         // Juz 2 = Al-Baqarah 142–252 (filter surah 2, ayat 142-252)
@@ -3702,7 +3751,7 @@ async function loadJuzThree() {
         // Juz 3 = Al-Baqarah 253–286 + Ali Imran 1–91
         // (Ali Imran 92 adalah awal Juz 4, sehingga dikecualikan)
         // Fetch juz/3 dari API (field 'page' tersedia)
-        const res  = await fetch('https://api.alquran.cloud/v1/juz/3/quran-simple');
+        const res  = await fetchWithRetry('https://api.alquran.cloud/v1/juz/3/quran-simple');
         const data = await res.json();
         juzDataCache[3] = data.data.ayahs.filter(a =>
             !(a.surah.number === 3 && a.numberInSurah >= 92)
@@ -3721,8 +3770,8 @@ async function loadJuzFour() {
         // Juz 4 = Ali Imran 92–200 + An-Nisa 1–23
         // Fetch langsung dari endpoint surah agar ayat 92 Ali Imran pasti ikut
         const [res3, res4] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/3'),
-            fetch('https://api.alquran.cloud/v1/surah/4')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/3'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/4')
         ]);
         const [data3, data4] = await Promise.all([res3.json(), res4.json()]);
 
@@ -3762,7 +3811,7 @@ async function loadJuzFive() {
     try {
         // Juz 5 = An-Nisa 24–147
         // Fetch langsung dari endpoint surah agar struktur ayah konsisten
-        const res = await fetch('https://api.alquran.cloud/v1/surah/4');
+        const res = await fetchWithRetry('https://api.alquran.cloud/v1/surah/4');
         const data = await res.json();
 
         const surahMeta = {
@@ -3789,8 +3838,8 @@ async function loadJuzSix() {
         // Juz 6 = An-Nisa 148–176 + Al-Maidah 1–81
         // + overflow: Al-Maidah 82–83 (awal Juz 7, untuk konteks halaman)
         const [resNisa, resMaidah] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/4'),
-            fetch('https://api.alquran.cloud/v1/surah/5')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/4'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/5')
         ]);
         const [dataNisa, dataMaidah] = await Promise.all([resNisa.json(), resMaidah.json()]);
 
@@ -3834,8 +3883,8 @@ async function loadJuzSeven() {
     try {
         // Juz 7 = Al-Maidah 83–176 + Al-An'am 1–110
         const [resMaidah, resAnam] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/5'),
-            fetch('https://api.alquran.cloud/v1/surah/6')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/5'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/6')
         ]);
         const [dataMaidah, dataAnam] = await Promise.all([resMaidah.json(), resAnam.json()]);
 
@@ -3874,8 +3923,8 @@ async function loadJuzEight() {
     try {
         // Juz 8 = Al-An'am 111–176 + Al-A'raf 1–87
         const [resAnam, resAraf] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/6'),
-            fetch('https://api.alquran.cloud/v1/surah/7')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/6'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/7')
         ]);
         const [dataAnam, dataAraf] = await Promise.all([resAnam.json(), resAraf.json()]);
 
@@ -3915,8 +3964,8 @@ async function loadJuzNine() {
         // Juz 9 = Al-A'raf 88–206 + Al-Anfal 1–40
         // Catatan: Al-A'raf 206 adalah ayat Sajdah (sujud tilawah disunnahkan)
         const [resAraf, resAnfal] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/7'),
-            fetch('https://api.alquran.cloud/v1/surah/8')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/7'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/8')
         ]);
         const [dataAraf, dataAnfal] = await Promise.all([resAraf.json(), resAnfal.json()]);
 
@@ -3956,8 +4005,8 @@ async function loadJuzTen() {
         // Juz 10 = Al-Anfal 41–75 + At-Taubah 1–93
         // Catatan: At-Taubah 92-93 adalah awal Juz 11 tapi ikut di halaman terakhir Juz 10
         const [resAnfal, resTaubah] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/8'),
-            fetch('https://api.alquran.cloud/v1/surah/9')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/8'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/9')
         ]);
         const [dataAnfal, dataTaubah] = await Promise.all([resAnfal.json(), resTaubah.json()]);
 
@@ -4001,9 +4050,9 @@ async function loadJuzEleven() {
     try {
         // Juz 11 = At-Taubah 94–129 + Yunus 1–109 + Hud 1–5
         const [resTaubah, resYunus, resHud] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/9'),
-            fetch('https://api.alquran.cloud/v1/surah/10'),
-            fetch('https://api.alquran.cloud/v1/surah/11')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/9'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/10'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/11')
         ]);
         const [dataTaubah, dataYunus, dataHud] = await Promise.all([resTaubah.json(), resYunus.json(), resHud.json()]);
 
@@ -4051,8 +4100,8 @@ async function loadJuzTwelve() {
     try {
         // Juz 12 = Hud 6–123 + Yusuf 1–52
         const [resHud, resYusuf] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/11'),
-            fetch('https://api.alquran.cloud/v1/surah/12')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/11'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/12')
         ]);
         const [dataHud, dataYusuf] = await Promise.all([resHud.json(), resYusuf.json()]);
 
@@ -4091,9 +4140,9 @@ async function loadJuzThirteen() {
     try {
         // Juz 13 = Yusuf 53–111 + Ar-Ra'd 1–43 + Ibrahim 1–52
         const [resYusuf, resRaad, resIbrahim] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/12'),
-            fetch('https://api.alquran.cloud/v1/surah/13'),
-            fetch('https://api.alquran.cloud/v1/surah/14')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/12'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/13'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/14')
         ]);
         const [dataYusuf, dataRaad, dataIbrahim] = await Promise.all([resYusuf.json(), resRaad.json(), resIbrahim.json()]);
 
@@ -4141,8 +4190,8 @@ async function loadJuzFourteen() {
     try {
         // Juz 14 = Al-Hijr 1–99 (penuh) + An-Nahl 1–128 (penuh)
         const [resHijr, resNahl] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/15'),
-            fetch('https://api.alquran.cloud/v1/surah/16')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/15'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/16')
         ]);
         const [dataHijr, dataNahl] = await Promise.all([resHijr.json(), resNahl.json()]);
 
@@ -4181,8 +4230,8 @@ async function loadJuzFifteen() {
     try {
         // Juz 15 = Al-Isra' 1–111 (penuh) + Al-Kahfi 1–74
         const [resIsra, resKahfi] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/17'),
-            fetch('https://api.alquran.cloud/v1/surah/18')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/17'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/18')
         ]);
         const [dataIsra, dataKahfi] = await Promise.all([resIsra.json(), resKahfi.json()]);
 
@@ -4220,9 +4269,9 @@ async function loadJuzSixteen() {
     try {
         // Juz 16 = Al-Kahfi 75–110 + Maryam 1–98 (penuh) + Taha 1–135
         const [resKahfi, resMaryam, resTaha] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/18'),
-            fetch('https://api.alquran.cloud/v1/surah/19'),
-            fetch('https://api.alquran.cloud/v1/surah/20')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/18'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/19'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/20')
         ]);
         const [dataKahfi, dataMaryam, dataTaha] = await Promise.all([resKahfi.json(), resMaryam.json(), resTaha.json()]);
 
@@ -4262,8 +4311,8 @@ async function loadJuzSeventeen() {
     try {
         // Juz 17 = Al-Anbiya 1–112 (penuh) + Al-Hajj 1–78
         const [resAnbiya, resHajj] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/21'),
-            fetch('https://api.alquran.cloud/v1/surah/22')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/21'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/22')
         ]);
         const [dataAnbiya, dataHajj] = await Promise.all([resAnbiya.json(), resHajj.json()]);
 
@@ -4296,9 +4345,9 @@ async function loadJuzEighteen() {
     try {
         // Juz 18 = Al-Mu'minun 1–118 (penuh) + An-Nur 1–64 (penuh) + Al-Furqan 1–20
         const [resMuminun, resNur, resFurqan] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/23'),
-            fetch('https://api.alquran.cloud/v1/surah/24'),
-            fetch('https://api.alquran.cloud/v1/surah/25')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/23'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/24'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/25')
         ]);
         const [dataMuminun, dataNur, dataFurqan] = await Promise.all([resMuminun.json(), resNur.json(), resFurqan.json()]);
 
@@ -4337,9 +4386,9 @@ async function loadJuzNineteen() {
     try {
         // Juz 19 = Al-Furqan 21–77 + Asy-Syu'ara 1–227 (penuh) + An-Naml 1–55
         const [resFurqan, resSyuara, resNaml] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/25'),
-            fetch('https://api.alquran.cloud/v1/surah/26'),
-            fetch('https://api.alquran.cloud/v1/surah/27')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/25'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/26'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/27')
         ]);
         const [dataFurqan, dataSyuara, dataNaml] = await Promise.all([resFurqan.json(), resSyuara.json(), resNaml.json()]);
 
@@ -4379,9 +4428,9 @@ async function loadJuzTwenty() {
     try {
         // Juz 20 = An-Naml 56–93 + Al-Qasas 1–88 (penuh) + Al-Ankabut 1–45
         const [resNaml, resQasas, resAnkabut] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/27'),
-            fetch('https://api.alquran.cloud/v1/surah/28'),
-            fetch('https://api.alquran.cloud/v1/surah/29')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/27'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/28'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/29')
         ]);
         const [dataNaml, dataQasas, dataAnkabut] = await Promise.all([resNaml.json(), resQasas.json(), resAnkabut.json()]);
 
@@ -4420,11 +4469,11 @@ async function loadJuzTwentyOne() {
     try {
         // Juz 21 = Al-Ankabut 46–69 + Ar-Rum 1–60 (penuh) + Luqman 1–34 (penuh) + As-Sajdah 1–30 (penuh) + Al-Ahzab 1–30
         const [resAnkabut, resRum, resLuqman, resSajdah, resAhzab] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/29'),
-            fetch('https://api.alquran.cloud/v1/surah/30'),
-            fetch('https://api.alquran.cloud/v1/surah/31'),
-            fetch('https://api.alquran.cloud/v1/surah/32'),
-            fetch('https://api.alquran.cloud/v1/surah/33')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/29'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/30'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/31'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/32'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/33')
         ]);
         const [dataAnkabut, dataRum, dataLuqman, dataSajdah, dataAhzab] = await Promise.all([
             resAnkabut.json(), resRum.json(), resLuqman.json(), resSajdah.json(), resAhzab.json()
@@ -4463,10 +4512,10 @@ async function loadJuzTwentyTwo() {
     try {
         // Juz 22 = Al-Ahzab 31–73 + Saba' 1–54 (penuh) + Fatir 1–45 (penuh) + Yasin 1–27
         const [resAhzab, resSaba, resFatir, resYasin] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/33'),
-            fetch('https://api.alquran.cloud/v1/surah/34'),
-            fetch('https://api.alquran.cloud/v1/surah/35'),
-            fetch('https://api.alquran.cloud/v1/surah/36')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/33'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/34'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/35'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/36')
         ]);
         const [dataAhzab, dataSaba, dataFatir, dataYasin] = await Promise.all([
             resAhzab.json(), resSaba.json(), resFatir.json(), resYasin.json()
@@ -4502,10 +4551,10 @@ async function loadJuzTwentyThree() {
     try {
         // Juz 23 = Yasin 28–83 + As-Saffat 1–182 (penuh) + Sad 1–88 (penuh) + Az-Zumar 1–31
         const [resYasin, resSaffat, resSad, resZumar] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/36'),
-            fetch('https://api.alquran.cloud/v1/surah/37'),
-            fetch('https://api.alquran.cloud/v1/surah/38'),
-            fetch('https://api.alquran.cloud/v1/surah/39')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/36'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/37'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/38'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/39')
         ]);
         const [dataYasin, dataSaffat, dataSad, dataZumar] = await Promise.all([
             resYasin.json(), resSaffat.json(), resSad.json(), resZumar.json()
@@ -4541,9 +4590,9 @@ async function loadJuzTwentyFour() {
     try {
         // Juz 24 = Az-Zumar 32–75 + Ghafir 1–85 (penuh) + Fussilat 1–46
         const [resZumar, resGhafir, resFussilat] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/39'),
-            fetch('https://api.alquran.cloud/v1/surah/40'),
-            fetch('https://api.alquran.cloud/v1/surah/41')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/39'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/40'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/41')
         ]);
         const [dataZumar, dataGhafir, dataFussilat] = await Promise.all([
             resZumar.json(), resGhafir.json(), resFussilat.json()
@@ -4578,11 +4627,11 @@ async function loadJuzTwentyFive() {
         // Juz 25 = Fussilat 47–54 + Az-Zukhruf 1–89 (penuh) + Ad-Dukhan 1–59 (penuh) + Al-Jatsiyah 1–37 (penuh)
         // + Al-Ahqaf 1–5 (_overflow juz 26, diikutkan agar halaman rapi)
         const [resFussilat, resZukhruf, resDukhan, resJatsiyah, resAhqaf] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/41'),
-            fetch('https://api.alquran.cloud/v1/surah/43'),
-            fetch('https://api.alquran.cloud/v1/surah/44'),
-            fetch('https://api.alquran.cloud/v1/surah/45'),
-            fetch('https://api.alquran.cloud/v1/surah/46')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/41'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/43'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/44'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/45'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/46')
         ]);
         const [dataFussilat, dataZukhruf, dataDukhan, dataJatsiyah, dataAhqaf] = await Promise.all([
             resFussilat.json(), resZukhruf.json(), resDukhan.json(), resJatsiyah.json(), resAhqaf.json()
@@ -4631,12 +4680,12 @@ async function loadJuzTwentySix() {
         // Juz 26 = Al-Ahqaf 6–35 + Muhammad 1–38 (penuh) + Al-Fath 1–29 (penuh)
         // + Al-Hujurat 1–18 (penuh) + Qaf 1–45 (penuh) + Adz-Dzariyat 1–30
         const [resAhqaf, resMuhammad, resFath, resHujurat, resQaf, resDzariyat] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/46'),
-            fetch('https://api.alquran.cloud/v1/surah/47'),
-            fetch('https://api.alquran.cloud/v1/surah/48'),
-            fetch('https://api.alquran.cloud/v1/surah/49'),
-            fetch('https://api.alquran.cloud/v1/surah/50'),
-            fetch('https://api.alquran.cloud/v1/surah/51')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/46'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/47'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/48'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/49'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/50'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/51')
         ]);
         const [dataAhqaf, dataMuhammad, dataFath, dataHujurat, dataQaf, dataDzariyat] = await Promise.all([
             resAhqaf.json(), resMuhammad.json(), resFath.json(), resHujurat.json(), resQaf.json(), resDzariyat.json()
@@ -4691,13 +4740,13 @@ async function loadJuzTwentySeven() {
         // + Al-Qamar 1–55 (penuh) + Ar-Rahman 1–78 (penuh) + Al-Waqi'ah 1–96 (penuh)
         // + Al-Hadid 1–29
         const [resDzariyat, resTur, resNajm, resQamar, resRahman, resWaqiah, resHadid] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/51'),
-            fetch('https://api.alquran.cloud/v1/surah/52'),
-            fetch('https://api.alquran.cloud/v1/surah/53'),
-            fetch('https://api.alquran.cloud/v1/surah/54'),
-            fetch('https://api.alquran.cloud/v1/surah/55'),
-            fetch('https://api.alquran.cloud/v1/surah/56'),
-            fetch('https://api.alquran.cloud/v1/surah/57')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/51'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/52'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/53'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/54'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/55'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/56'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/57')
         ]);
         const [dataDzariyat, dataTur, dataNajm, dataQamar, dataRahman, dataWaqiah, dataHadid] = await Promise.all([
             resDzariyat.json(), resTur.json(), resNajm.json(), resQamar.json(), resRahman.json(), resWaqiah.json(), resHadid.json()
@@ -4757,15 +4806,15 @@ async function loadJuzTwentyEight() {
         // + As-Saff 1–14 + Al-Jumu'ah 1–11 + Al-Munafiqun 1–11
         // + At-Taghabun 1–18 + At-Talaq 1–12 + At-Tahrim 1–12
         const [resMujadilah, resHasyr, resMumtahanah, resSaff, resJumuah, resMunafiqun, resTaghabun, resTalaq, resTahrim] = await Promise.all([
-            fetch('https://api.alquran.cloud/v1/surah/58'),
-            fetch('https://api.alquran.cloud/v1/surah/59'),
-            fetch('https://api.alquran.cloud/v1/surah/60'),
-            fetch('https://api.alquran.cloud/v1/surah/61'),
-            fetch('https://api.alquran.cloud/v1/surah/62'),
-            fetch('https://api.alquran.cloud/v1/surah/63'),
-            fetch('https://api.alquran.cloud/v1/surah/64'),
-            fetch('https://api.alquran.cloud/v1/surah/65'),
-            fetch('https://api.alquran.cloud/v1/surah/66')
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/58'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/59'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/60'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/61'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/62'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/63'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/64'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/65'),
+            fetchWithRetry('https://api.alquran.cloud/v1/surah/66')
         ]);
         const [dataMujadilah, dataHasyr, dataMumtahanah, dataSaff, dataJumuah, dataMunafiqun, dataTaghabun, dataTalaq, dataTahrim] = await Promise.all([
             resMujadilah.json(), resHasyr.json(), resMumtahanah.json(), resSaff.json(),
@@ -4834,7 +4883,7 @@ async function loadJuzTwentyEight() {
 async function loadJuzTwentyNine() {
     try {
         // Juz 29 = Al-Mulk s.d. Al-Mursalat (surah 67–77) — gunakan endpoint /juz/29
-        const res = await fetch('https://api.alquran.cloud/v1/juz/29/quran-simple');
+        const res = await fetchWithRetry('https://api.alquran.cloud/v1/juz/29/quran-simple');
         const data = await res.json();
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         const surahMetaMap = {};
@@ -4866,7 +4915,7 @@ async function loadJuzTwentyNine() {
 async function loadJuzThirty() {
     try {
         // Juz 30 = An-Naba s.d. An-Nas (surah 78–114) — gunakan endpoint /juz/30 agar 1 request
-        const res = await fetch('https://api.alquran.cloud/v1/juz/30/quran-simple');
+        const res = await fetchWithRetry('https://api.alquran.cloud/v1/juz/30/quran-simple');
         const data = await res.json();
         if (!data.data || !data.data.ayahs) throw new Error('Data tidak valid');
         // Bangun surahMeta dari field surah yang sudah ada di tiap ayat

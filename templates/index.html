@@ -5081,10 +5081,41 @@ function switchJuz(juz) {
     showToast(toastLabels[juz] || `📖 Juz ${juz}`);
     scrollToActiveTab(juz);
 }
+// AUDIO — sumber utama EveryAyah + fallback CDN AlQuran Cloud
+const QARI_CDN_MAP = {
+    'Abdul_Basit_Murattal_64kbps':'ar.abdulbasit','Alafasy_64kbps':'ar.alafasy','Husary_64kbps':'ar.husary',
+    'Minshawy_Murattal_128kbps':'ar.minshawi','Mohammad_al_Tablaway_128kbps':'ar.muhammadaltablawy',
+    'Maher_AlMuaiqly_64kbps':'ar.mahermuaiqly','Ayman_Sowaid_64kbps':'ar.aymansowaid','Ghamadi_40kbps':'ar.ghamdi',
+    'Abu_Bakr_Ash-Shaatree_128kbps':'ar.shaatree','Abdurrahmaan_As-Sudais_64kbps':'ar.sudais','Dussary_128kbps':'ar.dussary',
+    'Nasser_Alqatami_128kbps':'ar.nasseralkatami','Hani_Rifai_64kbps':'ar.hanirifai','Abdullah_Basfar_192kbps':'ar.abdullahbasfar',
+    'Muhammad_Jibreel_128kbps':'ar.muhammadjibreel','Muhammad_Ayyoub_128kbps':'ar.muhammadayyoub','Salah_Al_Budair_128kbps':'ar.salahbudair',
+    'Shuraym_128kbps':'ar.shuraim','Hudhaify_128kbps':'ar.hudhaify','Ibrahim_Akhdar_32kbps':'ar.ibrahimakhder',
+    'khalefa_al_tunaiji_64kbps':'ar.khalefatunaiji','Ali_Hajjaj_AlSuesy_128kbps':'ar.aliabdurrahman','Akram_AlAlaqimy_128kbps':'ar.akramalalakmi',
+    'Abdul_Basit_Mujawwad_128kbps':'ar.abdulbasitmujawwad','Husary_128kbps_Mujawwad':'ar.husarymujawwad','Minshawy_Mujawwad_192kbps':'ar.minshawimujawwad'
+};
 function getLocalAudioPath(ayah) {
     const s = String(ayah.surah.number).padStart(3, '0');
     const a = String(ayah.numberInSurah).padStart(3, '0');
     return `https://everyayah.com/data/${selectedQariId}/${s}${a}.mp3`;
+}
+function getCdnAudioPath(ayah) {
+    const globalNumber = Number(ayah.number);
+    if (!Number.isFinite(globalNumber) || globalNumber < 1) return null;
+    const edition = QARI_CDN_MAP[selectedQariId] || 'ar.alafasy';
+    return `https://cdn.islamic.network/quran/audio/128/${edition}/${globalNumber}.mp3`;
+}
+function playAudioCandidates(audio, ayah, continuous = false) {
+    const urls = [getLocalAudioPath(ayah), getCdnAudioPath(ayah)].filter(Boolean);
+    let attempt = 0;
+    const tryNext = () => {
+        if (attempt >= urls.length) { if (continuous) skipToNext(); return; }
+        const url = urls[attempt++];
+        audio.src = url; audio.load();
+        const p = audio.play();
+        if (p && p.catch) p.catch(() => tryNext());
+        audio.addEventListener('error', () => tryNext(), {once:true});
+    };
+    tryNext();
 }
 
 // =============================================
@@ -5714,7 +5745,7 @@ function playAyah(index, continuous = false) {
     highlightWords(index);
     const mainEl = document.getElementById('mainContainer');
     const savedScroll = mainEl.scrollTop;
-    getAudioPlayer().src = getLocalAudioPath(ayahsData[index]);
+    playAudioCandidates(getAudioPlayer(), ayahsData[index], continuous);
     // Restore scroll if audio src assignment caused a reset
     if (mainEl.scrollTop !== savedScroll) mainEl.scrollTop = savedScroll;
     requestAnimationFrame(() => {
@@ -7934,13 +7965,9 @@ function renderQuizQuestion() {
 }
 
 function quizPlayAudio() {
-    const s = String(quizCurrentAudioSurah).padStart(3, '0');
-    const a = String(quizCurrentAudioAyah).padStart(3, '0');
-    const url = `https://cdn.islamic.network/quran/audio/64/${selectedQariId}/${parseInt(s)*1000+parseInt(a)}.mp3`;
-    // Use a separate quick audio
-    const tmp = new Audio(url);
-    tmp.volume = 0.9;
-    tmp.play().catch(() => {});
+    const ayah = ayahsData.find(x => Number(x.surah.number) === Number(quizCurrentAudioSurah) && Number(x.numberInSurah) === Number(quizCurrentAudioAyah));
+    if (!ayah) return;
+    const tmp = new Audio(); tmp.volume = 0.9; playAudioCandidates(tmp, ayah, false);
     document.getElementById('quizPlayBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memuat...';
     tmp.oncanplay = () => { document.getElementById('quizPlayBtn').innerHTML = '<i class="fa-solid fa-volume-high"></i> Dengarkan Ayat'; };
     tmp.onerror  = () => { document.getElementById('quizPlayBtn').innerHTML = '<i class="fa-solid fa-volume-high"></i> Dengarkan Ayat'; };
@@ -8366,12 +8393,9 @@ function renderMurojaahCard() {
 }
 
 function mrjPlayAudio(surah, ayah) {
-    const s = String(surah).padStart(3, '0');
-    const a = String(ayah).padStart(3, '0');
-    const url = `https://cdn.islamic.network/quran/audio/64/${selectedQariId}/${parseInt(s)*1000+parseInt(a)}.mp3`;
-    const tmp = new Audio(url);
-    tmp.volume = 0.9;
-    tmp.play().catch(() => {});
+    const item = ayahsData.find(x => Number(x.surah.number) === Number(surah) && Number(x.numberInSurah) === Number(ayah));
+    if (!item) return;
+    const tmp = new Audio(); tmp.volume = 0.9; playAudioCandidates(tmp, item, false);
 }
 
 function answerMurojaah(answer) {

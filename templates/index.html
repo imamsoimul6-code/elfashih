@@ -6608,6 +6608,26 @@ function setHafalanStatus(surah, ayah, status) {
     if (status === 'belum') delete all[hafalanKey(surah, ayah)];
     else all[hafalanKey(surah, ayah)] = status;
     localStorage.setItem(HAFALAN_KEY, JSON.stringify(all));
+
+    // Auto-sync ke Leitner (murojaah) — digabung langsung di sini,
+    // BUKAN via wrapper redeclare nama fungsi yang sama (itu penyebab
+    // bug infinite recursion / Maximum call stack size exceeded).
+    if (typeof leitnerKey === 'function' && typeof getLeitnerAll === 'function') {
+        const k = leitnerKey(surah, ayah);
+        const leitner = getLeitnerAll();
+        if ((status === 'proses' || status === 'lancar') && !leitner[k]) {
+            leitner[k] = { box: 1, lastReview: null };
+            saveLeitnerAll(leitner);
+            if (typeof updateMurojaahTopBadge === 'function') updateMurojaahTopBadge();
+            if (typeof updateDashMurojaah === 'function') updateDashMurojaah();
+        } else if (status === 'belum' && leitner[k]) {
+            // Optionally remove from Leitner when reset to belum
+            delete leitner[k];
+            saveLeitnerAll(leitner);
+            if (typeof updateMurojaahTopBadge === 'function') updateMurojaahTopBadge();
+            if (typeof updateDashMurojaah === 'function') updateDashMurojaah();
+        }
+    }
 }
 function cycleHafalanStatus(surah, ayah) {
     const cur = getHafalanStatus(surah, ayah);
@@ -8207,26 +8227,10 @@ function openMurojaahFromDash() {
     openMurojaahView();
 }
 
-// Hook into existing setHafalanStatus to auto-add to Leitner
-const _origSetHafalanStatus = setHafalanStatus;
-function setHafalanStatus(surah, ayah, status) {
-    _origSetHafalanStatus(surah, ayah, status);
-    // Auto-add new entries to Leitner
-    const k = leitnerKey(surah, ayah);
-    const leitner = getLeitnerAll();
-    if ((status === 'proses' || status === 'lancar') && !leitner[k]) {
-        leitner[k] = { box: 1, lastReview: null };
-        saveLeitnerAll(leitner);
-        updateMurojaahTopBadge();
-        updateDashMurojaah();
-    } else if (status === 'belum' && leitner[k]) {
-        // Optionally remove from Leitner when reset to belum
-        delete leitner[k];
-        saveLeitnerAll(leitner);
-        updateMurojaahTopBadge();
-        updateDashMurojaah();
-    }
-}
+// (Logika sinkronisasi Leitner sudah digabung langsung ke dalam
+// setHafalanStatus() di bagian atas file — lihat definisi fungsi
+// tersebut. Wrapper redeclare di sini sudah dihapus karena
+// menyebabkan bug infinite recursion / stack overflow.)
 
 // Init on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {

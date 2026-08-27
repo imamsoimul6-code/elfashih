@@ -11065,5 +11065,111 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+
+<script id="elfashih-tajweed-hotfix-v2">
+(function(){
+  const __originalRenderDigital = window.renderDigital;
+  const __originalRenderContent = window.renderContent;
+
+  function tajweedSafeHTML(raw){
+    if(!raw) return '';
+    let s = String(raw);
+    s = s.replace(/<tajweed\\b[^>]*class\\s*=\\s*["']?([a-zA-Z0-9_-]+)["']?[^>]*>/gi,
+      (_, cls) => '<span class="tajweed '+String(cls).replace(/[^a-zA-Z0-9_-]/g,'')+'">');
+    s = s.replace(/<\\/tajweed>/gi,'</span>');
+    s = s.replace(/<span\\b[^>]*class\\s*=\\s*["']end["'][^>]*>.*?<\\/span>/gi,'');
+    return s;
+  }
+
+  async function fetchChapterTajweed(chapter){
+    if(window.tajweedSurahCache && window.tajweedSurahCache.has(chapter)) return window.tajweedSurahCache.get(chapter);
+    const url='https://api.quran.com/api/v4/quran/verses/uthmani_tajweed?chapter_number='+encodeURIComponent(chapter);
+    const res=await fetch(url,{cache:'force-cache'});
+    if(!res.ok) throw new Error('Tajweed API '+res.status);
+    const data=await res.json();
+    const map={};
+    (data.verses||[]).forEach(v=>{
+      const n=Number(v.verse_key.split(':')[1]);
+      map[n]=tajweedSafeHTML(v.text_uthmani_tajweed||'');
+    });
+    if(window.tajweedSurahCache) window.tajweedSurahCache.set(chapter,map);
+    return map;
+  }
+
+  async function applyTajweedColors(){
+    if(!window.isTajweedMode) return;
+    const words=[...document.querySelectorAll('#digitalView .digital-word[data-idx]')];
+    if(!words.length) return;
+    const needed=[...new Set(words.map(el=>window.ayahsData?.[Number(el.dataset.idx)]?.surah?.number).filter(Boolean))];
+    try{
+      const maps=await Promise.all(needed.map(fetchChapterTajweed));
+      const byChapter=new Map(needed.map((n,i)=>[n,maps[i]]));
+      words.forEach(el=>{
+        const ayah=window.ayahsData?.[Number(el.dataset.idx)];
+        if(!ayah) return;
+        const html=byChapter.get(ayah.surah.number)?.[ayah.numberInSurah];
+        if(html) el.innerHTML=html;
+      });
+      document.getElementById('digitalView')?.classList.add('tajweed-mode');
+    }catch(err){
+      console.error('Tajweed render failed:',err);
+      if(window.showToast) window.showToast('⚠️ Warna tajwid gagal dimuat. Periksa koneksi internet.');
+    }
+  }
+
+  window.renderDigital=function(){
+    __originalRenderDigital.apply(this,arguments);
+    if(window.isTajweedMode){ setTimeout(applyTajweedColors,0); }
+  };
+
+  // Replace toggle so it doesn't rely on a duplicate renderDigital implementation.
+  window.toggleTajweed=function(){
+    window.isTajweedMode=!window.isTajweedMode;
+    localStorage.setItem('elfashih_tajweed',window.isTajweedMode?'1':'0');
+    document.getElementById('tajweedBtn')?.classList.toggle('active',window.isTajweedMode);
+    document.getElementById('ditemTajweed')?.classList.toggle('active',window.isTajweedMode);
+    document.body.classList.toggle('tajweed-mode',window.isTajweedMode);
+    if(window.isTajweedMode){
+      // Tajweed is a Digital renderer feature.
+      if(typeof window.hideDashboard==='function') window.hideDashboard();
+      window.viewMode='digital';
+      document.getElementById('mushafView')?.style && (document.getElementById('mushafView').style.display='none');
+      const dv=document.getElementById('digitalView');
+      if(dv) dv.style.display='block';
+      document.getElementById('viewMushafBtn')?.classList.remove('active');
+      document.getElementById('viewDigitalBtn')?.classList.add('active');
+      if(typeof window.renderDigital==='function') window.renderDigital();
+      setTimeout(applyTajweedColors,20);
+      if(window.showToast) window.showToast('🎨 Warna Tajwid aktif');
+    }else{
+      if(typeof window.renderContent==='function') window.renderContent();
+      if(window.showToast) window.showToast('Tajwid dimatikan');
+    }
+  };
+
+  // Strong fallback styles, in case earlier styles are overridden.
+  const css=document.createElement('style');
+  css.textContent=`
+    #digitalView.tajweed-mode .tajweed{font-weight:700!important}
+    #digitalView.tajweed-mode .tajweed.ham_wasl{color:#7c5cff!important}
+    #digitalView.tajweed-mode .tajweed.laam_shamsiyah{color:#64748b!important}
+    #digitalView.tajweed-mode .tajweed.madda_normal{color:#0099b5!important}
+    #digitalView.tajweed-mode .tajweed.madda_permissible{color:#0b9f6e!important}
+    #digitalView.tajweed-mode .tajweed.madda_necessary,#digitalView.tajweed-mode .tajweed.madda_obligatory{color:#e04461!important}
+    #digitalView.tajweed-mode .tajweed.madda_jaiz{color:#ef9419!important}
+    #digitalView.tajweed-mode .tajweed.idgham_ghunnah{color:#9251d8!important}
+    #digitalView.tajweed-mode .tajweed.idgham_no_ghunnah{color:#3e78dc!important}
+    #digitalView.tajweed-mode .tajweed.idgham_shafawi{color:#bd4b9a!important}
+    #digitalView.tajweed-mode .tajweed.idgham_mutajanisayn,#digitalView.tajweed-mode .tajweed.idgham_mutaqaribayn{color:#7653d9!important}
+    #digitalView.tajweed-mode .tajweed.ikhfa{color:#ef7413!important}
+    #digitalView.tajweed-mode .tajweed.ikhfa_shafawi{color:#e64b9d!important}
+    #digitalView.tajweed-mode .tajweed.iqlab{color:#df1d4b!important}
+    #digitalView.tajweed-mode .tajweed.qalqalah{color:#0789aa!important}
+    #digitalView.tajweed-mode .tajweed.ghunnah{color:#159a47!important}
+  `;
+  document.head.appendChild(css);
+})();
+</script>
+
 </body>
 </html>

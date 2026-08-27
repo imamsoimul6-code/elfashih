@@ -5154,6 +5154,232 @@ function preloadAyahAudio(ayah) {
     audioPreloadCache.set(url, pre);
 }
 
+
+// =============================================
+// TAJWEED MODE
+// =============================================
+let isTajweedMode = localStorage.getItem('elfashih_tajweed') === '1';
+const tajweedSurahCache = new Map();
+let tajweedLoading = false;
+
+const TAJWEED_RULE_META = {
+    ham_wasl: ['Hamzatul Wasl','#7b61ff'],
+    laam_shamsiyah: ['Lam Syamsiyah','#6b7280'],
+    madda_normal: ['Mad Thabi\'i','#00a6c7'],
+    madda_permissible: ['Mad Jaiz','#11a86b'],
+    madda_necessary: ['Mad Lazim','#e04b67'],
+    idgham_ghunnah: ['Idgham Bighunnah','#9b51e0'],
+    idgham_no_ghunnah: ['Idgham Bilaghunnah','#477eeb'],
+    idgham_shafawi: ['Idgham Syafawi','#c04a9a'],
+    ikhfa: ['Ikhfa','#f97316'],
+    ikhfa_shafawi: ['Ikhfa Syafawi','#ec4899'],
+    iqlab: ['Iqlab','#e11d48'],
+    qalqalah: ['Qalqalah','#0891b2'],
+    ghunnah: ['Ghunnah','#16a34a'],
+    silent: ['Huruf Sukun/Silent','#94a3b8']
+};
+
+function tajweedSanitize(html) {
+    if (!html) return '';
+    // Convert the API's <tajweed class="..."> tags to safe span tags.
+    let s = String(html)
+        .replace(/<tajweed\b[^>]*class\s*=\s*["']?([a-zA-Z0-9_-]+)["']?[^>]*>/gi,
+            (_, cls) => `<span class="tajweed ${cls.replace(/[^a-zA-Z0-9_-]/g,'')}">`)
+        .replace(/<\/tajweed>/gi, '</span>');
+    // Preserve the verse number marker, but remove other HTML tags.
+    s = s.replace(/<(?!\/?span\b)[^>]*>/gi, '');
+    s = s.replace(/<span\b([^>]*)class\s*=\s*["']end["']([^>]*)>(.*?)<\/span>/gi,
+        '<span class="end">$3</span>');
+    return s;
+}
+
+async function fetchTajweedSurah(surahNum) {
+    if (tajweedSurahCache.has(surahNum)) return tajweedSurahCache.get(surahNum);
+    const url = `https://api.quran.com/api/v4/quran/verses/uthmani_tajweed?chapter_number=${surahNum}`;
+    const res = await fetchWithRetry(url, { retries: 2, timeoutMs: 15000, backoffMs: 700 });
+    if (!res.ok) throw new Error(`Tajwid API HTTP ${res.status}`);
+    const payload = await res.json();
+    const verses = payload.verses || payload.data?.verses || [];
+    const map = {};
+    verses.forEach(v => {
+        const key = Number(v.verse_number ?? String(v.verse_key || '').split(':')[1]);
+        const raw = v.text_uthmani_tajweed || v.text_uthmani || '';
+        if (key) map[key] = tajweedSanitize(raw).replace(/<span class="end">.*?<\/span>/g,'').trim();
+    });
+    tajweedSurahCache.set(surahNum, map);
+    return map;
+}
+
+function getTajweedText(ayah) {
+    const map = tajweedSurahCache.get(ayah.surah.number);
+    return map?.[ayah.numberInSurah] || '';
+}
+
+function buildTajweedInfo() {
+    const el = document.createElement('div');
+    el.className = 'tajweed-info';
+    const chips = Object.entries(TAJWEED_RULE_META).map(([key, [label, color]]) =>
+        `<span class="tajweed-chip"><span class="tajweed-dot" style="background:${color}"></span>${label}</span>`
+    ).join('');
+    el.innerHTML = `
+      <div class="tajweed-info-head">
+        <div>
+          <div class="tajweed-info-title">🎨 Mode Tajwid aktif</div>
+          <div class="tajweed-info-sub">Warna membantu mengenali hukum bacaan saat belajar.</div>
+        </div>
+        <button class="translate-btn" onclick="toggleTajweed()" title="Matikan Tajwid">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="tajweed-legend">${chips}</div>`;
+    return el;
+}
+
+function renderDigital() {
+    const container = document.getElementById('digitalView');
+    container.innerHTML = '';
+    if (isTajweedMode) {
+        container.classList.add('tajweed-mode');
+        container.appendChild(buildTajweedInfo());
+    } else {
+        container.classList.remove('tajweed-mode');
+    }
+
+    let lastSurahNum = null;
+    let juz26MarkerInserted = false;
+    ayahsData.forEach((ayah, idx) => {
+        if (ayah._overflow && !ayah._juz26) return;
+        if (ayah._juz26 && !juz26MarkerInserted) {
+            juz26MarkerInserted = true;
+            const marker = document.createElement('div');
+            marker.className = 'juz26-marker';
+            marker.innerHTML = '<i class="fa-solid fa-bookmark"></i> Mulai Juz 26 (Al-Ahqaf 1–5 diikutkan untuk kelengkapan halaman)';
+            container.appendChild(marker);
+        }
+        if (ayah.numberInSurah === 1 && ayah.surah.number !== lastSurahNum) {
+            lastSurahNum = ayah.surah.number;
+            const hdr = buildSurahHeaderBox(ayah.surah);
+            container.appendChild(hdr);
+            if (ayah.surah.number !== 1 && ayah.surah.number !== 9) {
+                const bism = document.createElement('div');
+                bism.className = 'surah-bismillah-row';
+                bism.textContent = 'بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ';
+                container.appendChild(bism);
+            }
+        }
+        const card = document.createElement('div');
+        const juzStartNum = getJuzNumFromStart(ayah.surah.number, ayah.numberInSurah);
+        card.className = 'digital-ayah-card' + (juzStartNum ? ' juz-start-card' : '');
+        if (juzStartNum) {
+            const banner = document.createElement('div');
+            banner.className = 'juz-start-banner';
+            banner.innerHTML = `<i class="fa-solid fa-flag"></i> Awal Juz ${juzStartNum}`;
+            container.appendChild(banner);
+        }
+
+        const tajText = isTajweedMode ? getTajweedText(ayah) : '';
+        const textHtml = isTajweedMode && tajText
+            ? `<span class="digital-word tajweed-ayah-text" data-idx="${idx}" onclick="handleDigitalAyahClick(${idx})">${tajText}</span>`
+            : `<span class="digital-word" data-idx="${idx}" onclick="handleDigitalAyahClick(${idx})">${ayah.text}</span>`;
+
+        card.innerHTML = `
+            <div class="digital-card-header">
+                <div class="verse-badge">
+                    ${verseCircleSVG(ayah.numberInSurah)}
+                    <div>
+                        <div class="verse-label">${ayah.surah.name} : ${ayah.numberInSurah}</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <button class="translate-btn" title="Lihat/sembunyikan terjemahan"
+                        onclick="event.stopPropagation(); toggleTranslation(${idx}, this)">
+                        <i class="fa-solid fa-language"></i>
+                    </button>
+                    <button class="hafalan-btn ${getHafalanStatus(ayah.surah.number, ayah.numberInSurah)}"
+                        data-surah="${ayah.surah.number}" data-ayah="${ayah.numberInSurah}"
+                        onclick="handleHafalanBtnClick(event,${ayah.surah.number},${ayah.numberInSurah})"
+                        title="Klik untuk ubah status hafalan">
+                        <span class="hbtn-text">${HAFALAN_LABELS[getHafalanStatus(ayah.surah.number, ayah.numberInSurah)]}</span>
+                    </button>
+                    <div class="card-page">Hal. ${ayah.page}</div>
+                </div>
+            </div>
+            <div class="digital-ayah-text" dir="rtl">
+                ${textHtml}
+                <span class="ayah-marker" onclick="handleDigitalAyahClick(${idx})">${toArabicNum(ayah.numberInSurah)}</span>
+            </div>
+            <div class="digital-ayah-translation" id="translation-${idx}"></div>`;
+        card.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            setTasmiStartFromClick(idx);
+            showToast(`Titik mulai setoran: ${ayah.surah.name} ${ayah.numberInSurah}`);
+        });
+        container.appendChild(card);
+    });
+}
+
+async function toggleTajweed() {
+    if (tajweedLoading) return;
+
+    if (isTajweedMode) {
+        isTajweedMode = false;
+        localStorage.setItem('elfashih_tajweed', '0');
+        document.body.classList.remove('tajweed-mode');
+        const btn = document.getElementById('tajweedBtn');
+        if (btn) btn.classList.remove('active');
+        const dbtn = document.getElementById('ditemTajweed');
+        if (dbtn) dbtn.classList.remove('active');
+        const dig = document.getElementById('digitalView');
+        dig.dataset.rendered = '';
+        renderContent();
+        showToast('🎨 Tajwid dimatikan');
+        return;
+    }
+
+    // Tajwid mode menggunakan tampilan Digital karena HTML tajwid dapat
+    // mempertahankan warna hukum bacaan dengan tepat.
+    isTajweedMode = true;
+    localStorage.setItem('elfashih_tajweed', '1');
+    document.body.classList.add('tajweed-mode');
+    const btn = document.getElementById('tajweedBtn');
+    if (btn) btn.classList.add('active');
+    const dbtn = document.getElementById('ditemTajweed');
+    if (dbtn) dbtn.classList.add('active');
+
+    hideDashboard();
+    document.getElementById('quizView').classList.remove('active');
+    viewMode = 'digital';
+    document.getElementById('viewMushafBtn')?.classList.remove('active');
+    document.getElementById('viewDigitalBtn')?.classList.add('active');
+
+    const container = document.getElementById('digitalView');
+    container.innerHTML = `<div class="tajweed-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat warna tajwid untuk ayat yang sedang dibuka…</div>`;
+    container.style.display = 'block';
+    document.getElementById('mushafView').style.display = 'none';
+
+    const surahs = [...new Set(ayahsData.filter(a => !a._overflow || a._juz26).map(a => a.surah.number))];
+    tajweedLoading = true;
+    try {
+        await Promise.all(surahs.map(fetchTajweedSurah));
+        tajweedLoading = false;
+        document.getElementById('digitalView').dataset.rendered = '';
+        renderDigital();
+        showToast('🎨 Tajwid aktif');
+    } catch (err) {
+        tajweedLoading = false;
+        isTajweedMode = false;
+        localStorage.setItem('elfashih_tajweed', '0');
+        document.body.classList.remove('tajweed-mode');
+        const btn = document.getElementById('tajweedBtn');
+        if (btn) btn.classList.remove('active');
+        const dbtn = document.getElementById('ditemTajweed');
+        if (dbtn) dbtn.classList.remove('active');
+        renderContent();
+        console.error('Tajwid:', err);
+        showToast('⚠️ Tajwid gagal dimuat. Coba lagi saat koneksi stabil.');
+    }
+}
+
 // =============================================
 // VIEW MODE
 // =============================================
@@ -5165,6 +5391,14 @@ function setViewMode(mode) {
     // Topbar buttons
     document.getElementById('viewMushafBtn').classList.toggle('active', mode === 'mushaf');
     document.getElementById('viewDigitalBtn').classList.toggle('active', mode === 'digital');
+    if (isTajweedMode && mode === 'mushaf') {
+        // Tajwid memakai renderer Digital agar warna hukum tetap terkontrol.
+        isTajweedMode = false;
+        localStorage.setItem('elfashih_tajweed', '0');
+        document.body.classList.remove('tajweed-mode');
+        document.getElementById('tajweedBtn')?.classList.remove('active');
+        document.getElementById('ditemTajweed')?.classList.remove('active');
+    }
     renderContent();
 }
 
@@ -8632,6 +8866,99 @@ button,.btn{font-weight:750 !important;}
 }
 </style>
 
+
+<style id="elfashih-tajweed-v1">
+/* =========================================================
+   ELFASHIH TAJWEED MODE
+   Colors are intentionally distinct and high-contrast.
+========================================================= */
+.tajweed-toggle{
+  position:relative;
+}
+.tajweed-toggle.active{
+  background:linear-gradient(135deg,#7c5cff 0%,#12b8c7 100%) !important;
+  color:#fff !important;
+  border-color:transparent !important;
+  box-shadow:0 7px 22px rgba(124,92,255,.28) !important;
+}
+.tajweed-ayah-text{
+  font-family:"Noto Naskh Arabic","Amiri",serif !important;
+  font-weight:600;
+  line-height:2.25 !important;
+  font-size:clamp(25px,4.1vw,39px) !important;
+  letter-spacing:0 !important;
+  cursor:pointer;
+  transition:filter .18s ease,transform .18s ease;
+}
+.tajweed-ayah-text:hover{filter:saturate(1.12);transform:translateY(-1px)}
+.tajweed-info{
+  margin:8px 0 16px;
+  padding:14px 16px;
+  border:1px solid rgba(124,92,255,.14);
+  border-radius:20px;
+  background:linear-gradient(135deg,rgba(124,92,255,.07),rgba(18,184,199,.07));
+  box-shadow:0 10px 28px rgba(31,72,54,.05);
+}
+.tajweed-info-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:10px;
+}
+.tajweed-info-title{font-size:13px;font-weight:800;letter-spacing:-.02em}
+.tajweed-info-sub{font-size:10px;color:var(--text-muted);margin-top:2px}
+.tajweed-legend{
+  display:flex;flex-wrap:wrap;gap:7px;
+}
+.tajweed-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 9px;border-radius:999px;
+  background:rgba(255,255,255,.76);
+  border:1px solid rgba(18,35,29,.07);
+  font-size:10px;font-weight:700;color:#33483f;
+}
+.tajweed-dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.tajweed-loading{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 14px;border-radius:16px;
+  background:rgba(124,92,255,.07);color:#6251c9;
+  font-size:12px;font-weight:700;
+}
+.tajweed-error{
+  padding:12px 14px;border-radius:16px;
+  background:rgba(239,68,68,.07);color:#b42318;
+  font-size:12px;font-weight:700;
+}
+/* Quran.com Tajweed classes */
+.tajweed.ham_wasl,.tajweed.hamzat_wasl{color:#7b61ff}
+.tajweed.laam_shamsiyah,.tajweed.lam_shamsiyyah{color:#6b7280}
+.tajweed.madda_normal,.tajweed.madd_2{color:#00a6c7}
+.tajweed.madda_permissible,.tajweed.madd_246{color:#11a86b}
+.tajweed.madda_necessary,.tajweed.madd_6{color:#e04b67}
+.tajweed.madda_obligatory,.tajweed.madd_muttasil{color:#e04b67}
+.tajweed.madda_jaiz,.tajweed.madd_munfasil{color:#f59e0b}
+.tajweed.idgham_ghunnah{color:#9b51e0}
+.tajweed.idgham_no_ghunnah{color:#477eeb}
+.tajweed.idgham_shafawi{color:#c04a9a}
+.tajweed.idgham_mutajanisayn,.tajweed.idgham_mutaqaribayn{color:#8b5cf6}
+.tajweed.ikhfa{color:#f97316}
+.tajweed.ikhfa_shafawi{color:#ec4899}
+.tajweed.iqlab{color:#e11d48}
+.tajweed.qalqalah{color:#0891b2}
+.tajweed.ghunnah{color:#16a34a}
+.tajweed.silent{color:#94a3b8}
+.tajweed.end{color:inherit}
+.tajweed-mode .digital-ayah-text{
+  background:linear-gradient(180deg,rgba(124,92,255,.025),rgba(18,184,199,.025));
+}
+.tajweed-mode .digital-ayah-card.card-active .tajweed-ayah-text{
+  text-shadow:0 0 18px rgba(124,92,255,.12);
+}
+@media(max-width:680px){
+  .tajweed-info{border-radius:18px;padding:12px}
+  .tajweed-chip{font-size:9px;padding:6px 8px}
+  .tajweed-ayah-text{font-size:clamp(24px,7.4vw,34px)!important;line-height:2.2!important}
+}
+</style>
+
 </head>
 <body data-elfashih-ui="genalpha-v3">
 
@@ -9354,6 +9681,14 @@ button,.btn{font-weight:750 !important;}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 <span class="btn-icon-label">Mushaf</span>
             </button>
+            <button class="top-btn tajweed-toggle" id="tajweedBtn" onclick="toggleTajweed()" title="Qur'an Tajwid">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/>
+                    <path d="M4 5.5v16"/>
+                    <path d="M8 7h8M8 11h8M8 15h5"/>
+                </svg>
+                <span class="btn-icon-label">Tajwid</span>
+            </button>
             <button class="top-btn" id="viewDigitalBtn" onclick="setViewMode('digital')" title="Digital">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="3" stroke-linecap="round"/></svg>
                 <span class="btn-icon-label">Digital</span>
@@ -10011,6 +10346,15 @@ button,.btn{font-weight:750 !important;}
     <div class="drawer-title">Fitur</div>
 
     <div class="drawer-grid">
+        <button class="drawer-item tajweed-drawer-item" id="ditemTajweed" onclick="toggleTajweed(); closeBNavMore()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/>
+                <path d="M4 5.5v16"/>
+                <path d="M8 7h8M8 11h8M8 15h5"/>
+            </svg>
+            <span>Tajwid</span>
+        </button>
+
         <button class="drawer-item" id="bnavDigital" onclick="setViewMode('digital'); closeBNavMore()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="3" stroke-linecap="round"/></svg>
             Digital
@@ -10708,6 +11052,18 @@ function doLoginInstall() {
     }
 }
 </script>
+
+
+// Sync Tajwid preference without forcing an API request on app startup.
+window.addEventListener('DOMContentLoaded', () => {
+    if (isTajweedMode) {
+        document.getElementById('tajweedBtn')?.classList.add('active');
+        document.getElementById('ditemTajweed')?.classList.add('active');
+        // Do not auto-fetch: user can tap Tajwid when ready.
+        isTajweedMode = false;
+        localStorage.setItem('elfashih_tajweed','0');
+    }
+});
 
 </body>
 </html>

@@ -5249,6 +5249,15 @@ function restorePendingResume() {
         }
     };
 
+    // PENTING: dashboardView (Beranda) punya class="active" secara default
+    // di HTML statis, terpisah dari variabel viewMode. Kalau pending.view
+    // kebetulan SAMA dengan viewMode default ('mushaf'), setViewMode() tidak
+    // akan terpanggil (karena kondisi !== di bawah jadi false), sehingga
+    // hideDashboard() ikut ter-skip dan Beranda tetap menutupi Mushaf/Digital
+    // walau posisi baca sudah benar dipulihkan di baliknya. Maka itu paksa
+    // hideDashboard() di sini, tidak digantungkan ke perbandingan viewMode.
+    hideDashboard();
+
     if (pending.view && pending.view !== viewMode) setViewMode(pending.view);
 
     if (pending.juz && pending.juz !== activeJuz) {

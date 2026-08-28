@@ -947,17 +947,6 @@
         border-radius:50%; min-width:1.7em; height:1.7em; text-align:center;
         padding:.15em; margin:0 .12em;
     }
-    /* Wadah alir satu paragraf per segmen surah: teks mengalir dan rata
-       kanan-kiri (justify) seperti baris mushaf asli, bukan satu ayat = satu
-       baris terpisah. */
-    .mushaf-tajweed-flow {
-        display:block; direction:rtl; text-align:justify; text-align-last:right;
-        word-spacing:normal; letter-spacing:normal; white-space:normal;
-        font-family:var(--arabic-font); font-size:var(--mf-font-size); line-height:1.95;
-        margin:2px 0; padding:0 2px;
-    }
-    .mushaf-tajweed-ayah { display:inline; cursor:pointer; border-radius:3px; transition:background-color .12s; }
-    .mushaf-tajweed-ayah:hover { background-color:rgba(46,204,113,0.18); }
     .tajweed-legend { display:flex; flex-wrap:wrap; gap:5px; margin:5px 0 10px;
         font-family:var(--ui-font); font-size:9px; direction:ltr; }
     .tajweed-legend span { padding:3px 7px; border-radius:999px; background:rgba(255,255,255,.55); border:1px solid rgba(0,0,0,.08); }
@@ -5797,39 +5786,21 @@ async function renderMushaf() {
         }
         subSegs.push(cur);
 
-        const tajweedJuzMap = tajweedMode ? await ensureTajweedForJuz(activeJuz) : null;
-        // Satu wadah alir (flow) per segmen surah di halaman ini, supaya semua
-        // ayat pada segmen yang sama mengalir sebagai SATU paragraf mushaf yang
-        // rata kanan-kiri (justify), persis seperti quran-madina-html, alih-alih
-        // satu <div> terpisah per ayat (itu penyebab layout "berantakan": tiap
-        // ayat jadi baris sendiri yang menggantung di kiri, tidak rata seperti
-        // mushaf asli).
-        let tajweedFlowEl = null;
+        // PERBAIKAN LAYOUT: sebelumnya mode Tajwid merender ayat lewat <div>
+        // manual terpisah (hasil: baris tidak rata/berantakan, beda total dari
+        // tampilan non-Tajwid). Library quran-madina-html ternyata SUDAH
+        // menyediakan font "Amiri Quran Colored" — varian tajwid berwarna yang
+        // memakai data tata-letak (baris/halaman) PERSIS SAMA dengan font Hafs
+        // biasa. Jadi sekarang mode Tajwid & non-Tajwid memakai komponen yang
+        // sama persis, hanya beda atribut data-font — layout dijamin identik,
+        // yang berubah cuma warnanya.
         subSegs.forEach(subSeg => {
             const sStart = subSeg[0].numberInSurah;
             const sEnd   = subSeg[subSeg.length - 1].numberInSurah;
-            if (tajweedMode) {
-                const juzMap = tajweedJuzMap;
-                if (!tajweedFlowEl) {
-                    tajweedFlowEl = document.createElement('div');
-                    tajweedFlowEl.className = 'mushaf-tajweed-flow tajweed-text';
-                    body.appendChild(tajweedFlowEl);
-                }
-                subSeg.forEach(ayah => {
-                    const el = document.createElement('span');
-                    el.className = 'mushaf-tajweed-ayah';
-                    el.innerHTML = renderTajweedAyah(ayah, juzMap);
-                    el.dataset.gidx = ayah.gIdx;
-                    el.addEventListener('click', () => playAyah(ayah.gIdx));
-                    el.addEventListener('contextmenu', e => { e.preventDefault(); setTasmiStartFromClick(ayah.gIdx); });
-                    tajweedFlowEl.appendChild(el);
-                    tajweedFlowEl.appendChild(document.createTextNode(' '));
-                });
-                return;
-            }
             const comp = document.createElement('quran-madina-html');
             comp.setAttribute('sura', surahNum);
             comp.setAttribute('aya', sStart === sEnd ? `${sStart}` : `${sStart}-${sEnd}`);
+            comp.setAttribute('data-font', tajweedMode ? 'Amiri Quran Colored' : 'Hafs');
             subSeg.forEach(ayah => {
                 ayahElementMap[ayah.gIdx] = {
                     comp, surahNum,
@@ -10286,6 +10257,17 @@ button,.btn{font-weight:750 !important;}
             Hafalan
         </button>
 
+        <!-- BUG FIX: tombol Warna Tajwid sebelumnya HANYA ada di topbar desktop
+             (.topbar-actions), yang disembunyikan total (display:none) di
+             layar mobile/PWA (lihat @media max-width:768px). Karena tombol
+             ini tidak pernah ditambahkan ke drawer "Lainnya" pengganti topbar
+             di mobile, pengguna PWA/HP tidak punya cara sama sekali untuk
+             mengaktifkan mode Tajwid. -->
+        <button class="drawer-item" id="ditemTajweed" onclick="toggleTajweedMode(); closeBNavMore()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5" fill="#EE9933" stroke="none"/><circle cx="19" cy="13" r="2.5" fill="#00A550" stroke="none"/><circle cx="8" cy="16" r="2.5" fill="#CC3333" stroke="none"/><circle cx="15" cy="19" r="2.5" fill="#336699" stroke="none"/></svg>
+            Tajwid
+        </button>
+
         <button class="drawer-item" id="ditemPaper" onclick="togglePaperMode(); closeBNavMore()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
             Kertas
@@ -10440,10 +10422,13 @@ function syncUIStates() {
     // Blind/paper/loop active states
     const blindActive = document.getElementById('blindModeBtn')?.classList.contains('active');
     const paperActive = document.getElementById('paperModeBtn')?.classList.contains('active');
+    const tajweedActive = document.getElementById('tajweedModeBtn')?.classList.contains('active');
     const dBlind = document.getElementById('ditemBlind');
     const dPaper = document.getElementById('ditemPaper');
+    const dTajweed = document.getElementById('ditemTajweed');
     if (dBlind) dBlind.classList.toggle('active', !!blindActive);
     if (dPaper) dPaper.classList.toggle('active', !!paperActive);
+    if (dTajweed) dTajweed.classList.toggle('active', !!tajweedActive);
     // Bottom nav active states
     const bnavHafalan = document.getElementById('bnavHafalan');
     if (bnavHafalan) bnavHafalan.classList.toggle('active', !!blindActive);

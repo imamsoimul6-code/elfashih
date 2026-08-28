@@ -3202,17 +3202,33 @@ document.addEventListener('DOMContentLoaded', () => {
 // =============================================
 function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
+
+    // Begitu Service Worker BARU mengambil alih kendali halaman (controllerchange),
+    // reload SEKALI secara otomatis supaya versi terbaru langsung tampil —
+    // pengguna tidak perlu lagi uninstall/reinstall PWA tiap kali ada update.
+    // Guard sessionStorage mencegah reload berulang tanpa henti kalau
+    // controllerchange sempat terpicu lebih dari sekali.
+    let swRefreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (swRefreshing) return;
+        swRefreshing = true;
+        console.log('[SW] Versi baru aktif, reload otomatis…');
+        location.reload();
+    });
+
     navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(r => {
             console.log('[SW] Terdaftar:', r.scope);
             // Cek update SW di background (tidak menghapus cache aktif)
             r.update().catch(() => {});
-            // Kalau ada SW baru siap, aktif di reload berikutnya
             r.addEventListener('updatefound', () => {
                 const newSW = r.installing;
                 newSW.addEventListener('statechange', () => {
                     if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                        console.log('[SW] Versi baru tersedia, aktif di reload berikutnya.');
+                        console.log('[SW] Versi baru terpasang, menunggu aktif…');
+                        // Karena sw.js sudah pakai self.skipWaiting() + clients.claim(),
+                        // SW baru akan segera ambil alih tanpa perlu menutup tab —
+                        // listener controllerchange di atas yang menangani reload-nya.
                     }
                 });
             });

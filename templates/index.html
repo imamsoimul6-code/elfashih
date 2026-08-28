@@ -48,17 +48,15 @@
     </script>
     <!-- ══════════════════════════════════════════ -->
 
-    <!-- quran-madina-html Web Component -->
-    <!-- Dimuat dinamis: font (Hafs / Amiri Quran Colored) ditentukan sesuai
-         preferensi "Warna Tajwid" yang tersimpan di localStorage, karena
-         library ini hanya membaca atribut data-font SEKALI dari tag <script>
-         ini saat pertama kali dievaluasi (tidak reaktif per elemen). -->
+    <!-- quran-madina-html: SELALU gunakan Hafs untuk menjaga bentuk huruf.
+         Mode Tajwid sekarang memakai text_uthmani_tajweed dari Quran.com
+         dan mewarnai bagian hukum Tajwid dengan <span>, sehingga font/huruf
+         TIDAK berganti ketika tombol Tajwid diaktifkan. -->
     <script>
         (function() {
-            var wantTajweed = localStorage.getItem('elfashihTajweedMode') === '1';
             var s = document.createElement('script');
             s.src = 'https://unpkg.com/quran-madina-html@1.0.1';
-            s.setAttribute('data-font', wantTajweed ? 'Amiri Quran Colored' : 'Hafs');
+            s.setAttribute('data-font', 'Hafs');
             document.head.appendChild(s);
         })();
     </script>
@@ -878,27 +876,46 @@
         vertical-align: middle;
     }
     /* Tajweed mode: preserve the color-font glyph colors. */
-    /* Tajwid: jangan override font/color milik quran-madina-html.
-       Amiri Quran Colored adalah color-font dan renderer memilih font/layout
-       secara global dari data-font pada script pertama. */
-    html.tajweed-enabled quran-madina-html {
+    html.tajweed-enabled quran-madina-html,
+    html.tajweed-enabled quran-madina-html-line,
+    html.tajweed-enabled .quran-madina-html-part {
         color: inherit;
     }
-    html.tajweed-enabled quran-madina-html-line {
-        font-family: initial !important;
-        color: inherit;
-    }
-    html.tajweed-enabled quran-madina-html-line .quran-madina-html-part {
-        color: inherit;
-        font-family: inherit;
-    }
-    /* Jangan gunakan !important untuk warna teks Tajwid. */
     .digital-tajweed-render {
         display:block; width:100%; --qmh-background:transparent;
     }
     .digital-ayah-card:has(.digital-tajweed-render) .digital-ayah-text {
         line-height: 2.1;
     }
+    /* Tajwid Unicode: huruf tetap memakai font aplikasi, hanya hukum tajwid
+       yang diberi warna. Warna mengikuti kategori tajwid dari Quran.com. */
+    .tajweed-text { font-family:var(--arabic-font); direction:rtl; text-align:right; }
+    .tajweed-text .tajweed-mark { font-weight:inherit; }
+    .tajweed-text .ham_wasl { color:#7c3aed; }
+    .tajweed-text .laam_shamsiyah { color:#dc2626; }
+    .tajweed-text .madda_normal,
+    .tajweed-text .madda_permissible,
+    .tajweed-text .madda_necessary { color:#2563eb; }
+    .tajweed-text .idgham_ghunnah,
+    .tajweed-text .idgham_shafawi,
+    .tajweed-text .ghunnah { color:#059669; }
+    .tajweed-text .idgham_no_ghunnah { color:#0891b2; }
+    .tajweed-text .ikhfa,
+    .tajweed-text .ikhfa_shafawi { color:#d97706; }
+    .tajweed-text .iqlab { color:#db2777; }
+    .tajweed-text .qalqalah { color:#ea580c; }
+    .tajweed-text .izhar,
+    .tajweed-text .izhar_halqi,
+    .tajweed-text .izhar_shafawi { color:#475569; }
+    .tajweed-text .tafkheem { color:#9333ea; }
+    .tajweed-text .tarqeeq { color:#0f766e; }
+    .tajweed-text .end { color:inherit; font-family:var(--arabic-font); }
+    .mushaf-tajweed-ayah { direction:rtl; text-align:justify; text-align-last:justify;
+        font-family:var(--arabic-font); font-size:var(--mf-font-size); line-height:1.95;
+        margin:2px 0; padding:0 2px; }
+    .tajweed-legend { display:flex; flex-wrap:wrap; gap:5px; margin:5px 0 10px;
+        font-family:var(--ui-font); font-size:9px; direction:ltr; }
+    .tajweed-legend span { padding:3px 7px; border-radius:999px; background:rgba(255,255,255,.55); border:1px solid rgba(0,0,0,.08); }
 
     /* ── Tanda awal juz — biru ── */
     /* Digital view: card border + teks biru */
@@ -2847,8 +2864,36 @@ let juzDataCache     = {};   // cache: { 1: [...], 2: [...] }
 let activeJuz        = 1;
 let viewMode         = 'mushaf';
 let tajweedMode      = localStorage.getItem('elfashihTajweedMode') === '1';
-// Visual state: CSS must never recolor Quran glyphs when Tajweed font is active.
-if (tajweedMode) document.documentElement.classList.add('tajweed-enabled');
+let tajweedDataCache  = JSON.parse(localStorage.getItem('elfashih_tajweed_cache') || '{}');
+function saveTajweedCache(){ try { localStorage.setItem('elfashih_tajweed_cache', JSON.stringify(tajweedDataCache)); } catch(e){} }
+async function ensureTajweedForJuz(juz){
+    if (tajweedDataCache[juz]) return tajweedDataCache[juz];
+    const res = await fetchWithRetry(`https://api.quran.com/api/v4/quran/verses/uthmani_tajweed?juz_number=${juz}`);
+    const data = await res.json();
+    const map = {};
+    (data.verses || []).forEach(v => { map[v.verse_key] = v.text_uthmani_tajweed || ''; });
+    tajweedDataCache[juz] = map; saveTajweedCache(); return map;
+}
+function tajweedHtml(markup, fallbackText, ayahNum){
+    if (!markup) return `<span class=\"tajweed-plain\">${escapeHtml(fallbackText)}</span>`;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div>${markup}</div>`, 'text/html');
+    const root = doc.body.firstElementChild;
+    root.querySelectorAll('tajweed').forEach(el => {
+        const span = doc.createElement('span');
+        span.className = `tajweed-mark ${el.getAttribute('class') || ''}`;
+        span.textContent = el.textContent;
+        el.replaceWith(span);
+    });
+    root.querySelectorAll('.end').forEach(el => { el.textContent = toArabicNum(ayahNum); });
+    return root.innerHTML;
+}
+function escapeHtml(s){ return String(s||'').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c])); }
+function renderTajweedAyah(ayah, juzMap){
+    const key = `${ayah.surah.number}:${ayah.numberInSurah}`;
+    const markup = juzMap[key];
+    return `<div class=\"tajweed-text\">${tajweedHtml(markup, ayah.text, ayah.numberInSurah)}</div>`;
+}
 let isBlindMode      = false;
 let isTasmiMode      = false;
 let isPlayingAll     = false;
@@ -5228,30 +5273,14 @@ function setViewMode(mode) {
 function toggleTajweedMode() {
     tajweedMode = !tajweedMode;
     localStorage.setItem('elfashihTajweedMode', tajweedMode ? '1' : '0');
-    // CATATAN TEKNIS: library quran-madina-html hanya membaca atribut
-    // data-font SEKALI dari tag <script> saat pertama kali dimuat (lihat
-    // source-nya: `a.getAttribute("data-font")` diambil dari currentScript
-    // dan disimpan ke variabel module-level) — tidak reaktif per elemen
-    // <quran-madina-html>, dan setiap font memakai database layout
-    // pra-render yang berbeda (assets/db/Madina05-<Font>-<size>px/).
-    // Karena itu satu-satunya cara mengganti font secara valid adalah
-    // memuat ulang halaman dengan tag <script> yang data-font-nya sudah
-    // disesuaikan (lihat bagian <head>).
-    //
-    // Supaya reload ini TIDAK terasa "kembali ke Juz 1" (app selalu boot ke
-    // Juz 1 secara default), simpan dulu posisi baca saat ini (juz, mode
-    // tampilan, scroll) — nanti dipulihkan otomatis oleh restorePendingResume()
-    // setelah halaman selesai dimuat ulang.
-    try {
-        const mus = document.getElementById('mushafView');
-        localStorage.setItem('elfashih_pendingResume', JSON.stringify({
-            juz: activeJuz,
-            view: viewMode,
-            scroll: (viewMode === 'mushaf' && mus) ? mus.scrollTop : 0
-        }));
-    } catch (e) { /* abaikan kalau localStorage penuh/diblokir */ }
-    showToast(tajweedMode ? 'Mengaktifkan warna tajwid…' : 'Menonaktifkan warna tajwid…');
-    setTimeout(() => location.reload(), 400);
+    document.documentElement.classList.toggle('tajweed-enabled', tajweedMode);
+    const dig = document.getElementById('digitalView'), mus = document.getElementById('mushafView');
+    if (dig) { dig.innerHTML = ''; delete dig.dataset.rendered; }
+    if (mus) { mus.innerHTML = ''; delete mus.dataset.rendered; }
+    const btn = document.getElementById('tajweedModeBtn');
+    if (btn) btn.classList.toggle('active', tajweedMode);
+    showToast(tajweedMode ? '🌈 Warna Tajwid aktif' : 'Tajwid dimatikan');
+    renderContent();
 }
 
 // Pulihkan posisi baca (juz/mode/scroll) setelah reload yang dipicu sendiri
@@ -5304,15 +5333,15 @@ function restorePendingResume() {
     }
 }
 
-function renderContent() {
+async function renderContent() {
     const dig = document.getElementById('digitalView');
     const mus = document.getElementById('mushafView');
     if (viewMode === 'digital') {
-        if (!dig.dataset.rendered) { renderDigital(); dig.dataset.rendered = '1'; }
+        if (!dig.dataset.rendered) { await renderDigital(); dig.dataset.rendered = '1'; }
         dig.classList.add('active'); mus.classList.remove('active');
         dig.style.display = 'block'; mus.style.display = 'none';
     } else {
-        if (!mus.dataset.rendered) { renderMushaf(); mus.dataset.rendered = '1'; }
+        if (!mus.dataset.rendered) { await renderMushaf(); mus.dataset.rendered = '1'; }
         mus.classList.add('active'); dig.classList.remove('active');
         mus.style.display = 'flex'; dig.style.display = 'none';
     }
@@ -5584,12 +5613,12 @@ function retryTranslation(e, idx) {
     });
 }
 
-function renderDigital() {
+async function renderDigital() {
     const container = document.getElementById('digitalView');
     container.innerHTML = '';
     let lastSurahNum = null;
     let juz26MarkerInserted = false;
-    ayahsData.forEach((ayah, idx) => {
+    for (const [idx, ayah] of ayahsData.entries()) {
         if (ayah._overflow && !ayah._juz26) return; // ayat pelengkap halaman mushaf, tidak tampil di digital view
         // Tanda batas Juz 26 sebelum Al-Ahqaf ayat 1
         if (ayah._juz26 && !juz26MarkerInserted) {
@@ -5621,16 +5650,12 @@ function renderDigital() {
             banner.innerHTML = `<i class="fa-solid fa-flag"></i> Awal Juz ${juzStartNum}`;
             container.appendChild(banner);
         }
-        let wordsHtml;
+        let wordsHtml = ayah.text.split(' ')
+            .map(w => `<span class="digital-word" data-idx="${idx}" onclick="handleDigitalAyahClick(${idx})">${w}</span>`)
+            .join(' ');
         if (tajweedMode) {
-            // IMPORTANT: Amiri Quran Colored is a color font; rendering the same
-            // ayah through quran-madina-html preserves the library's real Tajweed
-            // color mapping instead of trying to guess rules from plain text.
-            wordsHtml = `<quran-madina-html class="digital-tajweed-render" sura="${ayah.surah.number}" aya="${ayah.numberInSurah}" headless="true"></quran-madina-html>`;
-        } else {
-            wordsHtml = ayah.text.split(' ')
-                .map(w => `<span class="digital-word" data-idx="${idx}" onclick="handleDigitalAyahClick(${idx})">${w}</span>`)
-                .join(' ');
+            const juzMap = await ensureTajweedForJuz(activeJuz);
+            wordsHtml = renderTajweedAyah(ayah, juzMap);
         }
         card.innerHTML = `
             <div class="digital-card-header">
@@ -5659,28 +5684,19 @@ function renderDigital() {
                 <span class="ayah-marker" onclick="handleDigitalAyahClick(${idx})">${toArabicNum(ayah.numberInSurah)}</span>
             </div>
             <div class="digital-ayah-translation" id="translation-${idx}"></div>`;
-        if (tajweedMode) {
-            const tajComp = card.querySelector('.digital-tajweed-render');
-            if (tajComp) {
-                tajComp.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    handleDigitalAyahClick(idx);
-                }, true);
-            }
-        }
         card.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             setTasmiStartFromClick(idx);
             showToast(`Titik mulai setoran: ${ayah.surah.name} ${ayah.numberInSurah}`);
         });
         container.appendChild(card);
-    });
+    }
 }
 
 // =============================================
 // MUSHAF VIEW
 // =============================================
-function renderMushaf() {
+async function renderMushaf() {
     const container = document.getElementById('mushafView');
     container.innerHTML = '';
     ayahElementMap = {};
@@ -5692,7 +5708,7 @@ function renderMushaf() {
     });
 
     // Helper: render satu segmen ayat ke dalam elemen body
-    function renderSegmentToBody(body, seg) {
+    async function renderSegmentToBody(body, seg) {
         const surahNum = seg[0].surah.number;
         const startAya = seg[0].numberInSurah;
 
@@ -5732,9 +5748,23 @@ function renderMushaf() {
         }
         subSegs.push(cur);
 
+        const tajweedJuzMap = tajweedMode ? await ensureTajweedForJuz(activeJuz) : null;
         subSegs.forEach(subSeg => {
             const sStart = subSeg[0].numberInSurah;
             const sEnd   = subSeg[subSeg.length - 1].numberInSurah;
+            if (tajweedMode) {
+                const juzMap = tajweedJuzMap;
+                subSeg.forEach(ayah => {
+                    const el = document.createElement('div');
+                    el.className = 'mushaf-tajweed-ayah tajweed-text';
+                    el.innerHTML = renderTajweedAyah(ayah, juzMap);
+                    el.dataset.gidx = ayah.gIdx;
+                    el.addEventListener('click', () => playAyah(ayah.gIdx));
+                    el.addEventListener('contextmenu', e => { e.preventDefault(); setTasmiStartFromClick(ayah.gIdx); });
+                    body.appendChild(el);
+                });
+                return;
+            }
             const comp = document.createElement('quran-madina-html');
             comp.setAttribute('sura', surahNum);
             comp.setAttribute('aya', sStart === sEnd ? `${sStart}` : `${sStart}-${sEnd}`);
@@ -5801,7 +5831,7 @@ function renderMushaf() {
     const sortedPageEntries = Object.entries(pages).sort((a,b) => parseInt(a[0]) - parseInt(b[0]));
     let lastCardBody = null; // body elemen dari card terakhir yang di-render
 
-    sortedPageEntries.forEach(([page, ayahs]) => {
+    for (const [page, ayahs] of sortedPageEntries) {
         const pageNum = parseInt(page);
 
         const specialClass = (activeJuz === 1 && pageNum === 1) ? ' special-fatihah'
@@ -5820,7 +5850,7 @@ function renderMushaf() {
         card.appendChild(header);
         const body = document.createElement('div');
         body.className = 'mushaf-body';
-        groupBySurah(ayahs).forEach(seg => renderSegmentToBody(body, seg));
+        for (const seg of groupBySurah(ayahs)) await renderSegmentToBody(body, seg);
 
         card.appendChild(body);
             const footer = document.createElement('div');
@@ -5830,7 +5860,7 @@ function renderMushaf() {
         
         container.appendChild(card);
         lastCardBody = body; // simpan referensi body untuk kemungkinan append overflow
-    });
+    }
     const musContainer = document.getElementById('mushafView');
     let _scaleScheduled = false;
     function scheduleScale() {
@@ -7456,6 +7486,9 @@ function togglePaperMode() {
 // supaya jalan SETELAH seluruh HTML (termasuk tombolnya) selesai di-parse.
 document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.classList.toggle('tajweed-enabled', tajweedMode);
+    const dig = document.getElementById('digitalView'), mus = document.getElementById('mushafView');
+    if (dig) { dig.innerHTML = ''; delete dig.dataset.rendered; }
+    if (mus) { mus.innerHTML = ''; delete mus.dataset.rendered; }
     const btn = document.getElementById('tajweedModeBtn');
     if (btn) btn.classList.toggle('active', tajweedMode);
 });

@@ -57,7 +57,7 @@
         (function() {
             var wantTajweed = localStorage.getItem('elfashihTajweedMode') === '1';
             var s = document.createElement('script');
-            s.src = 'https://unpkg.com/quran-madina-html';
+            s.src = 'https://unpkg.com/quran-madina-html@1.0.1';
             s.setAttribute('data-font', wantTajweed ? 'Amiri Quran Colored' : 'Hafs');
             document.head.appendChild(s);
         })();
@@ -878,11 +878,21 @@
         vertical-align: middle;
     }
     /* Tajweed mode: preserve the color-font glyph colors. */
-    html.tajweed-enabled quran-madina-html,
-    html.tajweed-enabled quran-madina-html-line,
-    html.tajweed-enabled .quran-madina-html-part {
+    /* Tajwid: jangan override font/color milik quran-madina-html.
+       Amiri Quran Colored adalah color-font dan renderer memilih font/layout
+       secara global dari data-font pada script pertama. */
+    html.tajweed-enabled quran-madina-html {
         color: inherit;
     }
+    html.tajweed-enabled quran-madina-html-line {
+        font-family: initial !important;
+        color: inherit;
+    }
+    html.tajweed-enabled quran-madina-html-line .quran-madina-html-part {
+        color: inherit;
+        font-family: inherit;
+    }
+    /* Jangan gunakan !important untuk warna teks Tajwid. */
     .digital-tajweed-render {
         display:block; width:100%; --qmh-background:transparent;
     }

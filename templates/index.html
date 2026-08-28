@@ -857,7 +857,7 @@
     quran-madina-html {
         --qmh-background: transparent; --qmh-header:#065f46;
         display:block !important; width:100% !important; direction:rtl;
-        color: #1a1a1a !important;
+        /* Jangan memaksa warna: Amiri Quran Colored memakai warna dari glyph font. */
     }
     quran-madina-html-line {
         display:block; font-size:var(--mf-font-size) !important;
@@ -866,16 +866,28 @@
         white-space:nowrap; transform-origin:right center;
         margin:0; padding:0;
         overflow:visible;
-        color: #1a1a1a !important;
+        /* Warna glyph tajwid harus dibiarkan dari font. */
     }
-    .quran-madina-html-part { cursor:pointer; border-radius:3px; transition:background-color .12s; padding:0 1px; color:#1a1a1a !important; }
-    .quran-madina-html-part:hover { background-color:rgba(46,204,113,0.22) !important; color:#064e3b !important; }
-    .quran-madina-html-part.char-active { background-color:rgba(245,200,66,0.5) !important; color:#1a1a1a !important; box-shadow:0 0 8px rgba(245,200,66,0.5); }
+    .quran-madina-html-part { cursor:pointer; border-radius:3px; transition:background-color .12s; padding:0 1px; }
+    .quran-madina-html-part:hover { background-color:rgba(46,204,113,0.22) !important; }
+    .quran-madina-html-part.char-active { background-color:rgba(245,200,66,0.5) !important; box-shadow:0 0 8px rgba(245,200,66,0.5); }
 
     /* Kecilkan nomor ayat (bintang emas) di mushaf view */
     .quran-madina-html-ayah-num {
         font-size: 0.6em !important;
         vertical-align: middle;
+    }
+    /* Tajweed mode: preserve the color-font glyph colors. */
+    html.tajweed-enabled quran-madina-html,
+    html.tajweed-enabled quran-madina-html-line,
+    html.tajweed-enabled .quran-madina-html-part {
+        color: inherit;
+    }
+    .digital-tajweed-render {
+        display:block; width:100%; --qmh-background:transparent;
+    }
+    .digital-ayah-card:has(.digital-tajweed-render) .digital-ayah-text {
+        line-height: 2.1;
     }
 
     /* ── Tanda awal juz — biru ── */
@@ -2825,6 +2837,8 @@ let juzDataCache     = {};   // cache: { 1: [...], 2: [...] }
 let activeJuz        = 1;
 let viewMode         = 'mushaf';
 let tajweedMode      = localStorage.getItem('elfashihTajweedMode') === '1';
+// Visual state: CSS must never recolor Quran glyphs when Tajweed font is active.
+if (tajweedMode) document.documentElement.classList.add('tajweed-enabled');
 let isBlindMode      = false;
 let isTasmiMode      = false;
 let isPlayingAll     = false;
@@ -5597,9 +5611,17 @@ function renderDigital() {
             banner.innerHTML = `<i class="fa-solid fa-flag"></i> Awal Juz ${juzStartNum}`;
             container.appendChild(banner);
         }
-        let wordsHtml = ayah.text.split(' ')
-            .map(w => `<span class="digital-word" data-idx="${idx}" onclick="handleDigitalAyahClick(${idx})">${w}</span>`)
-            .join(' ');
+        let wordsHtml;
+        if (tajweedMode) {
+            // IMPORTANT: Amiri Quran Colored is a color font; rendering the same
+            // ayah through quran-madina-html preserves the library's real Tajweed
+            // color mapping instead of trying to guess rules from plain text.
+            wordsHtml = `<quran-madina-html class="digital-tajweed-render" sura="${ayah.surah.number}" aya="${ayah.numberInSurah}" headless="true"></quran-madina-html>`;
+        } else {
+            wordsHtml = ayah.text.split(' ')
+                .map(w => `<span class="digital-word" data-idx="${idx}" onclick="handleDigitalAyahClick(${idx})">${w}</span>`)
+                .join(' ');
+        }
         card.innerHTML = `
             <div class="digital-card-header">
                 <div class="verse-badge">
@@ -5627,6 +5649,15 @@ function renderDigital() {
                 <span class="ayah-marker" onclick="handleDigitalAyahClick(${idx})">${toArabicNum(ayah.numberInSurah)}</span>
             </div>
             <div class="digital-ayah-translation" id="translation-${idx}"></div>`;
+        if (tajweedMode) {
+            const tajComp = card.querySelector('.digital-tajweed-render');
+            if (tajComp) {
+                tajComp.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleDigitalAyahClick(idx);
+                }, true);
+            }
+        }
         card.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             setTasmiStartFromClick(idx);
@@ -7414,10 +7445,9 @@ function togglePaperMode() {
 // ke-highlight walau tajweedMode sudah true. Dibungkus DOMContentLoaded
 // supaya jalan SETELAH seluruh HTML (termasuk tombolnya) selesai di-parse.
 document.addEventListener('DOMContentLoaded', () => {
-    if (tajweedMode) {
-        const btn = document.getElementById('tajweedModeBtn');
-        if (btn) btn.classList.add('active');
-    }
+    document.documentElement.classList.toggle('tajweed-enabled', tajweedMode);
+    const btn = document.getElementById('tajweedModeBtn');
+    if (btn) btn.classList.toggle('active', tajweedMode);
 });
 
 // =============================================

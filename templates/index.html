@@ -7407,12 +7407,18 @@ function togglePaperMode() {
 })();
 
 // Restore tajweed color mode on load
-(function() {
+// PENTING: dulu ini IIFE biasa yang langsung jalan saat parser HTML sampai
+// di baris ini. Masalahnya, <button id="tajweedModeBtn"> markup-nya ada JAUH
+// di bawah (di bagian topbar), jadi getElementById() selalu null di titik
+// ini -> class 'active' gagal ditambahkan -> icon Tajwid tidak pernah
+// ke-highlight walau tajweedMode sudah true. Dibungkus DOMContentLoaded
+// supaya jalan SETELAH seluruh HTML (termasuk tombolnya) selesai di-parse.
+document.addEventListener('DOMContentLoaded', () => {
     if (tajweedMode) {
         const btn = document.getElementById('tajweedModeBtn');
         if (btn) btn.classList.add('active');
     }
-})();
+});
 
 // =============================================
 // FITUR 2: REKAM SENDIRI & CEK SENDIRI

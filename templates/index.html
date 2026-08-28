@@ -883,13 +883,14 @@
     }
     .digital-tajweed-render {
         display:block; width:100%; --qmh-background:transparent;
+        direction:rtl; text-align:right; word-spacing:normal; letter-spacing:normal;
     }
     .digital-ayah-card:has(.digital-tajweed-render) .digital-ayah-text {
         line-height: 2.1;
     }
     /* Tajwid Unicode: huruf tetap memakai font aplikasi, hanya hukum tajwid
        yang diberi warna. Warna mengikuti kategori tajwid dari Quran.com. */
-    .tajweed-text { font-family:var(--arabic-font); direction:rtl; text-align:right; }
+    .tajweed-text { font-family:var(--arabic-font); direction:rtl; text-align:right; text-align-last:auto; word-spacing:normal; letter-spacing:normal; white-space:normal; }
     .tajweed-text .tajweed-mark { font-weight:inherit; }
     .tajweed-text .ham_wasl { color:#7c3aed; }
     .tajweed-text .laam_shamsiyah { color:#dc2626; }
@@ -909,8 +910,30 @@
     .tajweed-text .izhar_shafawi { color:#475569; }
     .tajweed-text .tafkheem { color:#9333ea; }
     .tajweed-text .tarqeeq { color:#0f766e; }
+    /* Quran.com returns Tajweed as <rule class=...>. Keep every rule visibly
+       marked even if a newer API introduces a class we don't yet map. */
+    .tajweed-text .tajweed-mark { color:#2563eb; }
+    .tajweed-text .tajweed-mark.ham_wasl { color:#7c3aed; }
+    .tajweed-text .tajweed-mark.laam_shamsiyah { color:#dc2626; }
+    .tajweed-text .tajweed-mark.madda_normal,
+    .tajweed-text .tajweed-mark.madda_permissible,
+    .tajweed-text .tajweed-mark.madda_necessary { color:#2563eb; }
+    .tajweed-text .tajweed-mark.idgham_ghunnah,
+    .tajweed-text .tajweed-mark.idgham_shafawi,
+    .tajweed-text .tajweed-mark.ghunnah { color:#059669; }
+    .tajweed-text .tajweed-mark.idgham_no_ghunnah { color:#0891b2; }
+    .tajweed-text .tajweed-mark.ikhfa,
+    .tajweed-text .tajweed-mark.ikhfa_shafawi { color:#d97706; }
+    .tajweed-text .tajweed-mark.iqlab { color:#db2777; }
+    .tajweed-text .tajweed-mark.qalqalah,
+    .tajweed-text .tajweed-mark.qalaqah { color:#ea580c; }
+    .tajweed-text .tajweed-mark.izhar,
+    .tajweed-text .tajweed-mark.izhar_halqi,
+    .tajweed-text .tajweed-mark.izhar_shafawi { color:#475569; }
+    .tajweed-text .tajweed-mark.tafkheem { color:#9333ea; }
+    .tajweed-text .tajweed-mark.tarqeeq { color:#0f766e; }
     .tajweed-text .end { color:inherit; font-family:var(--arabic-font); }
-    .mushaf-tajweed-ayah { direction:rtl; text-align:justify; text-align-last:justify;
+    .mushaf-tajweed-ayah { direction:rtl; text-align:right; text-align-last:auto; word-spacing:normal; letter-spacing:normal;
         font-family:var(--arabic-font); font-size:var(--mf-font-size); line-height:1.95;
         margin:2px 0; padding:0 2px; }
     .tajweed-legend { display:flex; flex-wrap:wrap; gap:5px; margin:5px 0 10px;
@@ -2864,8 +2887,8 @@ let juzDataCache     = {};   // cache: { 1: [...], 2: [...] }
 let activeJuz        = 1;
 let viewMode         = 'mushaf';
 let tajweedMode      = localStorage.getItem('elfashihTajweedMode') === '1';
-let tajweedDataCache  = JSON.parse(localStorage.getItem('elfashih_tajweed_cache') || '{}');
-function saveTajweedCache(){ try { localStorage.setItem('elfashih_tajweed_cache', JSON.stringify(tajweedDataCache)); } catch(e){} }
+let tajweedDataCache  = JSON.parse(localStorage.getItem('elfashih_tajweed_cache_v6') || '{}');
+function saveTajweedCache(){ try { localStorage.setItem('elfashih_tajweed_cache_v6', JSON.stringify(tajweedDataCache)); } catch(e){} }
 async function ensureTajweedForJuz(juz){
     if (tajweedDataCache[juz]) return tajweedDataCache[juz];
     const res = await fetchWithRetry(`https://api.quran.com/api/v4/quran/verses/uthmani_tajweed?juz_number=${juz}`);
@@ -2879,7 +2902,7 @@ function tajweedHtml(markup, fallbackText, ayahNum){
     const parser = new DOMParser();
     const doc = parser.parseFromString(`<div>${markup}</div>`, 'text/html');
     const root = doc.body.firstElementChild;
-    root.querySelectorAll('tajweed').forEach(el => {
+    root.querySelectorAll('rule, tajweed').forEach(el => {
         const span = doc.createElement('span');
         span.className = `tajweed-mark ${el.getAttribute('class') || ''}`;
         span.textContent = el.textContent;
@@ -2892,7 +2915,7 @@ function escapeHtml(s){ return String(s||'').replace(/[&<>\"]/g, c => ({'&':'&am
 function renderTajweedAyah(ayah, juzMap){
     const key = `${ayah.surah.number}:${ayah.numberInSurah}`;
     const markup = juzMap[key];
-    return `<div class=\"tajweed-text\">${tajweedHtml(markup, ayah.text, ayah.numberInSurah)}</div>`;
+    return tajweedHtml(markup, ayah.text, ayah.numberInSurah);
 }
 let isBlindMode      = false;
 let isTasmiMode      = false;

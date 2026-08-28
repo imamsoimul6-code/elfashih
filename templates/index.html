@@ -49,7 +49,19 @@
     <!-- ══════════════════════════════════════════ -->
 
     <!-- quran-madina-html Web Component -->
-    <script type="text/javascript" src="https://unpkg.com/quran-madina-html" data-font="hafs"></script>
+    <!-- Dimuat dinamis: font (Hafs / Amiri Quran Colored) ditentukan sesuai
+         preferensi "Warna Tajwid" yang tersimpan di localStorage, karena
+         library ini hanya membaca atribut data-font SEKALI dari tag <script>
+         ini saat pertama kali dievaluasi (tidak reaktif per elemen). -->
+    <script>
+        (function() {
+            var wantTajweed = localStorage.getItem('elfashihTajweedMode') === '1';
+            var s = document.createElement('script');
+            s.src = 'https://unpkg.com/quran-madina-html';
+            s.setAttribute('data-font', wantTajweed ? 'Amiri Quran Colored' : 'Hafs');
+            document.head.appendChild(s);
+        })();
+    </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Outfit:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -5175,15 +5187,17 @@ function setViewMode(mode) {
 function toggleTajweedMode() {
     tajweedMode = !tajweedMode;
     localStorage.setItem('elfashihTajweedMode', tajweedMode ? '1' : '0');
-    document.getElementById('tajweedModeBtn').classList.toggle('active', tajweedMode);
-    // Paksa render ulang Mushaf dengan font yang sesuai, jaga posisi scroll
-    const mus = document.getElementById('mushafView');
-    const prevScroll = mus.scrollTop;
-    mus.dataset.rendered = '';
-    renderMushaf();
-    mus.dataset.rendered = '1';
-    mus.scrollTop = prevScroll;
-    showToast(tajweedMode ? 'Warna tajwid aktif' : 'Warna tajwid nonaktif');
+    // CATATAN TEKNIS: library quran-madina-html hanya membaca atribut
+    // data-font SEKALI dari tag <script> saat pertama kali dimuat (lihat
+    // source-nya: `a.getAttribute("data-font")` diambil dari currentScript
+    // dan disimpan ke variabel module-level) — tidak reaktif per elemen
+    // <quran-madina-html>, dan setiap font memakai database layout
+    // pra-render yang berbeda (assets/db/Madina05-<Font>-<size>px/).
+    // Karena itu satu-satunya cara mengganti font secara valid adalah
+    // memuat ulang halaman dengan tag <script> yang data-font-nya sudah
+    // disesuaikan (lihat bagian <head>).
+    showToast(tajweedMode ? 'Mengaktifkan warna tajwid…' : 'Menonaktifkan warna tajwid…');
+    setTimeout(() => location.reload(), 400);
 }
 
 function renderContent() {
@@ -5603,7 +5617,6 @@ function renderMushaf() {
             const comp = document.createElement('quran-madina-html');
             comp.setAttribute('sura', surahNum);
             comp.setAttribute('aya', sStart === sEnd ? `${sStart}` : `${sStart}-${sEnd}`);
-            comp.setAttribute('data-font', tajweedMode ? 'Amiri Quran Colored' : 'Hafs');
             subSeg.forEach(ayah => {
                 ayahElementMap[ayah.gIdx] = {
                     comp, surahNum,

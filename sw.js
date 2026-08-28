@@ -6,10 +6,10 @@
 // Mengubah string ini membuat browser menganggap sw.js "berubah", sehingga
 // siklus install→activate berjalan lagi dan cache lama otomatis dibuang
 // (lihat listener 'activate' di bawah).
-const CACHE_VERSION  = 'elfashih-v3';
-const AUDIO_CACHE    = 'elfashih-audio-v3';
-const CDN_CACHE      = 'elfashih-cdn-v3';
-const API_CACHE      = 'elfashih-api-v3';
+const CACHE_VERSION  = 'elfashih-v4-tajwid';
+const AUDIO_CACHE    = 'elfashih-audio-v4-tajwid';
+const CDN_CACHE      = 'elfashih-cdn-v4-tajwid';
+const API_CACHE      = 'elfashih-api-v4-tajwid';
 
 // ─── Asset shell yang WAJIB ada saat install ──────────────────────────────────
 // Semua harus berhasil di-cache; kalau satu gagal, install dibatalkan.
@@ -24,7 +24,7 @@ const SHELL_ASSETS = [
 // ─── CDN eksternal yang di-cache saat install ────────────────────────────────
 // Dibuat terpisah agar kegagalan CDN tidak membatalkan install shell.
 const CDN_ASSETS = [
-  'https://unpkg.com/quran-madina-html',
+  'https://unpkg.com/quran-madina-html@1.0.1',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
 ];
 

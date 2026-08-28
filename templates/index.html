@@ -3193,6 +3193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollPageIndicator();
     registerServiceWorker();
     initPWAInstall();
+    restorePendingResume();
     // updateDashboard hanya dijalankan saat dashboard dibuka, bukan di boot
     // agar tidak ada side effect pada tampilan awal
 });
@@ -5212,8 +5213,62 @@ function toggleTajweedMode() {
     // Karena itu satu-satunya cara mengganti font secara valid adalah
     // memuat ulang halaman dengan tag <script> yang data-font-nya sudah
     // disesuaikan (lihat bagian <head>).
+    //
+    // Supaya reload ini TIDAK terasa "kembali ke Juz 1" (app selalu boot ke
+    // Juz 1 secara default), simpan dulu posisi baca saat ini (juz, mode
+    // tampilan, scroll) — nanti dipulihkan otomatis oleh restorePendingResume()
+    // setelah halaman selesai dimuat ulang.
+    try {
+        const mus = document.getElementById('mushafView');
+        localStorage.setItem('elfashih_pendingResume', JSON.stringify({
+            juz: activeJuz,
+            view: viewMode,
+            scroll: (viewMode === 'mushaf' && mus) ? mus.scrollTop : 0
+        }));
+    } catch (e) { /* abaikan kalau localStorage penuh/diblokir */ }
     showToast(tajweedMode ? 'Mengaktifkan warna tajwid…' : 'Menonaktifkan warna tajwid…');
     setTimeout(() => location.reload(), 400);
+}
+
+// Pulihkan posisi baca (juz/mode/scroll) setelah reload yang dipicu sendiri
+// oleh toggleTajweedMode(). Dipanggil sekali saat boot; kalau tidak ada
+// data pending (mis. reload manual biasa oleh pengguna), fungsi ini no-op
+// dan app tetap boot normal ke Juz 1 seperti biasa.
+function restorePendingResume() {
+    let pending;
+    try { pending = JSON.parse(localStorage.getItem('elfashih_pendingResume') || 'null'); }
+    catch (e) { pending = null; }
+    if (!pending) return;
+    localStorage.removeItem('elfashih_pendingResume');
+
+    const applyScroll = () => {
+        const mus = document.getElementById('mushafView');
+        if (mus && pending.scroll) {
+            // beri jeda sedikit supaya render mushaf/digital selesai dulu
+            setTimeout(() => { mus.scrollTop = pending.scroll; }, 250);
+        }
+    };
+
+    if (pending.view && pending.view !== viewMode) setViewMode(pending.view);
+
+    if (pending.juz && pending.juz !== activeJuz) {
+        // Data juz dari IndexedDB (loadAllData) mungkin belum siap sepenuhnya
+        // saat fungsi ini dipanggil — tunggu sampai tersedia baru pindah juz,
+        // supaya switchJuz() tidak masuk mode "sedang dimuat" yang terasa lambat.
+        const waitAndSwitch = (triesLeft) => {
+            if (juzDataCache[pending.juz]) {
+                switchJuz(pending.juz);
+                applyScroll();
+            } else if (triesLeft > 0) {
+                setTimeout(() => waitAndSwitch(triesLeft - 1), 300);
+            }
+            // kalau sampai habis percobaan & tetap belum siap, biarkan di Juz 1
+            // (lebih baik daripada macet menunggu tanpa batas)
+        };
+        waitAndSwitch(20); // maksimal ~6 detik menunggu
+    } else {
+        applyScroll();
+    }
 }
 
 function renderContent() {

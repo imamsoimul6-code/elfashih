@@ -1,10 +1,15 @@
+
 // ELfashih Service Worker — PWA Offline Support
 // Versi diperbaiki: cache lebih lengkap, tidak self-destruct
 
-const CACHE_VERSION  = 'elfashih-v2';
-const AUDIO_CACHE    = 'elfashih-audio-v2';
-const CDN_CACHE      = 'elfashih-cdn-v2';
-const API_CACHE      = 'elfashih-api-v2';
+// PENTING: naikkan angka versi ini SETIAP KALI index.html/app diperbarui.
+// Mengubah string ini membuat browser menganggap sw.js "berubah", sehingga
+// siklus install→activate berjalan lagi dan cache lama otomatis dibuang
+// (lihat listener 'activate' di bawah).
+const CACHE_VERSION  = 'elfashih-v3';
+const AUDIO_CACHE    = 'elfashih-audio-v3';
+const CDN_CACHE      = 'elfashih-cdn-v3';
+const API_CACHE      = 'elfashih-api-v3';
 
 // ─── Asset shell yang WAJIB ada saat install ──────────────────────────────────
 // Semua harus berhasil di-cache; kalau satu gagal, install dibatalkan.
@@ -99,7 +104,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 5. Aset lokal & halaman utama — stale-while-revalidate
+  // 5. Navigasi halaman (dokumen HTML utama, mis. "/") — NETWORK-FIRST.
+  // Dulu ini pakai stale-while-revalidate, akibatnya update index.html baru
+  // kelihatan SATU kunjungan setelah deploy (selalu "ketinggalan satu versi").
+  // Network-first memastikan begitu deploy baru sudah live, reload berikutnya
+  // langsung dapat versi terbaru; kalau offline, baru jatuh ke cache lama.
+  if (req.mode === 'navigate' || req.destination === 'document') {
+    event.respondWith(networkFirst(req, CACHE_VERSION));
+    return;
+  }
+
+  // 6. Aset lokal lain (JS/CSS/gambar) — stale-while-revalidate
   event.respondWith(staleWhileRevalidate(req, CACHE_VERSION));
 });
 

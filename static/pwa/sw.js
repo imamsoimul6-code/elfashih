@@ -6,7 +6,7 @@
 // Mengubah string ini membuat browser menganggap sw.js "berubah", sehingga
 // siklus install→activate berjalan lagi dan cache lama otomatis dibuang
 // (lihat listener 'activate' di bawah).
-const CACHE_VERSION  = 'elfashih-v6-tajwid-color';
+const CACHE_VERSION  = 'elfashih-v7-script-position-fix';
 const AUDIO_CACHE    = 'elfashih-audio-v5';
 const CDN_CACHE      = 'elfashih-cdn-v5';
 const API_CACHE      = 'elfashih-api-v5';

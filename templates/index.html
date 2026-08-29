@@ -59,34 +59,39 @@
         })();
     </script>
 
-    <!-- BUG FIX (warna tajwid hilang): library quran-madina-html HANYA
-         membaca atribut data-font SEKALI dari tag pemuatnya (bukan per elemen <quran-madina-html>), dan hanya boleh
-         customElements.define() satu kali per nama tag di seluruh
-         dokumen. Jadi tidak mungkin mengganti font ke "Amiri Quran
-         Colored" (varian tajwid berwarna) hanya dengan mengubah atribut
-         pada elemen — itulah sebabnya percobaan sebelumnya warnanya
-         tidak pernah muncul (kode diam-diam tetap memakai konfigurasi
-         Hafs dari <script> pertama).
-         Solusinya: muat SATU LAGI salinan library (file lokal hasil
-         tempel ulang, disimpan di /static/vendor/), yang HANYA diubah
-         pada satu baris — nama custom element yang didaftarkan diberi
-         akhiran "-tajwid" — supaya tidak bentrok dengan yang pertama.
-         Salinan kedua ini dikonfigurasi data-font="Amiri Quran Colored".
-         Karena database tata-letak baris/halaman Mushaf Madina tetap
-         diambil dari CDN unpkg yang sama (path aset TIDAK diubah oleh
-         patch ini), hasilnya kedua varian (Hafs & berwarna) tetap
-         mengikuti pembagian baris/halaman mushaf yang identik — hanya
-         font/warnanya yang berbeda. Elemen mana yang dipakai (
-         <quran-madina-html> vs <quran-madina-html-tajwid>) ditentukan
-         di JS sesuai status tajweedMode. -->
-    <script>
-        (function() {
-            var s = document.createElement('script');
-            s.src = '/static/vendor/quran-madina-html-tajwid.min.js';
-            s.setAttribute('data-font', 'Amiri Quran Colored');
-            document.head.appendChild(s);
-        })();
-    </script>
+    <!-- Tajwid Mushaf v13: gunakan SATU renderer Mushaf (Hafs) agar layout Madina
+         tetap identik. Warna Tajwid akan ditempel sebagai <span> berwarna
+         setelah renderer selesai, memakai markup Tajwid yang sama dengan
+         Qur'an Digital. Dengan cara ini warna tidak bergantung pada COLR/CPAL
+         color-font dan tidak mengubah ukuran/layout glyph Mushaf. -->
+    <style id="elfashih-tajwid-mushaf-v13">
+      /* Warna Tajwid Mushaf: span mewarisi font Mushaf, hanya warnanya yang berubah. */
+      .mushaf-page-card .qmh-tajwid-char {
+        font-family: inherit !important;
+        font-weight: inherit;
+      }
+      .mushaf-page-card .qmh-tajwid-madda_normal { color:#ef4444 !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-madda_permissible,
+      .mushaf-page-card .qmh-tajwid-madda_obligatory_monfasel { color:#dc2626 !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-madda_obligatory_mottasel { color:#b91c1c !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-madda_necessary,
+      .mushaf-page-card .qmh-tajwid-madd_al_tamkeen { color:#991b1b !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-ghunnah,
+      .mushaf-page-card .qmh-tajwid-idgham_ghunnah,
+      .mushaf-page-card .qmh-tajwid-idgham_shafawi { color:#16a34a !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-idgham_wo_ghunnah { color:#0d9488 !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-ikhafa,
+      .mushaf-page-card .qmh-tajwid-ikhafa_shafawi { color:#ea580c !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-iqlab { color:#db2777 !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-qalaqah { color:#2563eb !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-tafkheem { color:#7c3aed !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-tarqeeq { color:#0891b2 !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-slnt,
+      .mushaf-page-card .qmh-tajwid-ham_wasl,
+      .mushaf-page-card .qmh-tajwid-laam_shamsiyah { color:#6b7280 !important; font-weight:600; }
+      .mushaf-page-card .qmh-tajwid-izhar,
+      .mushaf-page-card .qmh-tajwid-izhar_shafawi { color:inherit; }
+    </style>
 
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Outfit:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -879,7 +884,7 @@
         padding:var(--mf-pad-v) var(--mf-pad-h) calc(var(--mf-pad-v)*1.1);
         overflow: hidden;
     }
-    quran-madina-html, quran-madina-html-tajwid {
+    quran-madina-html {
         --qmh-background: transparent; --qmh-header:#065f46;
         display:block !important; width:100% !important; direction:rtl;
         /* Jangan memaksa warna: Amiri Quran Colored memakai warna dari glyph font. */
@@ -902,13 +907,8 @@
         font-size: 0.6em !important;
         vertical-align: middle;
     }
-    /* Tajweed mode: preserve the color-font glyph colors. */
-    html.tajweed-enabled quran-madina-html-tajwid,
-    html.tajweed-enabled quran-madina-html-tajwid quran-madina-html-line,
-    html.tajweed-enabled quran-madina-html-tajwid .quran-madina-html-part {
-        color: inherit;
-    }
-    .digital-tajweed-render {
+    /* Tajweed mode: colors come from the COLR/CPAL color font. */
+        .digital-tajweed-render {
         display:block; width:100%; --qmh-background:transparent;
         direction:rtl; text-align:right; word-spacing:normal; letter-spacing:normal;
     }
@@ -7972,7 +7972,136 @@ async function renderDigital() {
 // =============================================
 // MUSHAF VIEW
 // =============================================
+// =============================================
+// MUSHAF TAJWID COLOR OVERLAY (v13)
+// =============================================
+function tajweedCharStream(markup) {
+    if (!markup) return [];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div>${markup}</div>`, 'text/html');
+    const root = doc.body.firstElementChild;
+    const out = [];
+    function walk(node, activeClass = '') {
+        if (node.nodeType === Node.TEXT_NODE) {
+            // API may contain an .end marker for the ayah number. It is not part
+            // of the Arabic glyph stream rendered by quran-madina-html.
+            for (const ch of Array.from(node.nodeValue || '')) {
+                if (!/\s/.test(ch)) out.push({ ch, cls: activeClass });
+            }
+            return;
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        const cls = (node.getAttribute('class') || '').trim();
+        if (/(^|\s)end(\s|$)/.test(cls)) return;
+        let next = activeClass;
+        const rule = node.getAttribute('class');
+        if (rule && rule !== 'end') next = rule.split(/\s+/)[0] || activeClass;
+        for (const child of Array.from(node.childNodes)) walk(child, next);
+    }
+    walk(root, '');
+    return out;
+}
+
+function normalizeMushafChar(ch) {
+    // Keep Quranic marks and presentation characters intact. Only normalize
+    // harmless whitespace differences between the API markup and DB parts.
+    return ch === '\u00a0' ? ' ' : ch;
+}
+
+function decorateMushafAyah(ayah, markup, rootEl) {
+    if (!markup || !rootEl) return;
+    const stream = tajweedCharStream(markup);
+    if (!stream.length) return;
+    const parts = Array.from(rootEl.querySelectorAll('.quran-madina-html-part'));
+    if (!parts.length) return;
+
+    let cursor = 0;
+    for (const part of parts) {
+        // Do not decorate the same part twice if a future renderer exposes it
+        // through multiple wrappers.
+        if (part.dataset.tajwidDecorated === '1') continue;
+        const text = part.textContent || '';
+        if (!text.trim()) continue;
+
+        const frag = document.createDocumentFragment();
+        let buffer = '';
+        function flushBuffer() {
+            if (buffer) { frag.appendChild(document.createTextNode(buffer)); buffer = ''; }
+        }
+
+        for (const rawCh of Array.from(text)) {
+            const ch = normalizeMushafChar(rawCh);
+            if (/\s/.test(ch)) { buffer += rawCh; continue; }
+            let found = -1;
+            for (let j = cursor; j < stream.length; j++) {
+                if (normalizeMushafChar(stream[j].ch) === ch) { found = j; break; }
+            }
+            if (found < 0) {
+                // A Quran marker/font-specific glyph can differ from the API
+                // representation. Keep it unchanged instead of shifting the
+                // rest of the ayah's color mapping.
+                buffer += rawCh;
+                continue;
+            }
+            // If there was a small mismatch, advance to the matched position.
+            cursor = found + 1;
+            const cls = stream[found].cls;
+            if (cls) {
+                flushBuffer();
+                const span = document.createElement('span');
+                span.className = `qmh-tajwid-char qmh-tajwid-${cls}`;
+                span.textContent = rawCh;
+                frag.appendChild(span);
+            } else {
+                buffer += rawCh;
+            }
+        }
+        flushBuffer();
+        part.replaceChildren(frag);
+        part.dataset.tajwidDecorated = '1';
+    }
+}
+
+async function applyMushafTajwidColors() {
+    if (!tajweedMode) return;
+    let juzMap;
+    try {
+        juzMap = await ensureTajweedForJuz(activeJuz);
+    } catch (e) {
+        console.warn('Mushaf Tajwid data:', e);
+        return;
+    }
+
+    // Custom element rendering is asynchronous. Wait until its line/part DOM
+    // exists before decorating it.
+    const deadline = Date.now() + 6000;
+    while (Date.now() < deadline) {
+        const pending = Array.from(document.querySelectorAll('#mushafView quran-madina-html'))
+            .some(el => !el.querySelector('.quran-madina-html-part'));
+        if (!pending) break;
+        await new Promise(r => setTimeout(r, 40));
+    }
+
+    for (const [idx, ayah] of ayahsData.entries()) {
+        if (ayah._overflow && !ayah._juz26) continue;
+        const key = `${ayah.surah.number}:${ayah.numberInSurah}`;
+        const markup = juzMap[key];
+        const info = ayahElementMap[idx];
+        if (!info || !markup) continue;
+        const root = info.comp;
+        if (!root) continue;
+        decorateMushafAyah(ayah, markup, root);
+    }
+}
+
 async function renderMushaf() {
+    // The tajwid font is a COLR/CPAL color font. Wait for the actual font face
+    // before creating the Quran custom element; otherwise the first render can
+    // be painted with fallback Hafs and remain visually black until a later
+    // layout pass.
+    if (tajweedMode && document.fonts && document.fonts.load) {
+        try { await document.fonts.load('16px "Amiri Quran Colored"'); } catch (e) { console.warn('Tajwid color font load:', e); }
+    }
     const container = document.getElementById('mushafView');
     container.innerHTML = '';
     ayahElementMap = {};
@@ -8024,18 +8153,13 @@ async function renderMushaf() {
         }
         subSegs.push(cur);
 
-        // PERBAIKAN LAYOUT: sebelumnya mode Tajwid merender ayat lewat <div>
-        // manual terpisah (hasil: baris tidak rata/berantakan, beda total dari
-        // tampilan non-Tajwid). Library quran-madina-html ternyata SUDAH
-        // menyediakan font "Amiri Quran Colored" — varian tajwid berwarna yang
-        // memakai data tata-letak (baris/halaman) PERSIS SAMA dengan font Hafs
-        // biasa. Jadi sekarang mode Tajwid & non-Tajwid memakai komponen yang
-        // sama persis, hanya beda atribut data-font — layout dijamin identik,
-        // yang berubah cuma warnanya.
+        // Mushaf selalu dirender oleh engine Madina/Hafs yang sama. Jika
+        // Tajwid aktif, warna diterapkan sesudah DOM renderer selesai, sehingga
+        // ukuran glyph, kashida, baris, dan posisi Mushaf tidak berubah.
         subSegs.forEach(subSeg => {
             const sStart = subSeg[0].numberInSurah;
             const sEnd   = subSeg[subSeg.length - 1].numberInSurah;
-            const comp = document.createElement(tajweedMode ? 'quran-madina-html-tajwid' : 'quran-madina-html');
+            const comp = document.createElement('quran-madina-html');
             comp.setAttribute('sura', surahNum);
             comp.setAttribute('aya', sStart === sEnd ? `${sStart}` : `${sStart}-${sEnd}`);
             subSeg.forEach(ayah => {
@@ -9720,6 +9844,13 @@ function initScrollPageIndicator() {
 function toArabicNum(n) {
     return n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 }
+
+
+    if (tajweedMode) {
+        // Apply colors after the Madina renderer has created its parts.
+        await applyMushafTajwidColors();
+        scheduleScale();
+    }
 
 // =============================================
 // FITUR 1: PAPER MODE (Mushaf Kertas Asli)

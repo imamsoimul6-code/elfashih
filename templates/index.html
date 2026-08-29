@@ -59,73 +59,47 @@
         })();
     </script>
 
-    <!-- Tajwid Mushaf v15: gunakan SATU renderer Mushaf (Hafs) agar layout Madina
+    <!-- Tajwid Mushaf v13: gunakan SATU renderer Mushaf (Hafs) agar layout Madina
          tetap identik. Warna Tajwid akan ditempel sebagai <span> berwarna
          setelah renderer selesai, memakai markup Tajwid yang sama dengan
          Qur'an Digital. Dengan cara ini warna tidak bergantung pada COLR/CPAL
          color-font dan tidak mengubah ukuran/layout glyph Mushaf. -->
-    <style id="elfashih-tajwid-mushaf-v15">
-      /* Tajwid overlay v15: warna hanya mengubah color, TIDAK font/weight/spacing. */
-      .mushaf-page-card .qmh-tajwid-char {
-        font-family: inherit !important;
-        font-weight: inherit !important;
-        font-style: inherit !important;
-        letter-spacing: inherit !important;
-        word-spacing: inherit !important;
-      }
-
-      /* Standar Tajwid Warna (mengikuti tabel panduan PTSW Kemenag v16).
-         PERBAIKAN v16: sebelumnya "madda_permissible" (mad di akhir kata/ayat
-         sebelum waqaf, mis. wawu jama'ah pada ...ya'lamuuna/yasy'uruuna) dan
-         "madda_obligatory_monfasel" disatukan dan diwarnai HIJAU TERANG
-         (#00FF00) — padahal keduanya sama sekali bukan idgham/ikhfa/ghunnah.
-         "madda_permissible" adalah mad yang jatuh di ujung kata sebelum
-         berhenti (secara kaidah, selama tidak diwaqafkan ia dibaca sebagai
-         Mad Thabi'i biasa — inilah sebabnya mushaf cetak selalu mewarnainya
-         sama seperti Mad Thabi'i, warnanya tidak berubah tergantung tempat
-         reciter berhenti), jadi sekarang disamakan dengan madda_normal (biru
-         Mad Thabi'i). "madda_obligatory_monfasel" adalah Mad Jaiz Munfasil
-         yang sesungguhnya (huruf mad bertemu hamzah di kata berikutnya) dan
-         diberi warna Mad Jaiz Munfasil tersendiri. Ghunnah, Idgham Bighunnah,
-         dan Idgham Syafawi juga sebelumnya digabung jadi satu warna — kini
-         dipisah sesuai tabel. */
-
-      /* MAD */
-      .mushaf-page-card .qmh-tajwid-madda_normal,
-      .mushaf-page-card .qmh-tajwid-madda_permissible { color:#537FFF !important; }      /* Mad Thabi'i (2 harakat) */
-      .mushaf-page-card .qmh-tajwid-madda_obligatory_monfasel { color:#4050FF !important; } /* Mad Jaiz Munfasil (2-4-6 harakat) */
-      .mushaf-page-card .qmh-tajwid-madda_obligatory_mottasel { color:#2144C1 !important; } /* Mad Wajib Muttasil (4-5 harakat) */
+    <style id="elfashih-tajwid-mushaf-v13">
+      /* Tajwid Mushaf: enam warna standar, diterapkan hanya pada glyph yang teridentifikasi. */
+      .mushaf-page-card .qmh-tajwid-char { color: inherit !important; font-weight: inherit; }
+      /* MERAH: idgham bighunnah + idgham mutamatsilain/mutajanisain/mutaqaribain */
+      .mushaf-page-card .qmh-tajwid-idgham_ghunnah,
+      .mushaf-page-card .qmh-tajwid-idgham_mithlain,
+      .mushaf-page-card .qmh-tajwid-idgham_mutajanisain,
+      .mushaf-page-card .qmh-tajwid-idgham_mutaqaribain { color:#FF0000 !important; }
+      /* MAGENTA: bilaghunnah, mimi, ghunnah, mad lazim/farq */
+      .mushaf-page-card .qmh-tajwid-idgham_wo_ghunnah,
+      .mushaf-page-card .qmh-tajwid-idgham_shafawi,
+      .mushaf-page-card .qmh-tajwid-ghunnah,
       .mushaf-page-card .qmh-tajwid-madda_necessary,
-      .mushaf-page-card .qmh-tajwid-madd_al_tamkeen { color:#000EBC !important; }        /* Mad Lazim (6 harakat) */
-
-      /* NUN/MIM SUKUN & TANWIN */
-      .mushaf-page-card .qmh-tajwid-ikhafa_shafawi { color:#D500B7 !important; }  /* Ikhfa Syafawi */
-      .mushaf-page-card .qmh-tajwid-ikhafa { color:#9400A8 !important; }         /* Ikhfa */
-      .mushaf-page-card .qmh-tajwid-idgham_shafawi { color:#58B800 !important; } /* Idgham Syafawi */
-      .mushaf-page-card .qmh-tajwid-iqlab { color:#26BFFD !important; }         /* Iqlab */
-      .mushaf-page-card .qmh-tajwid-idgham_ghunnah { color:#169777 !important; } /* Idgham Bighunnah */
-      .mushaf-page-card .qmh-tajwid-idgham_wo_ghunnah { color:#169200 !important; } /* Idgham Bila Ghunnah */
-      .mushaf-page-card .qmh-tajwid-ghunnah { color:#FF7E1E !important; }        /* Ghunnah (mim/nun tasydid) */
-
-      /* QALQALAH */
-      .mushaf-page-card .qmh-tajwid-qalaqah { color:#DD0008 !important; }
-
-      /* Huruf/tanda yang tidak dilafalkan (hamzah wasl, silent, lam syamsiyah): abu-abu. */
+      .mushaf-page-card .qmh-tajwid-madd_al_tamkeen,
+      .mushaf-page-card .qmh-tajwid-madda_farq { color:#FF00FF !important; }
+      /* BIRU: qalqalah */
+      .mushaf-page-card .qmh-tajwid-qalaqah { color:#0000FF !important; }
+      /* CYAN: iqlab + mad wajib muttashil */
+      .mushaf-page-card .qmh-tajwid-iqlab,
+      .mushaf-page-card .qmh-tajwid-madda_obligatory_mottasel { color:#00FFFF !important; }
+      /* HIJAU: ikhfa + mad jaiz munfashil + shilah thawilah */
+      .mushaf-page-card .qmh-tajwid-ikhafa,
+      .mushaf-page-card .qmh-tajwid-ikhafa_shafawi,
+      .mushaf-page-card .qmh-tajwid-madda_permissible,
+      .mushaf-page-card .qmh-tajwid-madda_obligatory_monfasel,
+      .mushaf-page-card .qmh-tajwid-madda_shilah { color:#00FF00 !important; }
+      /* ABU-ABU: huruf/tanda yang tidak dilafalkan */
       .mushaf-page-card .qmh-tajwid-slnt,
       .mushaf-page-card .qmh-tajwid-ham_wasl,
-      .mushaf-page-card .qmh-tajwid-laam_shamsiyah { color:#AAAAAA !important; }
-
-      /* Izhar & tafkheem/tarqeeq tidak diberi warna khusus pada standar ini. */
+      .mushaf-page-card .qmh-tajwid-laam_shamsiyah { color:#808080 !important; }
+      /* Madd thabi'i tidak diberi warna tersendiri dalam enam kelompok di atas. */
+      .mushaf-page-card .qmh-tajwid-madda_normal,
       .mushaf-page-card .qmh-tajwid-izhar,
       .mushaf-page-card .qmh-tajwid-izhar_shafawi,
       .mushaf-page-card .qmh-tajwid-tafkheem,
       .mushaf-page-card .qmh-tajwid-tarqeeq { color:inherit !important; }
-
-      /* Jika suatu class baru muncul dari API, jangan membuat glyph berubah ukuran. */
-      .mushaf-page-card [class*="qmh-tajwid-"] {
-        font-family: inherit !important;
-        font-weight: inherit !important;
-      }
     </style>
 
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Outfit:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -963,50 +937,40 @@
     .tajweed-text { font-family:var(--arabic-font); direction:rtl; text-align:right; text-align-last:auto; word-spacing:normal; letter-spacing:normal; white-space:normal; }
     .tajweed-text .tajweed-mark { font-weight:inherit; color:#374151; } /* default: hukum yg belum dipetakan tetap terlihat, tapi netral (bukan biru madd) */
 
-    /* Standar Tajwid Warna (tabel panduan PTSW Kemenag v16) — HARUS identik
-       dengan pemetaan .qmh-tajwid-* di atas (Mushaf view) supaya kedua mode
-       tampilan (Digital & Mushaf) konsisten satu sama lain.
+    /* PERMINTAAN: warna mencolok & kontras kuat antar hukum tajwid (bukan pastel).
+       Setiap keluarga hukum pakai HUE dasar berbeda (bukan cuma beda kegelapan),
+       supaya sekilas mata langsung bisa membedakan jenis hukumnya, plus
+       font-weight lebih tebal supaya makin menonjol dari teks hitam biasa. */
 
-       CATATAN PERBAIKAN: "madda_permissible" sebelumnya diwarnai merah,
-       padahal class ini dipakai API untuk mad yang jatuh di akhir kata/ayat
-       sebelum tanda berhenti (mis. wawu jama'ah pada ...ya'lamuuna,
-       yasy'uruuna, yakdzibuuna). Selama tidak diwaqafkan, bacaan ini adalah
-       Mad Thabi'i biasa — itulah sebabnya mushaf tajwid cetak selalu
-       mewarnainya sama seperti Mad Thabi'i (warnanya tidak berubah-ubah
-       tergantung tempat pembaca berhenti). Maka disamakan dengan
-       madda_normal. "madda_obligatory_monfasel" adalah Mad Jaiz Munfasil yang
-       sesungguhnya (huruf mad bertemu hamzah di awal kata berikutnya) dan
-       diberi warna Mad Jaiz Munfasil tersendiri. Ghunnah / Idgham Bighunnah /
-       Idgham Syafawi juga sebelumnya digabung satu warna — kini dipisah. */
-
-    /* Abu-abu — huruf yang TIDAK dibaca / hanya tertulis di mushaf */
+    /* Abu-abu gelap tegas — huruf yang TIDAK dibaca / hanya tertulis di mushaf */
     .tajweed-text .slnt,
     .tajweed-text .ham_wasl,
-    .tajweed-text .laam_shamsiyah { color:#AAAAAA; font-weight:600; }
+    .tajweed-text .laam_shamsiyah { color:#6b7280; font-weight:600; }
 
-    /* Biru — keluarga Mad (pemanjangan bacaan) */
-    .tajweed-text .madda_normal,
-    .tajweed-text .madda_permissible { color:#537FFF; font-weight:700; }        /* Mad Thabi'i, 2 harakat (termasuk mad di akhir kata sebelum waqaf) */
-    .tajweed-text .madda_obligatory_monfasel { color:#4050FF; font-weight:700; } /* Mad Jaiz Munfasil, 2-4-6 harakat */
-    .tajweed-text .madda_obligatory_mottasel { color:#2144C1; font-weight:700; } /* Mad Wajib Muttasil, 4-5 harakat */
+    /* Merah menyala — keluarga Madd (pemanjangan bacaan) */
+    .tajweed-text .madda_normal { color:#ef4444; font-weight:700; }             /* madd thabi'i 2 harakat */
+    .tajweed-text .madda_permissible,
+    .tajweed-text .madda_obligatory_monfasel { color:#dc2626; font-weight:700; } /* madd jaiz munfasil */
+    .tajweed-text .madda_obligatory_mottasel { color:#b91c1c; font-weight:700; } /* madd wajib muttasil */
     .tajweed-text .madda_necessary,
-    .tajweed-text .madd_al_tamkeen { color:#000EBC; font-weight:700; }          /* Mad Lazim, 6 harakat */
+    .tajweed-text .madd_al_tamkeen { color:#991b1b; font-weight:700; }          /* madd lazim 6 harakat */
 
-    /* Ghunnah & Idgham — masing-masing warna sendiri sesuai tabel */
-    .tajweed-text .ghunnah { color:#FF7E1E; font-weight:700; }             /* Ghunnah (mim/nun bertasydid) */
-    .tajweed-text .idgham_ghunnah { color:#169777; font-weight:700; }      /* Idgham Bighunnah */
-    .tajweed-text .idgham_wo_ghunnah { color:#169200; font-weight:700; }   /* Idgham Bila Ghunnah */
-    .tajweed-text .idgham_shafawi { color:#58B800; font-weight:700; }      /* Idgham Syafawi */
+    /* Hijau menyala — Ghunnah & Idgham dengan dengung */
+    .tajweed-text .ghunnah,
+    .tajweed-text .idgham_ghunnah,
+    .tajweed-text .idgham_shafawi { color:#16a34a; font-weight:700; }
+    /* Teal terang — Idgham TANPA dengung (lam/ra), sengaja hue berbeda dari hijau di atas */
+    .tajweed-text .idgham_wo_ghunnah { color:#0d9488; font-weight:700; }
 
-    /* Ikhfa */
-    .tajweed-text .ikhafa { color:#9400A8; font-weight:700; }          /* Ikhfa */
-    .tajweed-text .ikhafa_shafawi { color:#D500B7; font-weight:700; } /* Ikhfa Syafawi */
+    /* Oranye terang — Ikhfa (haqiqi & syafawi), hukum tersering, sengaja dibuat sangat kontras */
+    .tajweed-text .ikhafa,
+    .tajweed-text .ikhafa_shafawi { color:#ea580c; font-weight:700; }
 
-    /* Iqlab */
-    .tajweed-text .iqlab { color:#26BFFD; font-weight:700; }
+    /* Magenta/pink terang — Iqlab */
+    .tajweed-text .iqlab { color:#db2777; font-weight:700; }
 
-    /* Qalqalah */
-    .tajweed-text .qalaqah { color:#DD0008; font-weight:700; }
+    /* Biru menyala — Qalqalah */
+    .tajweed-text .qalaqah { color:#2563eb; font-weight:700; }
 
     /* Izhar (halqi & syafawi) — bacaan jelas/normal, tidak diberi warna khusus
        supaya tidak dikira ada hukum tersembunyi (mengikuti konvensi mushaf
@@ -1014,9 +978,9 @@
     .tajweed-text .izhar,
     .tajweed-text .izhar_shafawi { color:inherit; }
 
-    /* Tafkheem/tarqeeq — tidak termasuk tabel warna standar, dibiarkan netral */
-    .tajweed-text .tafkheem { color:inherit; }
-    .tajweed-text .tarqeeq { color:inherit; }
+    /* Ungu & sian — tebal/tipis pengucapan (tafkheem/tarqeeq), info tambahan */
+    .tajweed-text .tafkheem { color:#7c3aed; font-weight:700; }
+    .tajweed-text .tarqeeq { color:#0891b2; font-weight:700; }
     .tajweed-text .end {
         display:inline-block; color:#065f46 !important; font-family:var(--arabic-font);
         font-size:.62em; font-weight:700; line-height:1; vertical-align:middle;
@@ -5185,16 +5149,8 @@ let tajweedDataCache  = JSON.parse(localStorage.getItem('elfashih_tajweed_cache_
 function saveTajweedCache(){ try { localStorage.setItem('elfashih_tajweed_cache_v6', JSON.stringify(tajweedDataCache)); } catch(e){} }
 async function ensureTajweedForJuz(juz){
     if (tajweedDataCache[juz]) return tajweedDataCache[juz];
-    let data = null;
-    try {
-        const res = await fetchWithRetry(`/quran/tajwid/juz/${juz}`);
-        data = await res.json();
-        if (!data || !Array.isArray(data.verses)) throw new Error('Tajwid proxy returned no verses');
-    } catch (proxyErr) {
-        // Fallback untuk deployment yang tidak memakai Flask proxy.
-        const res = await fetchWithRetry(`https://api.quran.com/api/v4/quran/verses/uthmani_tajweed?juz_number=${juz}`);
-        data = await res.json();
-    }
+    const res = await fetchWithRetry(`https://api.quran.com/api/v4/quran/verses/uthmani_tajweed?juz_number=${juz}`);
+    const data = await res.json();
     const map = {};
     (data.verses || []).forEach(v => { map[v.verse_key] = v.text_uthmani_tajweed || ''; });
     tajweedDataCache[juz] = map; saveTajweedCache(); return map;
@@ -8026,7 +7982,7 @@ async function renderDigital() {
 // MUSHAF VIEW
 // =============================================
 // =============================================
-// MUSHAF TAJWID COLOR OVERLAY (v15)
+// MUSHAF TAJWID COLOR OVERLAY (v13)
 // =============================================
 function tajweedCharStream(markup) {
     if (!markup) return [];
@@ -8036,8 +7992,6 @@ function tajweedCharStream(markup) {
     const out = [];
     function walk(node, activeClass = '') {
         if (node.nodeType === Node.TEXT_NODE) {
-            // API may contain an .end marker for the ayah number. It is not part
-            // of the Arabic glyph stream rendered by quran-madina-html.
             for (const ch of Array.from(node.nodeValue || '')) {
                 if (!/\s/.test(ch)) out.push({ ch, cls: activeClass });
             }
@@ -8047,105 +8001,94 @@ function tajweedCharStream(markup) {
         const cls = (node.getAttribute('class') || '').trim();
         if (/(^|\s)end(\s|$)/.test(cls)) return;
         let next = activeClass;
-        const rule = node.getAttribute('class');
-        if (rule && rule !== 'end') next = rule.split(/\s+/)[0] || activeClass;
+        if (cls) next = cls.split(/\s+/)[0] || activeClass;
         for (const child of Array.from(node.childNodes)) walk(child, next);
     }
     walk(root, '');
     return out;
 }
 
-// Karakter yang SECARA VISUAL/BACAAN sama tapi kadang direpresentasikan
-// dengan titik kode Unicode berbeda antara data quran-madina-html (font Hafs)
-// dan markup tajwid dari API Quran.com. Jika titik kode berbeda tidak
-// dinormalisasi, pencocokan karakter-per-karakter di decorateMushafAyah()
-// bisa gagal tepat di satu huruf, lalu "resync" ke kemunculan huruf yang sama
-// berikutnya di stream — akibatnya warna hukum yang seharusnya milik huruf
-// lain jadi tergeser ke huruf yang tidak semestinya (mis. wawu pada
-// ...ya'lamuuna ikut mendapat warna hukum milik huruf lain di dekatnya).
-const MUSHAF_CHAR_EQUIV = {
-    '\u0670': '\u0670', // ARABIC LETTER SUPERSCRIPT ALEF (mad kecil)
-    '\u06E5': 'و',       // ARABIC SMALL WAW -> wawu biasa
-    '\u06E6': 'ي',       // ARABIC SMALL YEH -> ya biasa
-    '\u0671': '\u0627',  // ARABIC LETTER ALEF WASLA -> alef biasa
-    '\u0672': '\u0627',
-    '\u0673': '\u0627',
-    '\u06DC': '\u0670',  // ARABIC SMALL HIGH SEEN (kadang dipakai utk mad)
-    '\u0640': '',        // TATWEEL, tidak relevan untuk hukum tajwid
-};
-function normalizeMushafChar(ch) {
-    // Keep Quranic marks and presentation characters intact. Only normalize
-    // harmless whitespace/encoding differences between the API markup and DB parts.
-    if (ch === '\u00a0') return ' ';
-    if (Object.prototype.hasOwnProperty.call(MUSHAF_CHAR_EQUIV, ch)) return MUSHAF_CHAR_EQUIV[ch];
-    return ch;
+function normalizeTajwidChar(ch) {
+    // Preserve Quranic characters/marks. Only collapse presentation variants
+    // that are safe for alignment between the API markup and Madina renderer.
+    return String(ch || '').normalize('NFC').replace(/\u00a0/g, ' ');
+}
+
+function tajwidClassToStandardClass(cls) {
+    // Quran.com/Uthmani-Tajweed rule names -> six Kemenag-style color groups.
+    const c = String(cls || '').trim();
+    if (!c) return '';
+    if (/^idgham_(ghunnah|mithlain|mutajanisain|mutaqaribain)$/.test(c)) return 'idgham_ghunnah';
+    if (/^idgham_wo_ghunnah$/.test(c)) return 'idgham_wo_ghunnah';
+    if (/^idgham_shafawi$/.test(c)) return 'idgham_shafawi';
+    if (/^ghunnah$/.test(c)) return 'ghunnah';
+    if (/^iqlab$/.test(c)) return 'iqlab';
+    if (/^ikhafa(_shafawi)?$/.test(c)) return c;
+    if (/^qalaqah$/.test(c)) return 'qalaqah';
+    if (/^madda_obligatory_mottasel$/.test(c)) return 'madda_obligatory_mottasel';
+    if (/^madda_(permissible|obligatory_monfasel)$/.test(c)) return 'madda_permissible';
+    if (/^madda_(necessary|farq)$/.test(c)) return 'madda_necessary';
+    if (/^madd_al_tamkeen$/.test(c)) return 'madd_al_tamkeen';
+    if (/^(slnt|ham_wasl|laam_shamsiyah)$/.test(c)) return c;
+    return '';
 }
 
 function decorateMushafAyah(ayah, markup, rootEl) {
     if (!markup || !rootEl) return;
     const stream = tajweedCharStream(markup);
     if (!stream.length) return;
-
-    // quran-madina-html menaruh setiap kata sebagai .quran-madina-html-part
-    // dan setiap part membawa class quran-madina-html-SSS-AAA. Pada v14,
-    // decorateMushafAyah() mengambil SEMUA part dalam satu component. Karena
-    // satu component bisa berisi banyak ayat, ayat pertama lalu menandai semua
-    // part sebagai decorated dan ayat berikutnya kehilangan pewarnaan.
-    // v15 hanya mengambil part milik ayat yang sedang diproses.
-    const keyClass = `quran-madina-html-${String(ayah.surah.number).padStart(3,'0')}-${String(ayah.numberInSurah).padStart(3,'0')}`;
-    const parts = Array.from(rootEl.querySelectorAll(`.quran-madina-html-part.${keyClass}`));
+    const parts = Array.from(rootEl.querySelectorAll('.quran-madina-html-part'));
     if (!parts.length) return;
 
+    // The Madina custom element may split one ayah into several visual parts.
+    // Align sequentially, but NEVER jump arbitrarily forward to a later match:
+    // doing so was the cause of uneven/wrong colors in v14.
     let cursor = 0;
+    const isIgnorable = ch => /\s/.test(ch || '');
+    const normalize = ch => normalizeTajwidChar(ch);
+
     for (const part of parts) {
         if (part.dataset.tajwidDecorated === '1') continue;
         const text = part.textContent || '';
         if (!text.trim()) continue;
-
         const frag = document.createDocumentFragment();
         let buffer = '';
-        const flushBuffer = () => {
-            if (buffer) { frag.appendChild(document.createTextNode(buffer)); buffer = ''; }
-        };
+        const flush = () => { if (buffer) { frag.appendChild(document.createTextNode(buffer)); buffer=''; } };
 
         for (const rawCh of Array.from(text)) {
-            const ch = normalizeMushafChar(rawCh);
-            if (/\s/.test(ch)) { buffer += rawCh; continue; }
+            if (isIgnorable(rawCh)) { buffer += rawCh; continue; }
+            const ch = normalize(rawCh);
+            // Skip only API whitespace; never skip Quranic glyphs/marks.
+            while (cursor < stream.length && isIgnorable(stream[cursor].ch)) cursor++;
+            if (cursor >= stream.length) { buffer += rawCh; continue; }
 
-            let found = -1;
-            for (let j = cursor; j < stream.length; j++) {
-                if (normalizeMushafChar(stream[j].ch) === ch) { found = j; break; }
+            let token = stream[cursor];
+            if (normalize(token.ch) !== ch) {
+                // A renderer-specific presentation glyph can differ. Try the
+                // immediate next token only; never search many positions ahead.
+                if (cursor + 1 < stream.length && normalize(stream[cursor + 1].ch) === ch) {
+                    cursor++;
+                    token = stream[cursor];
+                } else {
+                    buffer += rawCh;
+                    // Keep cursor fixed so one mismatch does not shift every
+                    // following color assignment.
+                    continue;
+                }
             }
-            if (found < 0) {
-                // Karakter font/renderer yang tidak terdapat persis di API.
-                // Jangan memaksa mapping karena bisa menggeser warna huruf
-                // berikutnya. Cursor tetap sehingga proses dapat pulih.
-                buffer += rawCh;
-                continue;
-            }
-            if (found - cursor > 3) {
-                // Lompatan besar berarti satu atau lebih karakter sebelumnya
-                // gagal cocok tepat, dan proses "menebak" kemunculan huruf
-                // yang sama berikutnya — tanda kemungkinan warna hukum
-                // tergeser ke huruf yang salah untuk ayat ini. Di-log saja
-                // (tidak mengubah perilaku) supaya mudah ditelusuri dari
-                // console browser saat debugging ayat tertentu.
-                console.warn(`[qmh-tajwid] kemungkinan pergeseran warna di ${ayah.surah.number}:${ayah.numberInSurah}, sekitar karakter "${rawCh}"`);
-            }
-
-            cursor = found + 1;
-            const cls = stream[found].cls;
-            if (cls) {
-                flushBuffer();
+            cursor++;
+            const standardCls = tajwidClassToStandardClass(token.cls);
+            if (standardCls) {
+                flush();
                 const span = document.createElement('span');
-                span.className = `qmh-tajwid-char qmh-tajwid-${cls}`;
+                span.className = `qmh-tajwid-char qmh-tajwid-${standardCls}`;
                 span.textContent = rawCh;
                 frag.appendChild(span);
             } else {
                 buffer += rawCh;
             }
         }
-        flushBuffer();
+        flush();
         part.replaceChildren(frag);
         part.dataset.tajwidDecorated = '1';
     }
@@ -8154,32 +8097,27 @@ function decorateMushafAyah(ayah, markup, rootEl) {
 async function applyMushafTajwidColors() {
     if (!tajweedMode) return;
     let juzMap;
-    try {
-        juzMap = await ensureTajweedForJuz(activeJuz);
-    } catch (e) {
-        console.warn('Mushaf Tajwid data:', e);
-        return;
-    }
+    try { juzMap = await ensureTajweedForJuz(activeJuz); }
+    catch (e) { console.warn('Mushaf Tajwid data:', e); return; }
 
-    // Custom element rendering is asynchronous. Wait until its line/part DOM
-    // exists before decorating it.
-    const deadline = Date.now() + 6000;
+    // Wait for custom elements to expose their visual parts.
+    const deadline = Date.now() + 8000;
     while (Date.now() < deadline) {
-        const pending = Array.from(document.querySelectorAll('#mushafView quran-madina-html'))
-            .some(el => !el.querySelector('.quran-madina-html-part'));
-        if (!pending) break;
-        await new Promise(r => setTimeout(r, 40));
+        const els = Array.from(document.querySelectorAll('#mushafView quran-madina-html'));
+        if (els.length && els.every(el => el.querySelector('.quran-madina-html-part'))) break;
+        await new Promise(r => setTimeout(r, 50));
     }
 
+    // IMPORTANT: color each component with the exact ayah markup, rather than
+    // one global stream. This prevents one mismatch in an earlier ayah from
+    // shifting all colors that follow it.
     for (const [idx, ayah] of ayahsData.entries()) {
         if (ayah._overflow && !ayah._juz26) continue;
         const key = `${ayah.surah.number}:${ayah.numberInSurah}`;
         const markup = juzMap[key];
         const info = ayahElementMap[idx];
-        if (!info || !markup) continue;
-        const root = info.comp;
-        if (!root) continue;
-        decorateMushafAyah(ayah, markup, root);
+        if (!info || !markup || !info.comp) continue;
+        decorateMushafAyah(ayah, markup, info.comp);
     }
 }
 

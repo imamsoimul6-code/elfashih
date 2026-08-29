@@ -48,15 +48,42 @@
     </script>
     <!-- ══════════════════════════════════════════ -->
 
-    <!-- quran-madina-html: SELALU gunakan Hafs untuk menjaga bentuk huruf.
-         Mode Tajwid sekarang memakai text_uthmani_tajweed dari Quran.com
-         dan mewarnai bagian hukum Tajwid dengan <span>, sehingga font/huruf
-         TIDAK berganti ketika tombol Tajwid diaktifkan. -->
+    <!-- quran-madina-html: SELALU gunakan Hafs untuk tampilan normal, supaya
+         bentuk huruf & tata letak konsisten dengan mushaf cetak. -->
     <script>
         (function() {
             var s = document.createElement('script');
             s.src = 'https://unpkg.com/quran-madina-html@1.0.1';
             s.setAttribute('data-font', 'Hafs');
+            document.head.appendChild(s);
+        })();
+    </script>
+
+    <!-- BUG FIX (warna tajwid hilang): library quran-madina-html HANYA
+         membaca atribut data-font SEKALI dari tag pemuatnya (bukan per elemen <quran-madina-html>), dan hanya boleh
+         customElements.define() satu kali per nama tag di seluruh
+         dokumen. Jadi tidak mungkin mengganti font ke "Amiri Quran
+         Colored" (varian tajwid berwarna) hanya dengan mengubah atribut
+         pada elemen — itulah sebabnya percobaan sebelumnya warnanya
+         tidak pernah muncul (kode diam-diam tetap memakai konfigurasi
+         Hafs dari <script> pertama).
+         Solusinya: muat SATU LAGI salinan library (file lokal hasil
+         tempel ulang, disimpan di /static/vendor/), yang HANYA diubah
+         pada satu baris — nama custom element yang didaftarkan diberi
+         akhiran "-tajwid" — supaya tidak bentrok dengan yang pertama.
+         Salinan kedua ini dikonfigurasi data-font="Amiri Quran Colored".
+         Karena database tata-letak baris/halaman Mushaf Madina tetap
+         diambil dari CDN unpkg yang sama (path aset TIDAK diubah oleh
+         patch ini), hasilnya kedua varian (Hafs & berwarna) tetap
+         mengikuti pembagian baris/halaman mushaf yang identik — hanya
+         font/warnanya yang berbeda. Elemen mana yang dipakai (
+         <quran-madina-html> vs <quran-madina-html-tajwid>) ditentukan
+         di JS sesuai status tajweedMode. -->
+    <script>
+        (function() {
+            var s = document.createElement('script');
+            s.src = '/static/vendor/quran-madina-html-tajwid.min.js';
+            s.setAttribute('data-font', 'Amiri Quran Colored');
             document.head.appendChild(s);
         })();
     </script>
@@ -852,7 +879,7 @@
         padding:var(--mf-pad-v) var(--mf-pad-h) calc(var(--mf-pad-v)*1.1);
         overflow: hidden;
     }
-    quran-madina-html {
+    quran-madina-html, quran-madina-html-tajwid {
         --qmh-background: transparent; --qmh-header:#065f46;
         display:block !important; width:100% !important; direction:rtl;
         /* Jangan memaksa warna: Amiri Quran Colored memakai warna dari glyph font. */
@@ -876,9 +903,9 @@
         vertical-align: middle;
     }
     /* Tajweed mode: preserve the color-font glyph colors. */
-    html.tajweed-enabled quran-madina-html,
-    html.tajweed-enabled quran-madina-html-line,
-    html.tajweed-enabled .quran-madina-html-part {
+    html.tajweed-enabled quran-madina-html-tajwid,
+    html.tajweed-enabled quran-madina-html-tajwid quran-madina-html-line,
+    html.tajweed-enabled quran-madina-html-tajwid .quran-madina-html-part {
         color: inherit;
     }
     .digital-tajweed-render {
@@ -901,35 +928,40 @@
     .tajweed-text { font-family:var(--arabic-font); direction:rtl; text-align:right; text-align-last:auto; word-spacing:normal; letter-spacing:normal; white-space:normal; }
     .tajweed-text .tajweed-mark { font-weight:inherit; color:#374151; } /* default: hukum yg belum dipetakan tetap terlihat, tapi netral (bukan biru madd) */
 
-    /* Abu-abu — huruf yang TIDAK dibaca / hanya tertulis di mushaf */
+    /* PERMINTAAN: warna mencolok & kontras kuat antar hukum tajwid (bukan pastel).
+       Setiap keluarga hukum pakai HUE dasar berbeda (bukan cuma beda kegelapan),
+       supaya sekilas mata langsung bisa membedakan jenis hukumnya, plus
+       font-weight lebih tebal supaya makin menonjol dari teks hitam biasa. */
+
+    /* Abu-abu gelap tegas — huruf yang TIDAK dibaca / hanya tertulis di mushaf */
     .tajweed-text .slnt,
     .tajweed-text .ham_wasl,
-    .tajweed-text .laam_shamsiyah { color:#9ca3af; }
+    .tajweed-text .laam_shamsiyah { color:#6b7280; font-weight:600; }
 
-    /* Merah — keluarga Madd (pemanjangan bacaan) */
-    .tajweed-text .madda_normal { color:#f87171; }              /* madd thabi'i 2 harakat */
+    /* Merah menyala — keluarga Madd (pemanjangan bacaan) */
+    .tajweed-text .madda_normal { color:#ef4444; font-weight:700; }             /* madd thabi'i 2 harakat */
     .tajweed-text .madda_permissible,
-    .tajweed-text .madda_obligatory_monfasel { color:#ef4444; } /* madd jaiz munfasil */
-    .tajweed-text .madda_obligatory_mottasel { color:#dc2626; } /* madd wajib muttasil */
+    .tajweed-text .madda_obligatory_monfasel { color:#dc2626; font-weight:700; } /* madd jaiz munfasil */
+    .tajweed-text .madda_obligatory_mottasel { color:#b91c1c; font-weight:700; } /* madd wajib muttasil */
     .tajweed-text .madda_necessary,
-    .tajweed-text .madd_al_tamkeen { color:#b91c1c; }           /* madd lazim 6 harakat */
+    .tajweed-text .madd_al_tamkeen { color:#991b1b; font-weight:700; }          /* madd lazim 6 harakat */
 
-    /* Hijau — Ghunnah & Idgham dengan dengung */
+    /* Hijau menyala — Ghunnah & Idgham dengan dengung */
     .tajweed-text .ghunnah,
     .tajweed-text .idgham_ghunnah,
-    .tajweed-text .idgham_shafawi { color:#16a34a; }
-    /* Hijau kebiruan — Idgham TANPA dengung (lam/ra) */
-    .tajweed-text .idgham_wo_ghunnah { color:#0d9488; }
+    .tajweed-text .idgham_shafawi { color:#16a34a; font-weight:700; }
+    /* Teal terang — Idgham TANPA dengung (lam/ra), sengaja hue berbeda dari hijau di atas */
+    .tajweed-text .idgham_wo_ghunnah { color:#0d9488; font-weight:700; }
 
-    /* Cokelat/oranye — Ikhfa (haqiqi & syafawi) */
+    /* Oranye terang — Ikhfa (haqiqi & syafawi), hukum tersering, sengaja dibuat sangat kontras */
     .tajweed-text .ikhafa,
-    .tajweed-text .ikhafa_shafawi { color:#b45309; }
+    .tajweed-text .ikhafa_shafawi { color:#ea580c; font-weight:700; }
 
-    /* Ungu magenta — Iqlab */
-    .tajweed-text .iqlab { color:#c026d3; }
+    /* Magenta/pink terang — Iqlab */
+    .tajweed-text .iqlab { color:#db2777; font-weight:700; }
 
-    /* Biru — Qalqalah */
-    .tajweed-text .qalaqah { color:#2563eb; }
+    /* Biru menyala — Qalqalah */
+    .tajweed-text .qalaqah { color:#2563eb; font-weight:700; }
 
     /* Izhar (halqi & syafawi) — bacaan jelas/normal, tidak diberi warna khusus
        supaya tidak dikira ada hukum tersembunyi (mengikuti konvensi mushaf
@@ -937,9 +969,9 @@
     .tajweed-text .izhar,
     .tajweed-text .izhar_shafawi { color:inherit; }
 
-    /* Tebal/tipis pengucapan (tafkheem/tarqeeq) — info tambahan, warna lembut */
-    .tajweed-text .tafkheem { color:#7c3aed; }
-    .tajweed-text .tarqeeq { color:#0f766e; }
+    /* Ungu & sian — tebal/tipis pengucapan (tafkheem/tarqeeq), info tambahan */
+    .tajweed-text .tafkheem { color:#7c3aed; font-weight:700; }
+    .tajweed-text .tarqeeq { color:#0891b2; font-weight:700; }
     .tajweed-text .end {
         display:inline-block; color:#065f46 !important; font-family:var(--arabic-font);
         font-size:.62em; font-weight:700; line-height:1; vertical-align:middle;
@@ -5797,10 +5829,9 @@ async function renderMushaf() {
         subSegs.forEach(subSeg => {
             const sStart = subSeg[0].numberInSurah;
             const sEnd   = subSeg[subSeg.length - 1].numberInSurah;
-            const comp = document.createElement('quran-madina-html');
+            const comp = document.createElement(tajweedMode ? 'quran-madina-html-tajwid' : 'quran-madina-html');
             comp.setAttribute('sura', surahNum);
             comp.setAttribute('aya', sStart === sEnd ? `${sStart}` : `${sStart}-${sEnd}`);
-            comp.setAttribute('data-font', tajweedMode ? 'Amiri Quran Colored' : 'Hafs');
             subSeg.forEach(ayah => {
                 ayahElementMap[ayah.gIdx] = {
                     comp, surahNum,
@@ -5956,7 +5987,7 @@ function getGIdxFromPart(el) {
     //    pengguna. Maka kita naik ke elemen-elemen leluhur terdekat dulu.
     let node = el.parentElement;
     let hops = 0;
-    while (node && hops < 8 && node.tagName !== 'QURAN-MADINA-HTML') {
+    while (node && hops < 8 && node.tagName !== 'QURAN-MADINA-HTML' && node.tagName !== 'QURAN-MADINA-HTML-TAJWID') {
         const r = fromClassList(node.classList);
         if (r !== null) return r;
         node = node.parentElement;

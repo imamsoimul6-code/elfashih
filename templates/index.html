@@ -65,32 +65,41 @@
          Qur'an Digital. Dengan cara ini warna tidak bergantung pada COLR/CPAL
          color-font dan tidak mengubah ukuran/layout glyph Mushaf. -->
     <style id="elfashih-tajwid-mushaf-v13">
-      /* Warna Tajwid Mushaf: span mewarisi font Mushaf, hanya warnanya yang berubah. */
-      .mushaf-page-card .qmh-tajwid-char {
-        font-family: inherit !important;
-        font-weight: inherit;
-      }
-      .mushaf-page-card .qmh-tajwid-madda_normal { color:#ef4444 !important; font-weight:700; }
-      .mushaf-page-card .qmh-tajwid-madda_permissible,
-      .mushaf-page-card .qmh-tajwid-madda_obligatory_monfasel { color:#dc2626 !important; font-weight:700; }
-      .mushaf-page-card .qmh-tajwid-madda_obligatory_mottasel { color:#b91c1c !important; font-weight:700; }
-      .mushaf-page-card .qmh-tajwid-madda_necessary,
-      .mushaf-page-card .qmh-tajwid-madd_al_tamkeen { color:#991b1b !important; font-weight:700; }
-      .mushaf-page-card .qmh-tajwid-ghunnah,
+      /* Tajwid Mushaf: enam warna standar, diterapkan hanya pada glyph yang teridentifikasi. */
+      .mushaf-page-card .qmh-tajwid-char { color: inherit !important; font-weight: inherit; }
+      /* MERAH: idgham bighunnah + idgham mutamatsilain/mutajanisain/mutaqaribain */
       .mushaf-page-card .qmh-tajwid-idgham_ghunnah,
-      .mushaf-page-card .qmh-tajwid-idgham_shafawi { color:#16a34a !important; font-weight:700; }
-      .mushaf-page-card .qmh-tajwid-idgham_wo_ghunnah { color:#0d9488 !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-idgham_mithlain,
+      .mushaf-page-card .qmh-tajwid-idgham_mutajanisain,
+      .mushaf-page-card .qmh-tajwid-idgham_mutaqaribain { color:#FF0000 !important; }
+      /* MAGENTA: bilaghunnah, mimi, ghunnah, mad lazim/farq */
+      .mushaf-page-card .qmh-tajwid-idgham_wo_ghunnah,
+      .mushaf-page-card .qmh-tajwid-idgham_shafawi,
+      .mushaf-page-card .qmh-tajwid-ghunnah,
+      .mushaf-page-card .qmh-tajwid-madda_necessary,
+      .mushaf-page-card .qmh-tajwid-madd_al_tamkeen,
+      .mushaf-page-card .qmh-tajwid-madda_farq { color:#FF00FF !important; }
+      /* BIRU: qalqalah */
+      .mushaf-page-card .qmh-tajwid-qalaqah { color:#0000FF !important; }
+      /* CYAN: iqlab + mad wajib muttashil */
+      .mushaf-page-card .qmh-tajwid-iqlab,
+      .mushaf-page-card .qmh-tajwid-madda_obligatory_mottasel { color:#00FFFF !important; }
+      /* HIJAU: ikhfa + mad jaiz munfashil + shilah thawilah */
       .mushaf-page-card .qmh-tajwid-ikhafa,
-      .mushaf-page-card .qmh-tajwid-ikhafa_shafawi { color:#ea580c !important; font-weight:700; }
-      .mushaf-page-card .qmh-tajwid-iqlab { color:#db2777 !important; font-weight:700; }
-      .mushaf-page-card .qmh-tajwid-qalaqah { color:#2563eb !important; font-weight:700; }
-      .mushaf-page-card .qmh-tajwid-tafkheem { color:#7c3aed !important; font-weight:700; }
-      .mushaf-page-card .qmh-tajwid-tarqeeq { color:#0891b2 !important; font-weight:700; }
+      .mushaf-page-card .qmh-tajwid-ikhafa_shafawi,
+      .mushaf-page-card .qmh-tajwid-madda_permissible,
+      .mushaf-page-card .qmh-tajwid-madda_obligatory_monfasel,
+      .mushaf-page-card .qmh-tajwid-madda_shilah { color:#00FF00 !important; }
+      /* ABU-ABU: huruf/tanda yang tidak dilafalkan */
       .mushaf-page-card .qmh-tajwid-slnt,
       .mushaf-page-card .qmh-tajwid-ham_wasl,
-      .mushaf-page-card .qmh-tajwid-laam_shamsiyah { color:#6b7280 !important; font-weight:600; }
+      .mushaf-page-card .qmh-tajwid-laam_shamsiyah { color:#808080 !important; }
+      /* Madd thabi'i tidak diberi warna tersendiri dalam enam kelompok di atas. */
+      .mushaf-page-card .qmh-tajwid-madda_normal,
       .mushaf-page-card .qmh-tajwid-izhar,
-      .mushaf-page-card .qmh-tajwid-izhar_shafawi { color:inherit; }
+      .mushaf-page-card .qmh-tajwid-izhar_shafawi,
+      .mushaf-page-card .qmh-tajwid-tafkheem,
+      .mushaf-page-card .qmh-tajwid-tarqeeq { color:inherit !important; }
     </style>
 
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Outfit:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -7983,8 +7992,6 @@ function tajweedCharStream(markup) {
     const out = [];
     function walk(node, activeClass = '') {
         if (node.nodeType === Node.TEXT_NODE) {
-            // API may contain an .end marker for the ayah number. It is not part
-            // of the Arabic glyph stream rendered by quran-madina-html.
             for (const ch of Array.from(node.nodeValue || '')) {
                 if (!/\s/.test(ch)) out.push({ ch, cls: activeClass });
             }
@@ -7994,18 +8001,36 @@ function tajweedCharStream(markup) {
         const cls = (node.getAttribute('class') || '').trim();
         if (/(^|\s)end(\s|$)/.test(cls)) return;
         let next = activeClass;
-        const rule = node.getAttribute('class');
-        if (rule && rule !== 'end') next = rule.split(/\s+/)[0] || activeClass;
+        if (cls) next = cls.split(/\s+/)[0] || activeClass;
         for (const child of Array.from(node.childNodes)) walk(child, next);
     }
     walk(root, '');
     return out;
 }
 
-function normalizeMushafChar(ch) {
-    // Keep Quranic marks and presentation characters intact. Only normalize
-    // harmless whitespace differences between the API markup and DB parts.
-    return ch === '\u00a0' ? ' ' : ch;
+function normalizeTajwidChar(ch) {
+    // Preserve Quranic characters/marks. Only collapse presentation variants
+    // that are safe for alignment between the API markup and Madina renderer.
+    return String(ch || '').normalize('NFC').replace(/\u00a0/g, ' ');
+}
+
+function tajwidClassToStandardClass(cls) {
+    // Quran.com/Uthmani-Tajweed rule names -> six Kemenag-style color groups.
+    const c = String(cls || '').trim();
+    if (!c) return '';
+    if (/^idgham_(ghunnah|mithlain|mutajanisain|mutaqaribain)$/.test(c)) return 'idgham_ghunnah';
+    if (/^idgham_wo_ghunnah$/.test(c)) return 'idgham_wo_ghunnah';
+    if (/^idgham_shafawi$/.test(c)) return 'idgham_shafawi';
+    if (/^ghunnah$/.test(c)) return 'ghunnah';
+    if (/^iqlab$/.test(c)) return 'iqlab';
+    if (/^ikhafa(_shafawi)?$/.test(c)) return c;
+    if (/^qalaqah$/.test(c)) return 'qalaqah';
+    if (/^madda_obligatory_mottasel$/.test(c)) return 'madda_obligatory_mottasel';
+    if (/^madda_(permissible|obligatory_monfasel)$/.test(c)) return 'madda_permissible';
+    if (/^madda_(necessary|farq)$/.test(c)) return 'madda_necessary';
+    if (/^madd_al_tamkeen$/.test(c)) return 'madd_al_tamkeen';
+    if (/^(slnt|ham_wasl|laam_shamsiyah)$/.test(c)) return c;
+    return '';
 }
 
 function decorateMushafAyah(ayah, markup, rootEl) {
@@ -8015,48 +8040,55 @@ function decorateMushafAyah(ayah, markup, rootEl) {
     const parts = Array.from(rootEl.querySelectorAll('.quran-madina-html-part'));
     if (!parts.length) return;
 
+    // The Madina custom element may split one ayah into several visual parts.
+    // Align sequentially, but NEVER jump arbitrarily forward to a later match:
+    // doing so was the cause of uneven/wrong colors in v14.
     let cursor = 0;
+    const isIgnorable = ch => /\s/.test(ch || '');
+    const normalize = ch => normalizeTajwidChar(ch);
+
     for (const part of parts) {
-        // Do not decorate the same part twice if a future renderer exposes it
-        // through multiple wrappers.
         if (part.dataset.tajwidDecorated === '1') continue;
         const text = part.textContent || '';
         if (!text.trim()) continue;
-
         const frag = document.createDocumentFragment();
         let buffer = '';
-        function flushBuffer() {
-            if (buffer) { frag.appendChild(document.createTextNode(buffer)); buffer = ''; }
-        }
+        const flush = () => { if (buffer) { frag.appendChild(document.createTextNode(buffer)); buffer=''; } };
 
         for (const rawCh of Array.from(text)) {
-            const ch = normalizeMushafChar(rawCh);
-            if (/\s/.test(ch)) { buffer += rawCh; continue; }
-            let found = -1;
-            for (let j = cursor; j < stream.length; j++) {
-                if (normalizeMushafChar(stream[j].ch) === ch) { found = j; break; }
+            if (isIgnorable(rawCh)) { buffer += rawCh; continue; }
+            const ch = normalize(rawCh);
+            // Skip only API whitespace; never skip Quranic glyphs/marks.
+            while (cursor < stream.length && isIgnorable(stream[cursor].ch)) cursor++;
+            if (cursor >= stream.length) { buffer += rawCh; continue; }
+
+            let token = stream[cursor];
+            if (normalize(token.ch) !== ch) {
+                // A renderer-specific presentation glyph can differ. Try the
+                // immediate next token only; never search many positions ahead.
+                if (cursor + 1 < stream.length && normalize(stream[cursor + 1].ch) === ch) {
+                    cursor++;
+                    token = stream[cursor];
+                } else {
+                    buffer += rawCh;
+                    // Keep cursor fixed so one mismatch does not shift every
+                    // following color assignment.
+                    continue;
+                }
             }
-            if (found < 0) {
-                // A Quran marker/font-specific glyph can differ from the API
-                // representation. Keep it unchanged instead of shifting the
-                // rest of the ayah's color mapping.
-                buffer += rawCh;
-                continue;
-            }
-            // If there was a small mismatch, advance to the matched position.
-            cursor = found + 1;
-            const cls = stream[found].cls;
-            if (cls) {
-                flushBuffer();
+            cursor++;
+            const standardCls = tajwidClassToStandardClass(token.cls);
+            if (standardCls) {
+                flush();
                 const span = document.createElement('span');
-                span.className = `qmh-tajwid-char qmh-tajwid-${cls}`;
+                span.className = `qmh-tajwid-char qmh-tajwid-${standardCls}`;
                 span.textContent = rawCh;
                 frag.appendChild(span);
             } else {
                 buffer += rawCh;
             }
         }
-        flushBuffer();
+        flush();
         part.replaceChildren(frag);
         part.dataset.tajwidDecorated = '1';
     }
@@ -8065,32 +8097,27 @@ function decorateMushafAyah(ayah, markup, rootEl) {
 async function applyMushafTajwidColors() {
     if (!tajweedMode) return;
     let juzMap;
-    try {
-        juzMap = await ensureTajweedForJuz(activeJuz);
-    } catch (e) {
-        console.warn('Mushaf Tajwid data:', e);
-        return;
-    }
+    try { juzMap = await ensureTajweedForJuz(activeJuz); }
+    catch (e) { console.warn('Mushaf Tajwid data:', e); return; }
 
-    // Custom element rendering is asynchronous. Wait until its line/part DOM
-    // exists before decorating it.
-    const deadline = Date.now() + 6000;
+    // Wait for custom elements to expose their visual parts.
+    const deadline = Date.now() + 8000;
     while (Date.now() < deadline) {
-        const pending = Array.from(document.querySelectorAll('#mushafView quran-madina-html'))
-            .some(el => !el.querySelector('.quran-madina-html-part'));
-        if (!pending) break;
-        await new Promise(r => setTimeout(r, 40));
+        const els = Array.from(document.querySelectorAll('#mushafView quran-madina-html'));
+        if (els.length && els.every(el => el.querySelector('.quran-madina-html-part'))) break;
+        await new Promise(r => setTimeout(r, 50));
     }
 
+    // IMPORTANT: color each component with the exact ayah markup, rather than
+    // one global stream. This prevents one mismatch in an earlier ayah from
+    // shifting all colors that follow it.
     for (const [idx, ayah] of ayahsData.entries()) {
         if (ayah._overflow && !ayah._juz26) continue;
         const key = `${ayah.surah.number}:${ayah.numberInSurah}`;
         const markup = juzMap[key];
         const info = ayahElementMap[idx];
-        if (!info || !markup) continue;
-        const root = info.comp;
-        if (!root) continue;
-        decorateMushafAyah(ayah, markup, root);
+        if (!info || !markup || !info.comp) continue;
+        decorateMushafAyah(ayah, markup, info.comp);
     }
 }
 

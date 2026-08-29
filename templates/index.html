@@ -8281,6 +8281,20 @@ async function renderMushaf() {
     // Single fallback after web components likely rendered
     setTimeout(scheduleScale, 800);
     setTimeout(scheduleScale, 2000);
+
+    // Tajwid colors are applied only after the Madina custom elements have
+    // rendered. Keeping this inside renderMushaf is essential: the previous
+    // v13 patch accidentally left an `await` at top-level, which caused the
+    // entire classic script to fail with a SyntaxError and made both Mushaf
+    // and Tajwid unavailable.
+    if (tajweedMode) {
+        try {
+            await applyMushafTajwidColors();
+            scheduleScale();
+        } catch (e) {
+            console.warn('Mushaf Tajwid overlay:', e);
+        }
+    }
 }
 
 function groupBySurah(ayahs) {
@@ -9845,12 +9859,6 @@ function toArabicNum(n) {
     return n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 }
 
-
-    if (tajweedMode) {
-        // Apply colors after the Madina renderer has created its parts.
-        await applyMushafTajwidColors();
-        scheduleScale();
-    }
 
 // =============================================
 // FITUR 1: PAPER MODE (Mushaf Kertas Asli)

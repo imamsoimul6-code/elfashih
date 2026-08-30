@@ -106,6 +106,13 @@
       .mushaf-page-card .qmh-tajwid-idgham_ghunnah { color:#169777 !important; } /* Idgham Bighunnah */
       .mushaf-page-card .qmh-tajwid-idgham_wo_ghunnah { color:#169200 !important; } /* Idgham Bila Ghunnah */
       .mushaf-page-card .qmh-tajwid-ghunnah { color:#FF7E1E !important; }        /* Ghunnah (mim/nun tasydid) */
+      /* Idgham "kecil" lain yang tidak melibatkan nun sukun/tanwin sama sekali
+         (huruf sejenis/berdekatan makhraj, mis. ت bertemu ط, ل bertemu ر) —
+         sebelumnya tidak dipetakan sama sekali sehingga tidak berwarna. */
+      .mushaf-page-card .qmh-tajwid-idgham_mutajanisayn,
+      .mushaf-page-card .qmh-tajwid-idgham_mutajanisain,
+      .mushaf-page-card .qmh-tajwid-idgham_mutaqaribayn,
+      .mushaf-page-card .qmh-tajwid-idgham_mutaqaribain { color:#A1A1A1 !important; }
 
       /* QALQALAH */
       .mushaf-page-card .qmh-tajwid-qalaqah { color:#DD0008 !important; }
@@ -997,6 +1004,13 @@
     .tajweed-text .idgham_ghunnah { color:#169777; font-weight:700; }      /* Idgham Bighunnah */
     .tajweed-text .idgham_wo_ghunnah { color:#169200; font-weight:700; }   /* Idgham Bila Ghunnah */
     .tajweed-text .idgham_shafawi { color:#58B800; font-weight:700; }      /* Idgham Syafawi */
+    /* Idgham "kecil" lain yang tidak melibatkan nun sukun/tanwin sama sekali
+       (huruf sejenis/berdekatan makhraj, mis. ت bertemu ط, ل bertemu ر) —
+       sebelumnya tidak dipetakan sama sekali sehingga tidak berwarna. */
+    .tajweed-text .idgham_mutajanisayn,
+    .tajweed-text .idgham_mutajanisain,
+    .tajweed-text .idgham_mutaqaribayn,
+    .tajweed-text .idgham_mutaqaribain { color:#A1A1A1; font-weight:600; }
 
     /* Ikhfa */
     .tajweed-text .ikhafa { color:#9400A8; font-weight:700; }          /* Ikhfa */
@@ -5228,6 +5242,7 @@ let audioPlayer      = null;
 // Diambil on-demand (baru fetch saat ayat pertama di surah itu diklik untuk
 // dilihat terjemahannya), supaya tidak perlu request tambahan di awal load.
 let translationCache  = {};
+let translationInFlight = {}; // dedup fetch per-surah saat banyak ayat memicu bersamaan
 function getAudioPlayer() {
     if (!audioPlayer) audioPlayer = document.getElementById('quranAudio');
     return audioPlayer;
@@ -7885,13 +7900,50 @@ function getJuzNumFromStart(surahNum, ayahNum) {
 // =============================================
 async function ensureSurahTranslation(surahNumber) {
     if (translationCache[surahNumber]) return translationCache[surahNumber];
-    const res = await fetchWithRetry(`https://api.alquran.cloud/v1/surah/${surahNumber}/id.indonesian`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    const map = {};
-    (data.data?.ayahs || []).forEach(a => { map[a.numberInSurah] = a.text; });
-    translationCache[surahNumber] = map;
-    return map;
+    // PERMINTAAN: terjemahan selalu tampil di mode Digital berarti fungsi ini
+    // bisa dipanggil hampir bersamaan untuk SEMUA ayat dalam satu surah saat
+    // render. Tanpa dedup ini, surah panjang (mis. Al-Baqarah, 286 ayat) akan
+    // mengirim ratusan fetch paralel ke endpoint yang sama sebelum salah
+    // satunya sempat selesai dan mengisi cache. Simpan promise yang sedang
+    // berjalan supaya pemanggil lain ikut menunggu hasil yang SAMA.
+    if (translationInFlight[surahNumber]) return translationInFlight[surahNumber];
+    translationInFlight[surahNumber] = (async () => {
+        const res = await fetchWithRetry(`https://api.alquran.cloud/v1/surah/${surahNumber}/id.indonesian`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const map = {};
+        (data.data?.ayahs || []).forEach(a => { map[a.numberInSurah] = a.text; });
+        translationCache[surahNumber] = map;
+        return map;
+    })();
+    try {
+        return await translationInFlight[surahNumber];
+    } finally {
+        delete translationInFlight[surahNumber]; // supaya retryTranslation tetap bisa memicu fetch ulang
+    }
+}
+
+async function showTranslationAlways(cardEl, idx) {
+    const ayah = ayahsData[idx];
+    if (!ayah) return;
+    const wrap = cardEl.querySelector('.digital-ayah-translation');
+    const btn = cardEl.querySelector('.translate-btn');
+    if (!wrap) return;
+    wrap.classList.add('show');
+    if (btn) btn.classList.add('active');
+    const cached = translationCache[ayah.surah.number];
+    if (cached) {
+        wrap.textContent = cached[ayah.numberInSurah] || 'Terjemahan tidak tersedia untuk ayat ini.';
+        return;
+    }
+    wrap.innerHTML = `<span class="translation-loading">Memuat terjemahan...</span>`;
+    try {
+        const map = await ensureSurahTranslation(ayah.surah.number);
+        if (!wrap.classList.contains('show')) return; // sempat disembunyikan manual sebelum fetch selesai
+        wrap.textContent = map[ayah.numberInSurah] || 'Terjemahan tidak tersedia untuk ayat ini.';
+    } catch (e) {
+        wrap.innerHTML = `<span class="translation-loading">Gagal memuat terjemahan. <a href="#" onclick="retryTranslation(event, ${idx})" style="color:var(--accent-teal)">Coba lagi</a></span>`;
+    }
 }
 
 async function toggleTranslation(idx, btnEl) {
@@ -8018,7 +8070,25 @@ async function renderDigital() {
             setTasmiStartFromClick(idx);
             showToast(`Titik mulai setoran: ${ayah.surah.name} ${ayah.numberInSurah}`);
         });
+        // BUG FIX: saat mode Tajwid aktif, teks ayat dirender sebagai satu
+        // blok (renderTajweedAyah) yang MENGGANTIKAN span per-kata yang
+        // sebelumnya membawa onclick masing-masing — akibatnya klik di mana
+        // pun pada teks ayat tidak lagi memutar audio (hanya nomor ayat di
+        // ujung yang masih punya onclick sendiri). Delegasi klik di level
+        // pembungkus ini membuat seluruh area teks tetap bisa diklik untuk
+        // memutar audio, baik mode tajwid aktif maupun tidak.
+        const textWrap = card.querySelector('.digital-ayah-text');
+        if (textWrap) {
+            textWrap.addEventListener('click', (e) => {
+                if (e.target.closest('.ayah-marker')) return; // sudah punya onclick sendiri
+                handleDigitalAyahClick(idx);
+            });
+        }
         container.appendChild(card);
+        // PERMINTAAN: terjemahan selalu tampil di mode Digital (tidak perlu
+        // klik tombol translate lagi), tapi tombol translate tetap berfungsi
+        // untuk menyembunyikan/menampilkan ulang per-ayat jika diinginkan.
+        showTranslationAlways(card, idx);
     }
 }
 

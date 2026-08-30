@@ -332,12 +332,12 @@
     }
     .topbar-surah-name {
         font-family: var(--arabic-font);
-        font-size: 20px;
+        font-size: 18px;
         background: linear-gradient(135deg, var(--c-white) 0%, var(--accent-teal) 100%);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         direction: rtl; line-height: 1.2;
     }
-    .topbar-surah-info { font-size: 14px; color: var(--text-muted); margin-top: 1px; }
+    .topbar-surah-info { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
 
     /* Baris bawah: juz tabs — scrollable */
     .topbar-row2 {
@@ -354,7 +354,7 @@
     }
     .juz-tab {
         padding: 3px 8px; border-radius: 50px;
-        font-size: 13.5px; font-weight: 700; font-family: var(--ui-font);
+        font-size: 9.5px; font-weight: 700; font-family: var(--ui-font);
         border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
         background: var(--bg-card); color: var(--text-muted); outline: none;
         letter-spacing: 0.2px; white-space: nowrap; flex-shrink: 0;
@@ -374,7 +374,7 @@
     .tab-scroll-btn {
         flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
         background: var(--bg-card); border: 1px solid var(--border);
-        color: var(--text-secondary); cursor: pointer; font-size: 14px;
+        color: var(--text-secondary); cursor: pointer; font-size: 10px;
         display: flex; align-items: center; justify-content: center;
         transition: all 0.2s; outline: none; position: sticky;
     }
@@ -390,10 +390,10 @@
         width: 48px; height: 48px; border-radius: var(--radius-sm);
         background: var(--bg-card); border: 1px solid var(--border);
         color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
-        font-size: 17px; outline: none; gap: 2px;
+        font-size: 15px; outline: none; gap: 2px;
     }
     .top-btn .btn-icon-label {
-        font-size: 13px; font-family: var(--ui-font); font-weight: 600;
+        font-size: 8px; font-family: var(--ui-font); font-weight: 600;
         line-height: 1; color: inherit; white-space: nowrap;
         letter-spacing: 0.2px;
     }
@@ -438,7 +438,7 @@
     .tool-btn {
         display: flex; align-items: center; gap: 6px;
         padding: 7px 14px; border-radius: 50px;
-        font-size: 15px; font-weight: 600; cursor: pointer;
+        font-size: 12px; font-weight: 600; cursor: pointer;
         transition: all 0.2s; border: 1px solid transparent;
         font-family: var(--ui-font); white-space: nowrap;
     }
@@ -467,7 +467,7 @@
     .tool-btn-icon {
         width: 32px; height: 32px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        font-size: 15px;
+        font-size: 12px;
     }
 
     /* Tasmi status bar */
@@ -495,7 +495,7 @@
     }
     @keyframes pingAnim { 0%,100%{transform:scale(1);opacity:.75} 50%{transform:scale(1.8);opacity:0} }
     .tasmi-label {
-        color: var(--accent-pink); font-size: 14px; font-weight: 700;
+        color: var(--accent-pink); font-size: 11px; font-weight: 700;
         text-transform: uppercase; letter-spacing: 1px;
     }
 
@@ -521,7 +521,7 @@
         padding: 10px 16px; z-index: 300;
         align-items: center; justify-content: space-between; gap: 10px;
         box-shadow: 0 4px 24px rgba(124,58,237,0.45);
-        font-size: 16px; font-weight: 600;
+        font-size: 13px; font-weight: 600;
         font-family: var(--ui-font);
     }
     #selectModeBanner.visible { display: flex; }
@@ -530,7 +530,7 @@
     .cancel-select-btn {
         background: rgba(255,255,255,0.2); color: white;
         border: none; padding: 6px 14px; border-radius: 50px;
-        font-size: 15px; font-weight: 700; cursor: pointer;
+        font-size: 12px; font-weight: 700; cursor: pointer;
         font-family: var(--ui-font); transition: background 0.2s;
     }
     .cancel-select-btn:hover { background: rgba(255,255,255,0.32); }
@@ -583,11 +583,11 @@
     .verse-circle-num {
         position: absolute; inset: 0;
         display: flex; align-items: center; justify-content: center;
-        font-size: 15px; font-weight: 700;
+        font-size: 12px; font-weight: 700;
         color: var(--accent-teal); font-family: 'Outfit', sans-serif;
     }
-    .verse-label { font-size: 16px; color: var(--text-secondary); font-weight: 700; }
-    .card-page { font-size: 15px; color: var(--text-secondary); font-weight: 600; }
+    .verse-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+    .card-page { font-size: 10px; color: var(--text-muted); }
 
     /* =============================================
        PROGRESS HAFALAN
@@ -595,7 +595,7 @@
     .hafalan-btn {
         display: inline-flex; align-items: center; gap: 5px;
         padding: 4px 11px; border-radius: 50px;
-        font-size: 14px; font-weight: 700; cursor: pointer;
+        font-size: 10px; font-weight: 700; cursor: pointer;
         border: 1.5px solid; transition: all 0.18s;
         font-family: var(--ui-font); white-space: nowrap;
         outline: none; flex-shrink: 0;
@@ -611,7 +611,7 @@
     .translate-btn {
         display: inline-flex; align-items: center; justify-content: center; gap: 5px;
         width: 26px; height: 26px; border-radius: 50%;
-        font-size: 14px; cursor: pointer;
+        font-size: 11px; cursor: pointer;
         border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-muted);
         transition: all 0.18s; outline: none; flex-shrink: 0;
     }
@@ -621,8 +621,9 @@
         display: none;
         margin-top: 12px; padding-top: 12px;
         border-top: 1px dashed rgba(71,126,16,0.25);
-        font-size: 18px; line-height: 1.75; font-weight: 600; color: var(--text-primary);
-        direction: ltr; text-align: left; font-family: var(--ui-font);
+        font-size: 17px; line-height: 1.75; font-weight: 500; color: var(--text-primary);
+        font-family: "Plus Jakarta Sans", "DM Sans", var(--ui-font);
+        direction: ltr; text-align: left;
     }
     .digital-ayah-translation.show { display: block; animation: fadeInTranslation 0.2s ease; }
     @keyframes fadeInTranslation { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform: translateY(0); } }
@@ -653,11 +654,11 @@
     .progress-stat-card.belum  { border-color: rgba(74,96,128,0.35); }
     .progress-stat-card.proses { border-color: rgba(245,158,11,0.45); }
     .progress-stat-card.lancar { border-color: rgba(46,204,113,0.45); }
-    .pstat-num  { font-size: 29px; font-weight: 800; line-height: 1; }
+    .pstat-num  { font-size: 28px; font-weight: 800; line-height: 1; }
     .pstat-num.belum  { color: var(--text-muted); }
     .pstat-num.proses { color: #f59e0b; }
     .pstat-num.lancar { color: var(--accent-teal); }
-    .pstat-label { font-size: 14px; margin-top: 4px; color: var(--text-secondary); font-weight: 600; }
+    .pstat-label { font-size: 10px; margin-top: 4px; color: var(--text-secondary); font-weight: 600; }
 
     .hafalan-overall-bar {
         background: var(--bg-card); border-radius: 8px; height: 10px;
@@ -669,7 +670,7 @@
     .hafalan-overall-bar .seg-belum  { background: rgba(74,96,128,0.3); }
     .hafalan-bar-labels {
         display: flex; justify-content: space-between;
-        font-size: 13px; color: var(--text-muted); margin-bottom: 10px;
+        font-size: 9px; color: var(--text-muted); margin-bottom: 10px;
     }
 
     /* Group-by tab selector */
@@ -680,7 +681,7 @@
     }
     .pgroup-tab {
         flex: 1; padding: 6px 4px; border-radius: var(--radius-sm);
-        font-size: 14px; font-weight: 700; cursor: pointer;
+        font-size: 10px; font-weight: 700; cursor: pointer;
         border: none; background: transparent;
         color: var(--text-muted); font-family: var(--ui-font);
         transition: all 0.18s; text-align: center; outline: none;
@@ -695,7 +696,7 @@
         display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;
     }
     .pfilter-btn {
-        padding: 3px 10px; border-radius: 50px; font-size: 14px;
+        padding: 3px 10px; border-radius: 50px; font-size: 10px;
         font-weight: 700; cursor: pointer; border: 1px solid;
         font-family: var(--ui-font); transition: all 0.18s;
         background: var(--bg-card); outline: none;
@@ -722,9 +723,9 @@
     .pai-dot.belum  { background: var(--text-muted); }
     .pai-dot.proses { background: #f59e0b; }
     .pai-dot.lancar { background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); }
-    .pai-label { flex: 1; font-size: 15px; color: var(--text-secondary); }
+    .pai-label { flex: 1; font-size: 12px; color: var(--text-secondary); }
     .pai-btn {
-        font-size: 13px; font-weight: 700; padding: 3px 9px;
+        font-size: 9px; font-weight: 700; padding: 3px 9px;
         border-radius: 50px; border: 1px solid; cursor: pointer;
         font-family: var(--ui-font); outline: none; transition: all 0.15s;
     }
@@ -742,10 +743,10 @@
     .pgroup-card-header {
         display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
     }
-    .pgroup-card-title { flex: 1; font-size: 16px; font-weight: 600; color: var(--text-primary); }
-    .pgroup-card-sub { font-size: 14px; color: var(--text-muted); }
+    .pgroup-card-title { flex: 1; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .pgroup-card-sub { font-size: 10px; color: var(--text-muted); }
     .pgroup-card-pct {
-        font-size: 15px; font-weight: 800;
+        font-size: 12px; font-weight: 800;
         color: var(--accent-teal);
     }
     /* Mini tri-color bar */
@@ -758,7 +759,7 @@
     .pgroup-card-counts {
         display: flex; gap: 10px; margin-top: 5px; flex-wrap: wrap;
     }
-    .pgcc { font-size: 13px; font-weight: 700; }
+    .pgcc { font-size: 9px; font-weight: 700; }
     .pgcc.lancar { color: var(--accent-teal); }
     .pgcc.proses { color: #f59e0b; }
     .pgcc.belum  { color: var(--text-muted); }
@@ -773,12 +774,12 @@
     .pgroup-sub-item {
         display: flex; align-items: center; gap: 8px;
         padding: 5px 2px; border-bottom: 1px solid rgba(255,255,255,0.04);
-        font-size: 14px;
+        font-size: 11px;
     }
     .pgroup-sub-item:last-child { border-bottom: none; }
     .pgroup-sub-label { flex: 1; color: var(--text-secondary); }
     .pgroup-sub-btn {
-        font-size: 13px; font-weight: 700; padding: 2px 8px;
+        font-size: 9px; font-weight: 700; padding: 2px 8px;
         border-radius: 50px; border: 1px solid; cursor: pointer;
         font-family: var(--ui-font); outline: none;
     }
@@ -786,7 +787,7 @@
     .pgroup-sub-btn.proses { color: #f59e0b; border-color: #f59e0b; background: rgba(245,158,11,0.08); }
     .pgroup-sub-btn.lancar { color: var(--accent-teal); border-color: var(--accent-teal); background: rgba(46,204,113,0.08); }
 
-    .progress-empty { text-align:center; color: var(--text-muted); font-size:16px; padding:24px 0; }
+    .progress-empty { text-align:center; color: var(--text-muted); font-size:13px; padding:24px 0; }
 
     .digital-ayah-text {
         font-family: var(--arabic-font);
@@ -842,7 +843,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 14px;
+        font-size: 11px;
         color: rgba(71,126,16,0.5);
         pointer-events: none;
         white-space: nowrap;
@@ -1039,7 +1040,7 @@
         padding:.15em; margin:0 .12em;
     }
     .tajweed-legend { display:flex; flex-wrap:wrap; gap:5px; margin:5px 0 10px;
-        font-family:var(--ui-font); font-size:13px; direction:ltr; }
+        font-family:var(--ui-font); font-size:9px; direction:ltr; }
     .tajweed-legend span { padding:3px 7px; border-radius:999px; background:rgba(255,255,255,.55); border:1px solid rgba(0,0,0,.08); }
 
     /* ── Tanda awal juz — biru ── */
@@ -1066,10 +1067,10 @@
         border: 1px solid rgba(59,130,246,0.3);
         border-radius: var(--radius-md);
         padding: 7px 14px; margin-bottom: 6px;
-        font-size: 14px; font-weight: 700;
+        font-size: 11px; font-weight: 700;
         color: #60a5fa; font-family: var(--ui-font);
     }
-    .juz-start-banner i { font-size: 15px; }
+    .juz-start-banner i { font-size: 12px; }
     /* Mushaf view: nomor ayat awal juz berwarna biru */
     .quran-madina-html-ayah-num[data-juz-start] {
         color: #3b82f6 !important;
@@ -1206,7 +1207,7 @@
         box-shadow: 0 0 20px rgba(14,145,128,0.2);
     }
     @keyframes spin { to{transform:rotate(360deg)} }
-    .loading-text { color:var(--accent-teal); font-size:15px; font-weight:700; letter-spacing:2px; animation:pulse 1.5s ease-in-out infinite; }
+    .loading-text { color:var(--accent-teal); font-size:12px; font-weight:700; letter-spacing:2px; animation:pulse 1.5s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
 
     /* =============================================
@@ -1232,8 +1233,8 @@
         box-shadow: 0 3px 12px rgba(14,145,128,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
     }
     .player-info-text { flex: 1; min-width: 0; }
-    .player-surah-name { font-size: 16px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .player-ayat-num { font-size: 14px; color: var(--text-muted); margin-top: 1px; }
+    .player-surah-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .player-ayat-num { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
 
     .player-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .player-btn {
@@ -1241,7 +1242,7 @@
         background: rgba(240,245,239,0.9); border: 1px solid var(--border);
         display: flex; align-items: center; justify-content: center;
         color: var(--text-secondary); cursor: pointer; transition: all 0.2s; outline: none;
-        font-size: 15px;
+        font-size: 12px;
     }
     .player-btn:hover { border-color: rgba(14,145,128,0.5); color: var(--accent-teal); background: rgba(14,145,128,0.15); }
     .player-play {
@@ -1250,13 +1251,13 @@
         border: none;
         display: flex; align-items: center; justify-content: center;
         color: #fff; cursor: pointer; transition: all 0.2s; outline: none;
-        font-size: 16px;
+        font-size: 14px;
         box-shadow: 0 3px 16px rgba(14,145,128,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
     }
     .player-play:hover { background: linear-gradient(135deg, #539012 0%, #10a891 100%); transform: scale(1.07); }
 
     .player-progress { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .player-time { font-size: 14px; color: var(--text-muted); white-space: nowrap; font-family: 'Outfit', sans-serif; }
+    .player-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; font-family: 'Outfit', sans-serif; }
     .progress-bar {
         flex: 1; height: 4px; background: var(--border);
         border-radius: 2px; cursor: pointer; position: relative;
@@ -1291,7 +1292,7 @@
         margin-bottom: 18px;
     }
     .modal-title {
-        font-size: 17px; font-weight: 700; color: var(--text-primary);
+        font-size: 15px; font-weight: 700; color: var(--text-primary);
         display: flex; align-items: center; gap: 8px;
     }
     .modal-title i { color: var(--accent-teal); }
@@ -1299,16 +1300,16 @@
         width: 30px; height: 30px; border-radius: 50%;
         background: var(--bg-card); border: 1px solid var(--border);
         display: flex; align-items: center; justify-content: center;
-        cursor: pointer; color: var(--text-muted); font-size: 18px; transition: all 0.2s;
+        cursor: pointer; color: var(--text-muted); font-size: 16px; transition: all 0.2s;
         outline: none;
     }
     .modal-close:hover { border-color: var(--border-hover); color: var(--text-primary); }
 
-    .modal-label { font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; letter-spacing: .5px; text-transform: uppercase; }
+    .modal-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; letter-spacing: .5px; text-transform: uppercase; }
     .modal-select {
         width: 100%; background: var(--bg-card); border: 1px solid var(--border);
         border-radius: var(--radius-md); padding: 10px 14px;
-        color: var(--text-primary); font-family: var(--ui-font); font-size: 16px;
+        color: var(--text-primary); font-family: var(--ui-font); font-size: 13px;
         font-weight: 600; outline: none; transition: border-color 0.2s;
     }
     .modal-select:focus { border-color: var(--border-hover); }
@@ -1320,7 +1321,7 @@
         display: flex; align-items: center; justify-content: center; gap: 6px;
         padding: 8px; border-radius: var(--radius-sm);
         background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25);
-        color: #a78bfa; font-size: 15px; font-weight: 600;
+        color: #a78bfa; font-size: 12px; font-weight: 600;
         cursor: pointer; transition: all 0.2s; font-family: var(--ui-font);
     }
     .from-mushaf-btn:hover { background: rgba(139,92,246,0.2); }
@@ -1332,7 +1333,7 @@
     .modal-btn-primary {
         flex: 1; background: linear-gradient(135deg, var(--accent-teal), var(--accent-green)); color: #fff;
         border: none; padding: 12px; border-radius: var(--radius-md);
-        font-weight: 700; font-size: 16px; cursor: pointer;
+        font-weight: 700; font-size: 14px; cursor: pointer;
         display: flex; align-items: center; justify-content: center; gap: 8px;
         font-family: var(--ui-font); transition: all 0.2s;
         box-shadow: 0 3px 16px rgba(14,145,128,0.4), inset 0 1px 0 rgba(255,255,255,0.18);
@@ -1342,7 +1343,7 @@
     .modal-btn-secondary {
         background: var(--bg-card); border: 1px solid var(--border);
         color: var(--text-secondary); padding: 12px 18px;
-        border-radius: var(--radius-md); font-weight: 600; font-size: 16px;
+        border-radius: var(--radius-md); font-weight: 600; font-size: 13px;
         cursor: pointer; font-family: var(--ui-font); transition: all 0.2s;
     }
     .modal-btn-secondary:hover { border-color: rgba(14,145,128,0.4); color: var(--accent-teal); background: rgba(14,145,128,0.1); }
@@ -1350,7 +1351,7 @@
     .modal-btn-gold {
         background: linear-gradient(135deg, var(--accent-gold), #c4830f); color: #fff;
         border: none; padding: 12px; border-radius: var(--radius-md);
-        font-weight: 700; font-size: 16px; cursor: pointer;
+        font-weight: 700; font-size: 14px; cursor: pointer;
         display: flex; align-items: center; justify-content: center; gap: 8px;
         font-family: var(--ui-font); transition: all 0.2s; flex: 1;
         box-shadow: 0 3px 14px rgba(217,152,26,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
@@ -1361,7 +1362,7 @@
         display: none; background: rgba(14,145,128,0.08);
         border: 1px solid rgba(14,145,128,0.25);
         border-radius: var(--radius-md); padding: 10px 14px;
-        font-size: 15px; color: var(--accent-teal); font-weight: 600;
+        font-size: 12px; color: var(--accent-teal); font-weight: 600;
         margin-bottom: 12px;
     }
     .modal-info-box.visible { display: flex; align-items: center; gap: 8px; }
@@ -1374,7 +1375,7 @@
         background: var(--bg-secondary); color: var(--accent-teal);
         border: 1px solid var(--border);
         padding: 8px 20px; border-radius: 50px;
-        font-size: 15px; font-weight: 700; font-family: var(--ui-font);
+        font-size: 12px; font-weight: 700; font-family: var(--ui-font);
         z-index: 500; opacity: 0; transition: opacity 0.25s;
         pointer-events: none; white-space: nowrap;
         box-shadow: var(--shadow-card);
@@ -1387,7 +1388,7 @@
         background: rgba(255,255,255,0.95); color: var(--accent-teal);
         border: 1px solid var(--border);
         padding: 5px 16px; border-radius: 50px;
-        font-size: 14px; font-weight: 600; font-family: var(--ui-font);
+        font-size: 11px; font-weight: 600; font-family: var(--ui-font);
         z-index: 200; opacity: 0; transition: opacity 0.35s;
         pointer-events: none; white-space: nowrap;
         backdrop-filter: blur(8px);
@@ -1423,7 +1424,7 @@
         flex:1; min-width:100px;
         display:flex; align-items:center; justify-content:center; gap:7px;
         padding:11px 16px; border-radius:var(--radius-md);
-        font-size:16px; font-weight:700; cursor:pointer;
+        font-size:13px; font-weight:700; cursor:pointer;
         border:1px solid transparent; font-family:var(--ui-font);
         transition:all .2s;
     }
@@ -1439,7 +1440,7 @@
     .rec-btn-save:hover:not(:disabled) { border-color:var(--border-hover); color:var(--text-primary); }
 
     .rec-timer {
-        text-align:center; font-size:29px; font-weight:700;
+        text-align:center; font-size:28px; font-weight:700;
         font-family:'Outfit',monospace; color:var(--accent-teal);
         letter-spacing:2px; margin-bottom:12px;
     }
@@ -1453,25 +1454,25 @@
         width:3px; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); border-radius:2px;
         transition:height .08s; min-height:3px;
     }
-    .rec-list-title { font-size:14px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+    .rec-list-title { font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
     .rec-list { display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; }
     .rec-item {
         background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md);
         padding:10px 14px; display:flex; align-items:center; gap:10px;
     }
     .rec-item-info { flex:1; min-width:0; }
-    .rec-item-name { font-size:15px; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .rec-item-meta { font-size:14px; color:var(--text-muted); margin-top:2px; }
+    .rec-item-name { font-size:12px; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .rec-item-meta { font-size:10px; color:var(--text-muted); margin-top:2px; }
     .rec-item-btn {
         width:30px; height:30px; border-radius:50%; border:1px solid var(--border);
         background:var(--bg-secondary); color:var(--text-secondary);
         display:flex; align-items:center; justify-content:center;
-        cursor:pointer; font-size:14px; flex-shrink:0; transition:all .2s;
+        cursor:pointer; font-size:11px; flex-shrink:0; transition:all .2s;
     }
     .rec-item-btn:hover { border-color:var(--accent-teal); color:var(--accent-teal); }
     .rec-item-btn.del:hover { border-color:#ef4444; color:#ef4444; }
     .rec-status {
-        text-align:center; font-size:15px; color:var(--text-muted);
+        text-align:center; font-size:12px; color:var(--text-muted);
         padding:6px 0; min-height:20px;
     }
 
@@ -1486,15 +1487,15 @@
     }
     .schedule-icon {
         width:36px; height:36px; border-radius:var(--radius-sm); flex-shrink:0;
-        display:flex; align-items:center; justify-content:center; font-size:18px;
+        display:flex; align-items:center; justify-content:center; font-size:16px;
     }
     .schedule-icon.tadarus { background:rgba(46,204,113,0.15); }
     .schedule-icon.murojaah { background:rgba(245,200,66,0.15); }
     .schedule-icon.hafalan { background:rgba(239,68,68,0.12); }
     .schedule-item-info { flex:1; min-width:0; }
-    .schedule-item-name { font-size:16px; font-weight:700; color:var(--text-primary); }
-    .schedule-item-time { font-size:14px; color:var(--text-muted); margin-top:2px; }
-    .schedule-item-days { font-size:14px; color:var(--accent-teal); margin-top:2px; font-weight:600; }
+    .schedule-item-name { font-size:13px; font-weight:700; color:var(--text-primary); }
+    .schedule-item-time { font-size:11px; color:var(--text-muted); margin-top:2px; }
+    .schedule-item-days { font-size:10px; color:var(--accent-teal); margin-top:2px; font-weight:600; }
     .schedule-toggle {
         position:relative; width:40px; height:22px; flex-shrink:0;
     }
@@ -1515,7 +1516,7 @@
         width:28px; height:28px; border-radius:50%; border:1px solid var(--border);
         background:none; color:var(--text-muted); cursor:pointer;
         display:flex; align-items:center; justify-content:center;
-        font-size:14px; flex-shrink:0; transition:all .2s;
+        font-size:11px; flex-shrink:0; transition:all .2s;
     }
     .schedule-del-btn:hover { border-color:#ef4444; color:#ef4444; }
 
@@ -1523,7 +1524,7 @@
     .sched-type-row { display:flex; gap:6px; }
     .sched-type-btn {
         flex:1; padding:7px; border-radius:var(--radius-sm); border:1px solid var(--border);
-        background:var(--bg-card); color:var(--text-muted); cursor:pointer; font-size:15px;
+        background:var(--bg-card); color:var(--text-muted); cursor:pointer; font-size:12px;
         font-weight:600; font-family:var(--ui-font); text-align:center; transition:all .2s;
     }
     .sched-type-btn.active { border-color:var(--accent-teal); color:var(--accent-teal); background:rgba(14,145,128,0.12); box-shadow: 0 0 0 1px rgba(14,145,128,0.2); }
@@ -1531,25 +1532,25 @@
     .sched-day-btn {
         padding:5px 10px; border-radius:50px; border:1px solid var(--border);
         background:var(--bg-card); color:var(--text-muted); cursor:pointer;
-        font-size:14px; font-weight:600; font-family:var(--ui-font); transition:all .2s;
+        font-size:11px; font-weight:600; font-family:var(--ui-font); transition:all .2s;
     }
     .sched-day-btn.active { border-color:var(--accent-teal); color:var(--accent-teal); background:rgba(14,145,128,0.12); box-shadow: 0 0 0 1px rgba(14,145,128,0.2); }
     .sched-time-input {
         background:var(--bg-card); border:1px solid var(--border);
         border-radius:var(--radius-sm); padding:9px 12px;
-        color:var(--text-primary); font-family:var(--ui-font); font-size:16px;
+        color:var(--text-primary); font-family:var(--ui-font); font-size:14px;
         width:100%; outline:none; transition:border-color .2s;
     }
     .sched-time-input:focus { border-color:var(--border-hover); }
     .notif-perm-banner {
         background:rgba(245,200,66,0.1); border:1px solid rgba(245,200,66,0.25);
         border-radius:var(--radius-sm); padding:9px 12px; margin-bottom:12px;
-        font-size:15px; color:var(--accent-gold); display:none; align-items:center; gap:8px;
+        font-size:12px; color:var(--accent-gold); display:none; align-items:center; gap:8px;
     }
     .notif-perm-banner.show { display:flex; }
     .notif-perm-btn {
         margin-left:auto; background:var(--accent-gold); color:#1a1a1a;
-        border:none; padding:4px 12px; border-radius:50px; font-size:14px;
+        border:none; padding:4px 12px; border-radius:50px; font-size:11px;
         font-weight:700; cursor:pointer; font-family:var(--ui-font); white-space:nowrap;
     }
 
@@ -1594,7 +1595,7 @@
     .surah-hb-top {
         display: flex; align-items: center; gap: 6px;
         padding: 5px 12px 1px; color: rgba(212,175,55,0.65);
-        font-size: 14px; letter-spacing: 4px; direction: rtl;
+        font-size: 10px; letter-spacing: 4px; direction: rtl;
     }
     .surah-hb-top::before,.surah-hb-top::after {
         content: ''; flex: 1; height: 1px;
@@ -1617,7 +1618,7 @@
         align-items: center; gap: 1px; text-align: center;
     }
     .surah-hb-col-label {
-        font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+        font-size: 7px; font-weight: 700; letter-spacing: 0.5px;
         color: rgba(212,175,55,0.5); text-transform: uppercase;
         font-family: var(--ui-font); direction: ltr;
     }
@@ -1625,17 +1626,17 @@
         font-family: var(--arabic-font);
         color: rgba(212,175,55,0.95); line-height: 1.2;
     }
-    .surah-hb-col.col-type .surah-hb-col-val { font-size: 16px; }
-    .surah-hb-col.col-ayat .surah-hb-col-val { font-size: 16px; }
+    .surah-hb-col.col-type .surah-hb-col-val { font-size: 13px; }
+    .surah-hb-col.col-ayat .surah-hb-col-val { font-size: 13px; }
     .surah-hb-col.col-name .surah-hb-col-val {
-        font-size: 20px;
+        font-size: 18px;
         text-shadow: 0 0 16px rgba(212,175,55,0.3);
     }
     .surah-hb-num {
         width: 16px; height: 16px; border-radius: 50%;
         border: 1px solid rgba(212,175,55,0.45);
         display: flex; align-items: center; justify-content: center;
-        font-size: 12px; font-weight: 700; font-family: 'Outfit', sans-serif;
+        font-size: 7px; font-weight: 700; font-family: 'Outfit', sans-serif;
         color: rgba(212,175,55,0.65); margin: 0 auto 1px;
     }
 
@@ -1643,7 +1644,7 @@
     .surah-hb-bottom {
         display: flex; align-items: center; gap: 6px;
         padding: 1px 12px 5px; color: rgba(212,175,55,0.5);
-        font-size: 13px; letter-spacing: 3px; direction: rtl;
+        font-size: 8px; letter-spacing: 3px; direction: rtl;
     }
     .surah-hb-bottom::before,.surah-hb-bottom::after {
         content: ''; flex: 1; height: 1px;
@@ -1695,13 +1696,13 @@
         width: 38px; height: 38px; border-radius: 50%;
         background: linear-gradient(135deg, var(--accent-green-dk), var(--accent-teal));
         display: flex; align-items: center; justify-content: center;
-        font-size: 18px; flex-shrink: 0;
+        font-size: 16px; flex-shrink: 0;
     }
     .qari-item.active .qari-avatar { background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); }
     .qari-info { flex: 1; }
-    .qari-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-    .qari-style { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
-    .qari-check { color: var(--accent-teal); font-size: 18px; opacity: 0; transition: opacity 0.2s; }
+    .qari-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .qari-style { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .qari-check { color: var(--accent-teal); font-size: 16px; opacity: 0; transition: opacity 0.2s; }
     .qari-item.active .qari-check { opacity: 1; }
 
     /* =============================================
@@ -1741,13 +1742,13 @@
     .dash-logo-icon {
         width: 38px; height: 38px; border-radius: 10px;
         background: linear-gradient(135deg, var(--accent-green-dk), var(--accent-teal));
-        display: flex; align-items: center; justify-content: center; font-size: 20px;
+        display: flex; align-items: center; justify-content: center; font-size: 18px;
     }
     .dash-logo-text { line-height: 1; }
-    .dash-logo-name { font-size: 18px; font-weight: 800; color: var(--accent-teal); letter-spacing: -0.3px; }
-    .dash-logo-sub  { font-size: 14px; color: var(--text-muted); margin-top: 1px; }
-    .dash-date { font-size: 14px; color: var(--text-muted); text-align: right; line-height: 1.4; }
-    .dash-date strong { display: block; color: var(--text-secondary); font-size: 15px; }
+    .dash-logo-name { font-size: 16px; font-weight: 800; color: var(--accent-teal); letter-spacing: -0.3px; }
+    .dash-logo-sub  { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+    .dash-date { font-size: 11px; color: var(--text-muted); text-align: right; line-height: 1.4; }
+    .dash-date strong { display: block; color: var(--text-secondary); font-size: 12px; }
 
     .dash-body { padding: 20px 16px; max-width: 600px; margin: 0 auto; }
 
@@ -1761,21 +1762,21 @@
     .dash-greeting::before {
         content: '﷽';
         position: absolute; right: 16px; top: 12px;
-        font-family: var(--arabic-font); font-size: 23px;
+        font-family: var(--arabic-font); font-size: 22px;
         color: rgba(46,204,113,0.2); pointer-events: none;
     }
-    .dash-greeting-title { font-size: 20px; font-weight: 800; color: var(--text-primary); }
-    .dash-greeting-sub   { font-size: 15px; color: var(--text-muted); margin-top: 4px; }
+    .dash-greeting-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+    .dash-greeting-sub   { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
     .dash-streak {
         display: inline-flex; align-items: center; gap: 6px;
         background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.25);
         border-radius: 50px; padding: 4px 12px; margin-top: 10px;
-        font-size: 15px; font-weight: 700; color: var(--accent-gold);
+        font-size: 12px; font-weight: 700; color: var(--accent-gold);
     }
 
     /* Section title */
     .dash-section-title {
-        font-size: 14px; font-weight: 800; color: var(--text-muted);
+        font-size: 11px; font-weight: 800; color: var(--text-muted);
         text-transform: uppercase; letter-spacing: 1px;
         margin-bottom: 12px; margin-top: 0;
         display: flex; align-items: center; gap: 6px;
@@ -1794,15 +1795,15 @@
     }
     .dash-progress-ring-wrap { flex-shrink: 0; }
     .dash-progress-info { flex: 1; }
-    .dash-progress-pct { font-size: 29px; font-weight: 900; color: var(--accent-teal); line-height: 1; }
-    .dash-progress-label { font-size: 14px; color: var(--text-muted); margin-top: 3px; }
+    .dash-progress-pct { font-size: 28px; font-weight: 900; color: var(--accent-teal); line-height: 1; }
+    .dash-progress-label { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
     .dash-mini-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
     .dash-mini-stat { text-align: center; }
-    .dash-mini-stat-num { font-size: 22px; font-weight: 800; }
+    .dash-mini-stat-num { font-size: 20px; font-weight: 800; }
     .dash-mini-stat-num.lancar { color: var(--accent-teal); }
     .dash-mini-stat-num.proses { color: #f59e0b; }
     .dash-mini-stat-num.belum  { color: var(--text-muted); }
-    .dash-mini-stat-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
+    .dash-mini-stat-label { font-size: 9px; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
 
     /* Juz Cards */
     .dash-juz-grid { display: none; } /* hidden — replaced by select */
@@ -1814,7 +1815,7 @@
         flex: 1; padding: 12px 14px;
         background: var(--bg-card); color: var(--text-primary);
         border: 1.5px solid var(--border); border-radius: var(--radius-md);
-        font-size: 16px; font-weight: 600; font-family: var(--ui-font);
+        font-size: 13px; font-weight: 600; font-family: var(--ui-font);
         cursor: pointer; outline: none; appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238fa8c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
         background-repeat: no-repeat; background-position: right 12px center;
@@ -1826,7 +1827,7 @@
         display: flex; align-items: center; gap: 6px;
         padding: 12px 18px; border-radius: var(--radius-md);
         background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); color: #fff;
-        border: none; font-size: 16px; font-weight: 800;
+        border: none; font-size: 13px; font-weight: 800;
         font-family: var(--ui-font); cursor: pointer;
         white-space: nowrap; flex-shrink: 0;
         transition: background 0.18s, transform 0.1s;
@@ -1836,7 +1837,7 @@
     .dash-juz-select-info {
         background: var(--bg-card); border: 1px solid var(--border);
         border-radius: var(--radius-md); padding: 10px 14px;
-        margin-bottom: 20px; font-size: 15px; color: var(--text-secondary);
+        margin-bottom: 20px; font-size: 12px; color: var(--text-secondary);
     }
     .dash-juz-card {
         background: var(--bg-card); border: 1px solid var(--border);
@@ -1846,12 +1847,12 @@
     }
     .dash-juz-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
     .dash-juz-card.active-juz { border-color: var(--accent-teal); background: rgba(46,204,113,0.06); }
-    .dash-juz-num { font-size: 23px; font-weight: 900; color: var(--accent-teal); }
-    .dash-juz-label { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .dash-juz-surah { font-size: 14px; color: var(--text-secondary); margin-top: 4px; line-height: 1.3; }
+    .dash-juz-num { font-size: 22px; font-weight: 900; color: var(--accent-teal); }
+    .dash-juz-label { font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .dash-juz-surah { font-size: 10px; color: var(--text-secondary); margin-top: 4px; line-height: 1.3; }
     .dash-juz-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 10px; overflow: hidden; }
     .dash-juz-fill { height: 100%; border-radius: 2px; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); transition: width 0.6s ease; }
-    .dash-juz-pct { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .dash-juz-pct { font-size: 9px; color: var(--text-muted); margin-top: 4px; }
 
     /* Quick Actions */
     .dash-quick-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 20px; }
@@ -1864,10 +1865,10 @@
     .dash-quick-btn:hover { border-color: var(--border-hover); background: rgba(46,204,113,0.04); }
     .dash-quick-icon {
         width: 40px; height: 40px; border-radius: var(--radius-sm); flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center; font-size: 20px;
+        display: flex; align-items: center; justify-content: center; font-size: 18px;
     }
-    .dash-quick-title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-    .dash-quick-desc  { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+    .dash-quick-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .dash-quick-desc  { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
     /* Today's Schedule */
     .dash-schedule-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
@@ -1876,15 +1877,15 @@
         border-radius: var(--radius-md); padding: 11px 14px;
         display: flex; align-items: center; gap: 12px;
     }
-    .dash-sched-time { font-size: 20px; font-weight: 800; color: var(--text-primary); min-width: 48px; font-family: 'Outfit',sans-serif; }
-    .dash-sched-type { font-size: 15px; font-weight: 700; color: var(--text-secondary); }
-    .dash-sched-days { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
-    .dash-sched-empty { text-align: center; padding: 16px; color: var(--text-muted); font-size: 15px; }
+    .dash-sched-time { font-size: 18px; font-weight: 800; color: var(--text-primary); min-width: 48px; font-family: 'Outfit',sans-serif; }
+    .dash-sched-type { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+    .dash-sched-days { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .dash-sched-empty { text-align: center; padding: 16px; color: var(--text-muted); font-size: 12px; }
 
     /* Offline Badge */
     .offline-badge {
         display: inline-flex; align-items: center; gap: 5px;
-        padding: 3px 10px; border-radius: 50px; font-size: 14px; font-weight: 700;
+        padding: 3px 10px; border-radius: 50px; font-size: 10px; font-weight: 700;
         letter-spacing: 0.3px;
     }
     .offline-badge.online  { background: rgba(14,145,128,0.12); border: 1px solid rgba(14,145,128,0.28); color: var(--accent-teal); }
@@ -1898,14 +1899,14 @@
         border-radius: var(--radius-md); padding: 14px;
         margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
     }
-    .dash-cache-icon { font-size: 25px; flex-shrink: 0; }
+    .dash-cache-icon { font-size: 24px; flex-shrink: 0; }
     .dash-cache-info { flex: 1; }
-    .dash-cache-title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-    .dash-cache-desc  { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+    .dash-cache-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .dash-cache-desc  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
     .dash-cache-btn {
         background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); color: #fff;
         border: none; padding: 7px 14px; border-radius: 50px;
-        font-size: 14px; font-weight: 700; cursor: pointer;
+        font-size: 11px; font-weight: 700; cursor: pointer;
         font-family: var(--ui-font); transition: all 0.2s; flex-shrink: 0;
         box-shadow: 0 2px 10px rgba(71,126,16,0.4), inset 0 1px 0 rgba(255,255,255,0.18);
         white-space: nowrap;
@@ -1919,9 +1920,9 @@
         width: 48px; height: 48px; border-radius: var(--radius-sm);
         background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); border: 1px solid var(--accent-green);
         color: #000; cursor: pointer; transition: all 0.2s;
-        font-size: 17px; outline: none; gap: 2px; flex-shrink: 0;
+        font-size: 15px; outline: none; gap: 2px; flex-shrink: 0;
     }
-    .dash-open-btn .btn-icon-label { font-size: 13px; font-family: var(--ui-font); font-weight: 600; line-height: 1; color: inherit; }
+    .dash-open-btn .btn-icon-label { font-size: 8px; font-family: var(--ui-font); font-weight: 600; line-height: 1; color: inherit; }
 
     /* Cache progress overlay */
     .cache-progress-overlay {
@@ -1935,12 +1936,12 @@
         border-radius: var(--radius-lg); padding: 28px 24px;
         width: min(90vw, 340px); text-align: center;
     }
-    .cache-progress-title { font-size: 18px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
-    .cache-progress-sub   { font-size: 15px; color: var(--text-muted); margin-bottom: 20px; }
+    .cache-progress-title { font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+    .cache-progress-sub   { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
     .cache-progress-bar-wrap { background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; margin-bottom: 12px; }
     .cache-progress-bar-fill { height: 100%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); border-radius: 4px; transition: width 0.3s; width: 0%; }
-    .cache-progress-pct { font-size: 25px; font-weight: 900; color: var(--accent-teal); }
-    .cache-progress-status { font-size: 14px; color: var(--text-muted); margin-top: 6px; }
+    .cache-progress-pct { font-size: 24px; font-weight: 900; color: var(--accent-teal); }
+    .cache-progress-status { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
     /* Sticky Buka Mushaf bar */
     .dash-mushaf-sticky {
         position: sticky; top: 0; z-index: 9;
@@ -1952,7 +1953,7 @@
     .dash-mushaf-btn {
         width: 100%; background: linear-gradient(135deg, var(--accent-teal), var(--accent-green)); color: #fff;
         border: none; padding: 13px 20px; border-radius: var(--radius-md);
-        font-size: 17px; font-weight: 800; cursor: pointer;
+        font-size: 15px; font-weight: 800; cursor: pointer;
         font-family: var(--ui-font);
         display: flex; align-items: center; justify-content: center; gap: 10px;
         transition: all 0.2s;
@@ -2017,17 +2018,17 @@
         width: 36px; height: 36px; border-radius: 50%;
         background: var(--bg-card); border: 1px solid var(--border);
         display: flex; align-items: center; justify-content: center;
-        cursor: pointer; color: var(--text-secondary); font-size: 16px;
+        cursor: pointer; color: var(--text-secondary); font-size: 14px;
         outline: none; transition: all 0.2s;
     }
     .quiz-back-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
-    .quiz-header-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
-    .quiz-header-sub   { font-size: 14px; color: var(--text-muted); margin-top: 1px; }
+    .quiz-header-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+    .quiz-header-sub   { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
     .quiz-score-badge {
         display: flex; align-items: center; gap: 6px;
         background: rgba(46,204,113,0.12); border: 1px solid rgba(46,204,113,0.25);
         border-radius: 50px; padding: 5px 14px;
-        font-size: 16px; font-weight: 800; color: var(--accent-teal);
+        font-size: 13px; font-weight: 800; color: var(--accent-teal);
     }
 
     /* Quiz body */
@@ -2044,8 +2045,8 @@
     .quiz-mode-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
     .quiz-mode-card.selected { border-color: var(--accent-teal); background: rgba(46,204,113,0.07); }
     .quiz-mode-icon { font-size: 32px; }
-    .quiz-mode-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
-    .quiz-mode-desc  { font-size: 14px; color: var(--text-muted); line-height: 1.4; }
+    .quiz-mode-title { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+    .quiz-mode-desc  { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
 
     /* Settings bar */
     .quiz-settings-bar {
@@ -2054,11 +2055,11 @@
         margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap;
     }
     .quiz-setting-item { flex: 1; min-width: 120px; }
-    .quiz-setting-label { font-size: 14px; font-weight: 700; color: var(--text-muted); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 5px; }
+    .quiz-setting-label { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 5px; }
     .quiz-setting-select {
         width: 100%; background: var(--bg-secondary); border: 1px solid var(--border);
         border-radius: var(--radius-sm); padding: 7px 10px;
-        color: var(--text-primary); font-family: var(--ui-font); font-size: 15px;
+        color: var(--text-primary); font-family: var(--ui-font); font-size: 12px;
         font-weight: 600; outline: none; transition: border-color 0.2s;
     }
     .quiz-setting-select:focus { border-color: var(--border-hover); }
@@ -2067,7 +2068,7 @@
     .quiz-start-btn {
         width: 100%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); color: #fff;
         border: none; padding: 14px; border-radius: var(--radius-md);
-        font-size: 17px; font-weight: 800; cursor: pointer;
+        font-size: 15px; font-weight: 800; cursor: pointer;
         font-family: var(--ui-font); display: flex; align-items: center;
         justify-content: center; gap: 10px; transition: all 0.2s;
         box-shadow: 0 4px 18px rgba(46,204,113,0.25); margin-bottom: 24px;
@@ -2086,7 +2087,7 @@
         flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
     }
     .quiz-progress-bar-fill { height: 100%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); border-radius: 3px; transition: width 0.4s ease; }
-    .quiz-progress-text { font-size: 14px; color: var(--text-muted); font-weight: 700; white-space: nowrap; }
+    .quiz-progress-text { font-size: 11px; color: var(--text-muted); font-weight: 700; white-space: nowrap; }
 
     .quiz-q-card {
         background: var(--bg-card); border: 1px solid var(--border);
@@ -2094,18 +2095,18 @@
         margin-bottom: 16px; min-height: 120px;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    .quiz-q-label { font-size: 14px; color: var(--text-muted); font-weight: 700; margin-bottom: 12px; letter-spacing: .5px; text-transform: uppercase; }
+    .quiz-q-label { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 12px; letter-spacing: .5px; text-transform: uppercase; }
     .quiz-q-arabic {
         font-family: var(--arabic-font); font-size: clamp(20px, 5vw, 28px);
         color: var(--text-primary); direction: rtl; text-align: center;
         line-height: 2; width: 100%;
     }
-    .quiz-q-text { font-size: 16px; color: var(--text-primary); text-align: center; font-weight: 600; }
-    .quiz-q-hint { font-size: 14px; color: var(--text-muted); margin-top: 8px; text-align: center; }
+    .quiz-q-text { font-size: 14px; color: var(--text-primary); text-align: center; font-weight: 600; }
+    .quiz-q-hint { font-size: 11px; color: var(--text-muted); margin-top: 8px; text-align: center; }
     .quiz-q-play-btn {
         margin-top: 12px; background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.25);
         color: var(--accent-teal); padding: 7px 18px; border-radius: 50px;
-        font-size: 15px; font-weight: 700; cursor: pointer;
+        font-size: 12px; font-weight: 700; cursor: pointer;
         font-family: var(--ui-font); transition: all 0.2s;
     }
     .quiz-q-play-btn:hover { background: rgba(46,204,113,0.2); }
@@ -2121,7 +2122,7 @@
         outline: none;
     }
     .quiz-option-btn.plain-text {
-        font-family: var(--ui-font); font-size: 16px; font-weight: 600;
+        font-family: var(--ui-font); font-size: 13px; font-weight: 600;
         direction: ltr; text-align: center; line-height: 1.4;
     }
     .quiz-option-btn:hover:not(:disabled) { border-color: var(--border-hover); background: rgba(46,204,113,0.05); }
@@ -2133,19 +2134,19 @@
     .quiz-feedback {
         display: none; align-items: center; gap: 12px;
         padding: 12px 16px; border-radius: var(--radius-md);
-        margin-bottom: 14px; font-size: 16px; font-weight: 700;
+        margin-bottom: 14px; font-size: 13px; font-weight: 700;
     }
     .quiz-feedback.show { display: flex; }
     .quiz-feedback.correct { background: rgba(46,204,113,0.12); border: 1px solid rgba(46,204,113,0.25); color: var(--accent-teal); }
     .quiz-feedback.wrong   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.25);  color: #ef4444; }
-    .quiz-feedback-icon { font-size: 23px; flex-shrink: 0; }
+    .quiz-feedback-icon { font-size: 22px; flex-shrink: 0; }
     .quiz-feedback-text { flex: 1; }
-    .quiz-feedback-detail { font-size: 14px; font-weight: 600; margin-top: 3px; color: inherit; opacity: 0.8; }
+    .quiz-feedback-detail { font-size: 11px; font-weight: 400; margin-top: 3px; color: inherit; opacity: 0.8; }
 
     .quiz-next-btn {
         width: 100%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); color: #fff;
         border: none; padding: 13px; border-radius: var(--radius-md);
-        font-size: 16px; font-weight: 800; cursor: pointer;
+        font-size: 14px; font-weight: 800; cursor: pointer;
         font-family: var(--ui-font); transition: all 0.2s; display: none;
         align-items: center; justify-content: center; gap: 8px;
         margin-bottom: 16px;
@@ -2162,20 +2163,20 @@
         text-align: center; margin-bottom: 20px;
     }
     .quiz-result-emoji { font-size: 56px; line-height: 1; margin-bottom: 12px; }
-    .quiz-result-title { font-size: 23px; font-weight: 900; color: var(--text-primary); margin-bottom: 6px; }
+    .quiz-result-title { font-size: 22px; font-weight: 900; color: var(--text-primary); margin-bottom: 6px; }
     .quiz-result-score { font-size: 44px; font-weight: 900; color: var(--accent-teal); line-height: 1; }
-    .quiz-result-score-label { font-size: 16px; color: var(--text-muted); margin-top: 4px; }
+    .quiz-result-score-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
     .quiz-result-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 20px 0; }
     .quiz-result-stat { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 8px; }
-    .quiz-result-stat-num { font-size: 23px; font-weight: 900; }
+    .quiz-result-stat-num { font-size: 22px; font-weight: 900; }
     .quiz-result-stat-num.correct-c { color: var(--accent-teal); }
     .quiz-result-stat-num.wrong-c   { color: #ef4444; }
     .quiz-result-stat-num.pct-c     { color: var(--accent-gold); }
-    .quiz-result-stat-label { font-size: 14px; color: var(--text-muted); font-weight: 700; margin-top: 3px; }
+    .quiz-result-stat-label { font-size: 10px; color: var(--text-muted); font-weight: 700; margin-top: 3px; }
     .quiz-result-btn-row { display: flex; gap: 10px; }
     .quiz-result-btn {
         flex: 1; padding: 13px; border-radius: var(--radius-md);
-        font-size: 16px; font-weight: 800; cursor: pointer;
+        font-size: 13px; font-weight: 800; cursor: pointer;
         font-family: var(--ui-font); display: flex; align-items: center;
         justify-content: center; gap: 8px; transition: all 0.2s; border: none;
     }
@@ -2204,17 +2205,17 @@
         width: 36px; height: 36px; border-radius: 50%;
         background: var(--bg-card); border: 1px solid var(--border);
         color: var(--text-secondary); cursor: pointer; display: flex;
-        align-items: center; justify-content: center; font-size: 16px;
+        align-items: center; justify-content: center; font-size: 14px;
         transition: all 0.2s; flex-shrink: 0;
     }
     .mrj-back-btn:hover { border-color: var(--border-hover); color: var(--accent-teal); }
     .mrj-header-info { flex: 1; }
-    .mrj-header-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
-    .mrj-header-sub { font-size: 14px; color: var(--text-muted); margin-top: 1px; }
+    .mrj-header-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+    .mrj-header-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
     .mrj-due-badge {
         background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
         color: #ef4444; padding: 5px 12px; border-radius: 50px;
-        font-size: 15px; font-weight: 800; white-space: nowrap;
+        font-size: 12px; font-weight: 800; white-space: nowrap;
     }
     .mrj-due-badge.none { background: rgba(46,204,113,0.12); border-color: rgba(46,204,113,0.25); color: var(--accent-teal); }
 
@@ -2237,17 +2238,17 @@
     .mrj-kotak-card.k2::before { background: radial-gradient(ellipse at top, rgba(245,158,11,0.06), transparent); opacity: 1; }
     .mrj-kotak-card.k3 { border-color: rgba(46,204,113,0.25); }
     .mrj-kotak-card.k3::before { background: radial-gradient(ellipse at top, rgba(46,204,113,0.06), transparent); opacity: 1; }
-    .mrj-kotak-icon { font-size: 23px; margin-bottom: 6px; position: relative; z-index: 1; }
-    .mrj-kotak-count { font-size: 27px; font-weight: 900; line-height: 1; position: relative; z-index: 1; }
+    .mrj-kotak-icon { font-size: 22px; margin-bottom: 6px; position: relative; z-index: 1; }
+    .mrj-kotak-count { font-size: 26px; font-weight: 900; line-height: 1; position: relative; z-index: 1; }
     .mrj-kotak-card.k1 .mrj-kotak-count { color: #ef4444; }
     .mrj-kotak-card.k2 .mrj-kotak-count { color: #f59e0b; }
     .mrj-kotak-card.k3 .mrj-kotak-count { color: var(--accent-teal); }
-    .mrj-kotak-label { font-size: 14px; font-weight: 700; color: var(--text-muted); margin-top: 3px; letter-spacing: .3px; text-transform: uppercase; position: relative; z-index: 1; }
-    .mrj-kotak-interval { font-size: 13px; color: var(--text-muted); margin-top: 2px; position: relative; z-index: 1; }
+    .mrj-kotak-label { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 3px; letter-spacing: .3px; text-transform: uppercase; position: relative; z-index: 1; }
+    .mrj-kotak-interval { font-size: 9px; color: var(--text-muted); margin-top: 2px; position: relative; z-index: 1; }
 
     /* Today's due list */
     .mrj-section-title {
-        font-size: 14px; font-weight: 800; color: var(--text-muted);
+        font-size: 11px; font-weight: 800; color: var(--text-muted);
         text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px;
         display: flex; align-items: center; gap: 6px;
     }
@@ -2262,22 +2263,22 @@
     .mrj-due-box-badge {
         width: 26px; height: 26px; border-radius: 6px; flex-shrink: 0;
         display: flex; align-items: center; justify-content: center;
-        font-size: 14px; font-weight: 800;
+        font-size: 11px; font-weight: 800;
     }
     .mrj-due-box-badge.b1 { background: rgba(239,68,68,0.15); color: #ef4444; }
     .mrj-due-box-badge.b2 { background: rgba(245,158,11,0.15); color: #f59e0b; }
     .mrj-due-box-badge.b3 { background: rgba(46,204,113,0.15); color: var(--accent-teal); }
     .mrj-due-item-info { flex: 1; min-width: 0; }
-    .mrj-due-item-name { font-size: 15px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mrj-due-item-meta { font-size: 14px; color: var(--text-muted); margin-top: 1px; }
-    .mrj-empty { text-align: center; color: var(--text-muted); font-size: 16px; padding: 20px 0; }
+    .mrj-due-item-name { font-size: 12px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mrj-due-item-meta { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+    .mrj-empty { text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0; }
     .mrj-empty .mrj-empty-icon { font-size: 38px; margin-bottom: 8px; }
 
     /* Start button */
     .mrj-start-btn {
         width: 100%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); color: #fff;
         border: none; padding: 15px; border-radius: var(--radius-lg);
-        font-size: 17px; font-weight: 800; cursor: pointer;
+        font-size: 15px; font-weight: 800; cursor: pointer;
         font-family: var(--ui-font); display: flex; align-items: center;
         justify-content: center; gap: 10px; transition: all 0.2s;
         box-shadow: 0 4px 20px rgba(46,204,113,0.3); margin-bottom: 16px;
@@ -2288,7 +2289,7 @@
     .mrj-add-btn {
         width: 100%; background: var(--bg-card); color: var(--text-secondary);
         border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-md);
-        font-size: 16px; font-weight: 700; cursor: pointer;
+        font-size: 13px; font-weight: 700; cursor: pointer;
         font-family: var(--ui-font); display: flex; align-items: center;
         justify-content: center; gap: 8px; transition: all 0.2s; margin-bottom: 20px;
     }
@@ -2309,8 +2310,8 @@
     }
     .mrj-sess-progress-wrap { flex: 1; }
     .mrj-sess-prog-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
-    .mrj-sess-prog-label { font-size: 14px; color: var(--text-muted); font-weight: 700; }
-    .mrj-sess-prog-num { font-size: 14px; color: var(--text-secondary); font-weight: 700; }
+    .mrj-sess-prog-label { font-size: 11px; color: var(--text-muted); font-weight: 700; }
+    .mrj-sess-prog-num { font-size: 11px; color: var(--text-secondary); font-weight: 700; }
     .mrj-sess-prog-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
     .mrj-sess-prog-fill { height: 100%; background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); border-radius: 3px; transition: width 0.4s ease; }
 
@@ -2332,7 +2333,7 @@
     .mrj-sess-box-dot.b1 { background: #ef4444; }
     .mrj-sess-box-dot.b2 { background: #f59e0b; }
     .mrj-sess-box-dot.b3 { background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); }
-    .mrj-sess-box-label { font-size: 14px; font-weight: 700; color: var(--text-muted); margin-left: 4px; }
+    .mrj-sess-box-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-left: 4px; }
 
     .mrj-sess-card {
         background: var(--bg-card); border: 1px solid var(--border);
@@ -2341,7 +2342,7 @@
         box-shadow: var(--shadow-card);
     }
     .mrj-sess-ayah-info {
-        font-size: 14px; font-weight: 700; color: var(--text-muted);
+        font-size: 11px; font-weight: 700; color: var(--text-muted);
         text-transform: uppercase; letter-spacing: .6px; margin-bottom: 16px;
     }
     .mrj-sess-arabic {
@@ -2352,14 +2353,14 @@
         word-break: break-word;
     }
     .mrj-sess-translation {
-        font-size: 16px; color: var(--text-muted); line-height: 1.6;
+        font-size: 13px; color: var(--text-muted); line-height: 1.6;
         border-top: 1px solid var(--border); padding-top: 12px; display: none;
         text-align: right; direction: rtl;
     }
     .mrj-sess-translation.show { display: block; }
     .mrj-sess-hint-btn {
         background: none; border: 1px solid var(--border); color: var(--text-muted);
-        padding: 5px 14px; border-radius: 50px; font-size: 14px; font-weight: 600;
+        padding: 5px 14px; border-radius: 50px; font-size: 11px; font-weight: 600;
         cursor: pointer; font-family: var(--ui-font); transition: all 0.2s; margin-top: 4px;
     }
     .mrj-sess-hint-btn:hover { border-color: var(--border-hover); color: var(--text-secondary); }
@@ -2367,11 +2368,11 @@
     .mrj-sess-actions { display: flex; gap: 12px; width: 100%; flex-wrap: wrap; }
     .mrj-sess-btn {
         flex: 1; min-width: 130px; padding: 16px 12px; border-radius: var(--radius-lg);
-        font-size: 16px; font-weight: 800; cursor: pointer;
+        font-size: 14px; font-weight: 800; cursor: pointer;
         font-family: var(--ui-font); border: none; transition: all 0.2s;
         display: flex; flex-direction: column; align-items: center; gap: 4px;
     }
-    .mrj-sess-btn-sub { font-size: 14px; font-weight: 600; opacity: 0.8; }
+    .mrj-sess-btn-sub { font-size: 10px; font-weight: 500; opacity: 0.8; }
     .mrj-sess-btn.ingat { background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); color: #fff; box-shadow: 0 4px 16px rgba(46,204,113,0.3); }
     .mrj-sess-btn.ingat:hover { background: #10a891; }
     .mrj-sess-btn.lupa  { background: rgba(239,68,68,0.15); color: #ef4444; border: 1.5px solid rgba(239,68,68,0.3); }
@@ -2380,7 +2381,7 @@
     .mrj-sess-play-btn {
         background: rgba(26,188,156,0.1); border: 1px solid rgba(26,188,156,0.25);
         color: var(--accent-teal); padding: 8px 20px; border-radius: 50px;
-        font-size: 15px; font-weight: 700; cursor: pointer;
+        font-size: 12px; font-weight: 700; cursor: pointer;
         font-family: var(--ui-font); transition: all 0.2s; margin-bottom: 16px;
     }
     .mrj-sess-play-btn:hover { background: rgba(26,188,156,0.18); }
@@ -2393,18 +2394,18 @@
         box-shadow: var(--shadow-card);
     }
     .mrj-result-emoji { font-size: 52px; line-height: 1; margin-bottom: 12px; }
-    .mrj-result-title { font-size: 22px; font-weight: 900; color: var(--text-primary); margin-bottom: 6px; }
-    .mrj-result-sub   { font-size: 16px; color: var(--text-muted); margin-bottom: 20px; }
+    .mrj-result-title { font-size: 20px; font-weight: 900; color: var(--text-primary); margin-bottom: 6px; }
+    .mrj-result-sub   { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
     .mrj-result-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 20px; }
     .mrj-result-stat  { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 10px; }
-    .mrj-result-stat-num { font-size: 27px; font-weight: 900; }
+    .mrj-result-stat-num { font-size: 26px; font-weight: 900; }
     .mrj-result-stat-num.ingat-c { color: var(--accent-teal); }
     .mrj-result-stat-num.lupa-c  { color: #ef4444; }
-    .mrj-result-stat-label { font-size: 14px; color: var(--text-muted); font-weight: 700; margin-top: 4px; }
+    .mrj-result-stat-label { font-size: 10px; color: var(--text-muted); font-weight: 700; margin-top: 4px; }
     .mrj-result-btn-row { display: flex; gap: 10px; }
     .mrj-result-btn {
         flex: 1; padding: 13px; border-radius: var(--radius-md);
-        font-size: 16px; font-weight: 800; cursor: pointer;
+        font-size: 13px; font-weight: 800; cursor: pointer;
         font-family: var(--ui-font); border: none; transition: all 0.2s;
     }
     .mrj-result-btn.primary { background: linear-gradient(135deg, var(--accent-green), var(--accent-teal)); color: #fff; }
@@ -2424,17 +2425,17 @@
         width: 44px; height: 44px; border-radius: var(--radius-md); flex-shrink: 0;
         background: linear-gradient(135deg, rgba(245,200,66,0.2), rgba(46,204,113,0.15));
         border: 1px solid rgba(245,200,66,0.2);
-        display: flex; align-items: center; justify-content: center; font-size: 22px;
+        display: flex; align-items: center; justify-content: center; font-size: 20px;
     }
     .dash-mrj-info { flex: 1; min-width: 0; }
-    .dash-mrj-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
-    .dash-mrj-sub   { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+    .dash-mrj-title { font-size: 13px; font-weight: 800; color: var(--text-primary); }
+    .dash-mrj-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
     .dash-mrj-count {
-        font-size: 23px; font-weight: 900; color: #ef4444; white-space: nowrap;
+        font-size: 22px; font-weight: 900; color: #ef4444; white-space: nowrap;
         display: flex; align-items: center; gap: 4px;
     }
-    .dash-mrj-count.none { color: var(--accent-teal); font-size: 18px; }
-    .dash-mrj-count-label { font-size: 14px; font-weight: 600; color: var(--text-muted); display: block; text-align: right; }
+    .dash-mrj-count.none { color: var(--accent-teal); font-size: 16px; }
+    .dash-mrj-count-label { font-size: 10px; font-weight: 600; color: var(--text-muted); display: block; text-align: right; }
 
     /* Quiz history in dashboard */
     .quiz-history-row {
@@ -2442,11 +2443,11 @@
         border-radius: var(--radius-md); padding: 12px 14px;
         display: flex; align-items: center; gap: 12px;
     }
-    .quiz-hist-icon { font-size: 23px; flex-shrink: 0; }
+    .quiz-hist-icon { font-size: 22px; flex-shrink: 0; }
     .quiz-hist-info { flex: 1; }
-    .quiz-hist-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
-    .quiz-hist-detail { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
-    .quiz-hist-score { font-size: 20px; font-weight: 900; color: var(--accent-teal); }
+    .quiz-hist-title { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+    .quiz-hist-detail { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .quiz-hist-score { font-size: 18px; font-weight: 900; color: var(--accent-teal); }
 
     /* =============================================
        TOMBOL DUKUNG PENGEMBANG
@@ -2474,15 +2475,15 @@
         width: 44px; height: 44px; border-radius: var(--radius-md); flex-shrink: 0;
         background: linear-gradient(135deg, rgba(217,152,26,0.2), rgba(245,200,66,0.25));
         border: 1.5px solid rgba(217,152,26,0.3);
-        display: flex; align-items: center; justify-content: center; font-size: 23px;
+        display: flex; align-items: center; justify-content: center; font-size: 22px;
     }
     .support-banner-text { flex: 1; min-width: 0; }
     .support-banner-title {
-        font-size: 16px; font-weight: 800; color: #7a4e00;
+        font-size: 14px; font-weight: 800; color: #7a4e00;
         margin-bottom: 2px;
     }
     .support-banner-sub {
-        font-size: 14px; color: #a06b00; line-height: 1.5;
+        font-size: 11px; color: #a06b00; line-height: 1.5;
     }
     .support-banner-btn {
         width: 100%;
@@ -2490,7 +2491,7 @@
         padding: 12px 20px; border-radius: 50px;
         background: linear-gradient(135deg, var(--accent-gold) 0%, #e07b00 100%);
         color: #fff; border: none; cursor: pointer;
-        font-size: 16px; font-weight: 800; font-family: var(--ui-font);
+        font-size: 14px; font-weight: 800; font-family: var(--ui-font);
         box-shadow: 0 4px 16px rgba(217,152,26,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
         transition: all 0.2s; letter-spacing: 0.3px;
     }
@@ -2522,10 +2523,10 @@
     }
     .support-modal-emoji { font-size: 40px; line-height: 1; margin-bottom: 8px; }
     .support-modal-title {
-        font-size: 20px; font-weight: 900; color: var(--text-primary); margin-bottom: 4px;
+        font-size: 18px; font-weight: 900; color: var(--text-primary); margin-bottom: 4px;
     }
     .support-modal-desc {
-        font-size: 15.5px; color: var(--text-muted); line-height: 1.7; padding: 0 8px;
+        font-size: 12.5px; color: var(--text-muted); line-height: 1.7; padding: 0 8px;
     }
     .support-modal-body { padding: 16px 20px 24px; }
     .support-option {
@@ -2540,28 +2541,28 @@
     .support-option-icon {
         width: 36px; height: 36px; border-radius: var(--radius-sm);
         display: flex; align-items: center; justify-content: center;
-        font-size: 20px; flex-shrink: 0;
+        font-size: 18px; flex-shrink: 0;
     }
     .support-option-icon.saweria { background: linear-gradient(135deg, rgba(255,126,95,0.2), rgba(254,180,123,0.2)); border: 1px solid rgba(255,126,95,0.25); }
     .support-option-icon.bri { background: linear-gradient(135deg, rgba(0,100,200,0.12), rgba(0,140,255,0.1)); border: 1px solid rgba(0,100,200,0.2); }
     .support-option-label {
-        font-size: 16px; font-weight: 800; color: var(--text-primary);
+        font-size: 13px; font-weight: 800; color: var(--text-primary);
     }
     .support-option-sub {
-        font-size: 14px; color: var(--text-muted); margin-top: 1px;
+        font-size: 10px; color: var(--text-muted); margin-top: 1px;
     }
     .support-rekening-row {
         display: flex; align-items: center; justify-content: space-between; gap: 8px;
         background: var(--bg-card); border: 1px solid var(--border);
         border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 6px;
     }
-    .support-rekening-label { font-size: 14px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.3px; }
-    .support-rekening-value { font-size: 17px; font-weight: 800; color: var(--text-primary); letter-spacing: 1px; }
-    .support-rekening-name { font-size: 14px; color: var(--accent-teal); font-weight: 700; }
+    .support-rekening-label { font-size: 10px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.3px; }
+    .support-rekening-value { font-size: 15px; font-weight: 800; color: var(--text-primary); letter-spacing: 1px; }
+    .support-rekening-name { font-size: 11px; color: var(--accent-teal); font-weight: 700; }
     .support-copy-btn {
         background: var(--accent-teal); color: #fff; border: none;
         padding: 7px 14px; border-radius: var(--radius-sm);
-        font-size: 14px; font-weight: 700; cursor: pointer;
+        font-size: 11px; font-weight: 700; cursor: pointer;
         font-family: var(--ui-font); transition: background 0.2s; white-space: nowrap; flex-shrink: 0;
     }
     .support-copy-btn:hover { background: var(--accent-teal-lt); }
@@ -2571,7 +2572,7 @@
         width: 100%; padding: 13px; border-radius: var(--radius-md);
         background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
         color: #fff; border: none; cursor: pointer;
-        font-size: 16px; font-weight: 800; font-family: var(--ui-font);
+        font-size: 14px; font-weight: 800; font-family: var(--ui-font);
         box-shadow: 0 4px 16px rgba(255,126,95,0.4);
         transition: all 0.2s; text-decoration: none;
     }
@@ -2580,7 +2581,7 @@
         display: block; width: calc(100% - 40px); margin: 0 20px 20px;
         padding: 13px; border-radius: var(--radius-md);
         background: var(--bg-secondary); border: 1px solid var(--border);
-        color: var(--text-secondary); font-size: 16px; font-weight: 700;
+        color: var(--text-secondary); font-size: 13px; font-weight: 700;
         cursor: pointer; font-family: var(--ui-font); text-align: center; transition: all 0.2s;
     }
     .support-modal-close:hover { background: var(--bg-card); border-color: var(--border-hover); }
@@ -2590,11 +2591,11 @@
         display: inline-flex; align-items: center; gap: 5px;
         background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.35);
         border-radius: var(--radius-md); padding: 6px 14px;
-        font-size: 14px; font-weight: 700; color: var(--accent-gold);
+        font-size: 11px; font-weight: 700; color: var(--accent-gold);
         font-family: var(--ui-font); margin: 8px auto 4px;
         letter-spacing: 0.3px; text-align: center; width: fit-content;
     }
-    .juz26-marker i { font-size: 14px; }
+    .juz26-marker i { font-size: 10px; }
     body.paper-mode .juz26-marker {
         background: rgba(120,80,20,0.08); border-color: rgba(120,80,20,0.3);
         color: rgba(100,60,10,0.85);
@@ -2605,11 +2606,11 @@
         display: inline-flex; align-items: center; gap: 5px;
         background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.35);
         border-radius: var(--radius-md); padding: 6px 14px;
-        font-size: 14px; font-weight: 700; color: var(--accent-gold);
+        font-size: 11px; font-weight: 700; color: var(--accent-gold);
         font-family: var(--ui-font); margin: 8px auto 4px;
         letter-spacing: 0.3px; text-align: center; width: fit-content;
     }
-    .juz27-marker i { font-size: 14px; }
+    .juz27-marker i { font-size: 10px; }
     body.paper-mode .juz27-marker {
         background: rgba(120,80,20,0.08); border-color: rgba(120,80,20,0.3);
         color: rgba(100,60,10,0.85);
@@ -2645,8 +2646,8 @@
         z-index: 190 !important;
     }
     .player-thumb    { width: 30px !important; height: 30px !important; }
-    .player-surah-name { font-size: 15px !important; }
-    .player-ayat-num { font-size: 14px !important; }
+    .player-surah-name { font-size: 12px !important; }
+    .player-ayat-num { font-size: 10px !important; }
     /* Sembunyikan tombol play di audio bar — sudah ada di bottom nav */
     .player-controls { display: none !important; }
     .volume-control  { display: none !important; }
@@ -2706,13 +2707,13 @@
         box-shadow: 0 8px 32px rgba(14,145,128,0.4);
     }
     .login-brand-name {
-        font-size: 29px; font-weight: 900; letter-spacing: -0.5px;
+        font-size: 28px; font-weight: 900; letter-spacing: -0.5px;
         background: linear-gradient(135deg, #5be19a 0%, #38c4af 100%);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         background-clip: text;
     }
     .login-brand-tagline {
-        font-size: 15px; color: rgba(255,255,255,0.45); letter-spacing: 0.5px; margin-top: -6px;
+        font-size: 12px; color: rgba(255,255,255,0.45); letter-spacing: 0.5px; margin-top: -6px;
     }
     .login-card {
         background: rgba(255,255,255,0.05);
@@ -2723,11 +2724,11 @@
         backdrop-filter: blur(20px);
     }
     .login-title {
-        font-size: 18px; font-weight: 800; color: #fff;
+        font-size: 16px; font-weight: 800; color: #fff;
         margin-bottom: 6px; text-align: center;
     }
     .login-subtitle {
-        font-size: 15px; color: rgba(255,255,255,0.45); text-align: center; margin-bottom: 24px; line-height: 1.6;
+        font-size: 12px; color: rgba(255,255,255,0.45); text-align: center; margin-bottom: 24px; line-height: 1.6;
     }
     .login-tab-row {
         display: flex; gap: 6px; margin-bottom: 20px;
@@ -2735,7 +2736,7 @@
     }
     .login-tab {
         flex: 1; padding: 8px; border: none; background: transparent;
-        color: rgba(255,255,255,0.45); font-size: 15px; font-weight: 700;
+        color: rgba(255,255,255,0.45); font-size: 12px; font-weight: 700;
         border-radius: 10px; cursor: pointer; font-family: var(--ui-font);
         transition: all 0.2s;
     }
@@ -2747,7 +2748,7 @@
     .login-form-section.active { display: block; }
     .login-input-group { margin-bottom: 14px; }
     .login-input-label {
-        font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.5);
+        font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5);
         margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
         display: block;
     }
@@ -2755,7 +2756,7 @@
         width: 100%; background: rgba(255,255,255,0.07);
         border: 1px solid rgba(255,255,255,0.12);
         border-radius: var(--radius-md); padding: 12px 14px;
-        color: #fff; font-family: var(--ui-font); font-size: 16px;
+        color: #fff; font-family: var(--ui-font); font-size: 14px;
         outline: none; transition: border-color 0.2s;
     }
     .login-input::placeholder { color: rgba(255,255,255,0.25); }
@@ -2763,7 +2764,7 @@
     .login-btn-primary {
         width: 100%; padding: 14px; border: none; border-radius: var(--radius-md);
         background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-teal) 100%);
-        color: #fff; font-size: 16px; font-weight: 800;
+        color: #fff; font-size: 14px; font-weight: 800;
         font-family: var(--ui-font); cursor: pointer;
         box-shadow: 0 4px 20px rgba(14,145,128,0.4);
         transition: all 0.2s; margin-bottom: 12px;
@@ -2773,14 +2774,14 @@
         width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.15);
         border-radius: var(--radius-md);
         background: rgba(255,255,255,0.05);
-        color: rgba(255,255,255,0.55); font-size: 16px; font-weight: 600;
+        color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 600;
         font-family: var(--ui-font); cursor: pointer;
         transition: all 0.2s;
     }
     .login-btn-guest:hover { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.8); }
     .login-divider {
         display: flex; align-items: center; gap: 10px; margin: 14px 0;
-        color: rgba(255,255,255,0.2); font-size: 14px;
+        color: rgba(255,255,255,0.2); font-size: 11px;
     }
     .login-divider::before, .login-divider::after {
         content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1);
@@ -2788,25 +2789,25 @@
     .login-guest-notice {
         background: rgba(217,152,26,0.10); border: 1px solid rgba(217,152,26,0.25);
         border-radius: var(--radius-md); padding: 10px 14px;
-        font-size: 14px; color: rgba(217,152,26,0.85); line-height: 1.6;
+        font-size: 11px; color: rgba(217,152,26,0.85); line-height: 1.6;
         margin-bottom: 14px;
     }
     .login-credit {
         margin-top: 32px; text-align: center;
-        font-size: 14px; color: rgba(255,255,255,0.2); line-height: 1.8;
+        font-size: 11px; color: rgba(255,255,255,0.2); line-height: 1.8;
     }
     .login-credit span {
         color: rgba(14,145,128,0.7); font-weight: 700;
     }
     .login-error {
-        color: #f87171; font-size: 14px; margin-top: 4px; display: none;
+        color: #f87171; font-size: 11px; margin-top: 4px; display: none;
     }
     /* Guest banner in app */
     #guestBanner {
         display: none;
         background: linear-gradient(90deg, rgba(217,152,26,0.15), rgba(14,145,128,0.10));
         border-bottom: 1px solid rgba(217,152,26,0.25);
-        padding: 6px 14px; font-size: 14px; color: var(--accent-gold);
+        padding: 6px 14px; font-size: 11px; color: var(--accent-gold);
         text-align: center; font-weight: 600;
     }
     #guestBanner.show { display: block; }
@@ -2821,7 +2822,7 @@
         border: none;
         border-radius: var(--radius-md);
         background: linear-gradient(135deg, #12b39f 0%, #477E10 100%);
-        color: #fff; font-size: 16px; font-weight: 800;
+        color: #fff; font-size: 14px; font-weight: 800;
         font-family: var(--ui-font); cursor: pointer;
         display: flex; align-items: center; justify-content: center; gap: 8px;
         transition: all 0.2s;
@@ -2869,7 +2870,7 @@
         background: linear-gradient(135deg, rgba(14,145,128,0.12), rgba(71,126,16,0.10));
         border: 1px solid rgba(14,145,128,0.25);
         border-radius: 20px; padding: 4px 12px;
-        font-size: 14px; font-weight: 800; color: var(--accent-teal);
+        font-size: 10px; font-weight: 800; color: var(--accent-teal);
         text-transform: uppercase; letter-spacing: 0.5px;
         margin-bottom: 12px;
     }
@@ -2878,11 +2879,11 @@
         line-height: 1;
     }
     .tutorial-title {
-        font-size: 19px; font-weight: 900; color: var(--text-primary);
+        font-size: 17px; font-weight: 900; color: var(--text-primary);
         margin-bottom: 8px; line-height: 1.3;
     }
     .tutorial-desc {
-        font-size: 16px; color: var(--text-secondary); line-height: 1.75;
+        font-size: 13px; color: var(--text-secondary); line-height: 1.75;
         margin-bottom: 16px;
     }
     .tutorial-tips {
@@ -2892,10 +2893,10 @@
         display: flex; align-items: flex-start; gap: 10px;
         background: var(--bg-secondary); border: 1px solid var(--border);
         border-radius: var(--radius-md); padding: 10px 12px;
-        font-size: 15px; color: var(--text-secondary); line-height: 1.6;
+        font-size: 12px; color: var(--text-secondary); line-height: 1.6;
     }
     .tutorial-tip-icon {
-        font-size: 18px; flex-shrink: 0; line-height: 1.4;
+        font-size: 16px; flex-shrink: 0; line-height: 1.4;
     }
     .tutorial-btn-row {
         display: flex; gap: 8px;
@@ -2903,7 +2904,7 @@
     .tutorial-btn-ok {
         flex: 1; padding: 13px; border: none; border-radius: var(--radius-md);
         background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-teal) 100%);
-        color: #fff; font-size: 16px; font-weight: 800;
+        color: #fff; font-size: 14px; font-weight: 800;
         font-family: var(--ui-font); cursor: pointer;
         box-shadow: 0 4px 16px rgba(14,145,128,0.35);
         transition: all 0.2s;
@@ -2914,7 +2915,7 @@
         width: 28px; height: 28px; border-radius: 50%;
         background: var(--bg-secondary); border: 1px solid var(--border);
         display: flex; align-items: center; justify-content: center;
-        cursor: pointer; color: var(--text-muted); font-size: 16px;
+        cursor: pointer; color: var(--text-muted); font-size: 14px;
         font-family: var(--ui-font); font-weight: 700;
     }
     .tutorial-step-dots {
@@ -2964,7 +2965,7 @@ html,body{
     linear-gradient(180deg,#f8faf6 0%,#f1f6f1 100%) !important;
   color:var(--text-primary) !important;
 }
-body{font-weight:600 !important;letter-spacing:-.012em !important;}
+body{font-weight:500 !important;letter-spacing:-.012em !important;}
 h1,h2,h3,h4,h5,h6,.qari-name,.digital-ayah-card,.section-title{
   font-family:"Plus Jakarta Sans","DM Sans",sans-serif !important;
   letter-spacing:-.035em !important;
@@ -3014,7 +3015,7 @@ button,.btn{font-weight:750 !important;}
   border-radius:24px !important;
 }
 @media(max-width:680px){
-  body{font-size:16px !important}
+  body{font-size:14px !important}
   button,.btn{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){
@@ -3099,7 +3100,7 @@ button,.btn{font-weight:750 !important;}
     <div class="login-credit">
         Dikembangkan dengan ❤️ oleh<br>
         <span>Imam Soimul Fajri</span> · elFashih © 2025–2026<br>
-        <span style="color:rgba(255,255,255,0.15);font-weight:600">Semoga bermanfaat & barokah</span>
+        <span style="color:rgba(255,255,255,0.15);font-weight:400">Semoga bermanfaat & barokah</span>
     </div>
 </div>
 
@@ -3132,12 +3133,12 @@ button,.btn{font-weight:750 !important;}
             <button id="logoutBtn" onclick="logoutUser()" title="Keluar / Ganti Akun"
                 style="background:rgba(219,35,80,0.12);border:1.5px solid rgba(219,35,80,0.45);
                 border-radius:20px;padding:6px 12px;color:#c0183e;
-                font-size:14px;font-weight:800;cursor:pointer;font-family:var(--ui-font);
+                font-size:11px;font-weight:800;cursor:pointer;font-family:var(--ui-font);
                 display:flex;align-items:center;gap:5px;white-space:nowrap;
                 max-width:110px;overflow:hidden;transition:all 0.2s;"
                 onmouseover="this.style.background='rgba(219,35,80,0.22)'"
                 onmouseout="this.style.background='rgba(219,35,80,0.12)'">
-                <i class="fa-solid fa-right-from-bracket" style="font-size:14px;flex-shrink:0"></i>
+                <i class="fa-solid fa-right-from-bracket" style="font-size:10px;flex-shrink:0"></i>
                 <span id="logoutBtnLabel" style="overflow:hidden;text-overflow:ellipsis">Keluar</span>
             </button>
         </div>
@@ -3503,7 +3504,7 @@ button,.btn{font-weight:750 !important;}
         </button>
 
         <!-- Info -->
-        <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);border-radius:var(--radius-md);padding:12px 14px;font-size:15px;color:var(--text-muted);line-height:1.7">
+        <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);border-radius:var(--radius-md);padding:12px 14px;font-size:12px;color:var(--text-muted);line-height:1.7">
             <div style="font-weight:700;color:var(--accent-gold);margin-bottom:4px">💡 Cara Kerja Leitner System</div>
             Setiap ayat masuk ke <b style="color:#ef4444">Kotak 1</b> (murojaah harian).
             Bila kamu hafal → naik ke <b style="color:#f59e0b">Kotak 2</b> (3 hari).
@@ -3551,7 +3552,7 @@ button,.btn{font-weight:750 !important;}
                     <div class="mrj-result-stat-label">🔄 Perlu Ulang</div>
                 </div>
             </div>
-            <div id="mrjResBoxChanges" style="font-size:14px;color:var(--text-muted);margin-bottom:16px;line-height:1.8"></div>
+            <div id="mrjResBoxChanges" style="font-size:11px;color:var(--text-muted);margin-bottom:16px;line-height:1.8"></div>
         </div>
         <div class="mrj-result-btn-row">
             <button class="mrj-result-btn primary" onclick="exitMurojaahSession()">
@@ -3586,7 +3587,7 @@ button,.btn{font-weight:750 !important;}
     <div class="quiz-body">
         <!-- SETUP -->
         <div id="quizSetupWrap">
-            <p style="font-size:15px;color:var(--text-muted);margin-bottom:16px">Pilih mode latihan untuk menguji hafalanmu secara mandiri.</p>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Pilih mode latihan untuk menguji hafalanmu secara mandiri.</p>
             <div class="quiz-mode-grid">
                 <div class="quiz-mode-card selected" id="qmCard-sambung" onclick="selectQuizMode('sambung')">
                     <div class="quiz-mode-icon">&#128279;</div>
@@ -3647,7 +3648,7 @@ button,.btn{font-weight:750 !important;}
                 Skor Terbaik
             </p>
             <div id="quizBestScoreList" style="display:flex;flex-direction:column;gap:8px">
-                <div style="font-size:15px;color:var(--text-muted);text-align:center;padding:12px">Belum ada skor tersimpan</div>
+                <div style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px">Belum ada skor tersimpan</div>
             </div>
         </div>
 
@@ -3873,13 +3874,13 @@ button,.btn{font-weight:750 !important;}
     <!-- DEBUG PANEL — tampil di bawah status bar -->
     <div id="tasmiDebug" style="
         margin-top:6px; padding:6px 10px; border-radius:8px;
-        background:rgba(0,0,0,0.06); font-size:14px; font-family:var(--ui-font);
+        background:rgba(0,0,0,0.06); font-size:10px; font-family:var(--ui-font);
         color:var(--text-secondary); text-align:right; direction:rtl;
         line-height:1.6; display:none;
     "></div>
     <div style="margin-top:6px;display:flex;align-items:center;justify-content:center;gap:10px">
-        <span id="tasmiProgress" style="font-size:14px;color:#ef4444;font-weight:700"></span>
-        <button onclick="toggleTasmiMode()" style="font-size:14px;background:#ef4444;color:white;border:none;padding:4px 12px;border-radius:50px;cursor:pointer;font-family:var(--ui-font);font-weight:700">Berhenti</button>
+        <span id="tasmiProgress" style="font-size:11px;color:#ef4444;font-weight:700"></span>
+        <button onclick="toggleTasmiMode()" style="font-size:11px;background:#ef4444;color:white;border:none;padding:4px 12px;border-radius:50px;cursor:pointer;font-family:var(--ui-font);font-weight:700">Berhenti</button>
     </div>
 </div>
 
@@ -3931,7 +3932,7 @@ button,.btn{font-weight:750 !important;}
                 <input type="range" id="loopMaxRange" min="1" max="10" value="3" class="modal-slider"
                     oninput="document.getElementById('loopMaxVal').textContent=this.value; loopMax=parseInt(this.value)">
                 <span id="loopMaxVal" style="font-weight:700;color:var(--accent-teal);min-width:20px;text-align:center">3</span>
-                <span style="font-size:15px;color:var(--text-muted)">kali</span>
+                <span style="font-size:12px;color:var(--text-muted)">kali</span>
             </div>
         </div>
         <div class="modal-btn-row">
@@ -3950,16 +3951,16 @@ button,.btn{font-weight:750 !important;}
             <div class="modal-title"><i class="fa-solid fa-microphone" style="color:var(--accent-gold)"></i> Setor Hafalan</div>
             <button class="modal-close" onclick="closeTasmiModal()">&times;</button>
         </div>
-        <p style="font-size:15px;color:var(--text-muted);margin-bottom:14px">Pilih titik mulai setoran, atau ketuk langsung ayatnya di mushaf.</p>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Pilih titik mulai setoran, atau ketuk langsung ayatnya di mushaf.</p>
         <button onclick="activateSelectMode('tasmi')" style="
             display:flex;align-items:center;justify-content:center;gap:8px;
             width:100%;margin-bottom:14px;padding:12px;
             background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%);
             border:none;border-radius:var(--radius-md);cursor:pointer;
-            color:#fff;font-size:16px;font-weight:900;font-family:var(--ui-font);
+            color:#fff;font-size:14px;font-weight:900;font-family:var(--ui-font);
             letter-spacing:0.3px;box-shadow:0 4px 16px rgba(231,76,60,0.40);
             transition:all 0.2s;">
-            <i class="fa-solid fa-hand-pointer" style="font-size:18px"></i>
+            <i class="fa-solid fa-hand-pointer" style="font-size:16px"></i>
             👆 KETUK AYAT DARI MUSHAF
         </button>
         <div class="modal-grid-2">
@@ -3986,7 +3987,7 @@ button,.btn{font-weight:750 !important;}
 
         <!-- Mode Kecepatan -->
         <div style="margin-bottom:14px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px 14px;border:1px solid var(--border)">
-            <div style="font-size:14px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px">⚡ Mode Bacaan</div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px">⚡ Mode Bacaan</div>
             <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
                 <div style="position:relative;flex-shrink:0;margin-top:2px">
                     <input type="checkbox" id="tasmiSpeedToggle" style="opacity:0;position:absolute;width:0;height:0">
@@ -3996,8 +3997,8 @@ button,.btn{font-weight:750 !important;}
                     </div>
                 </div>
                 <div>
-                    <div style="font-size:16px;font-weight:700;color:var(--text-primary)">Mode Cepat (Hafidz)</div>
-                    <div style="font-size:14px;color:var(--text-muted);margin-top:2px;line-height:1.4">Evaluasi langsung tiap segment tanpa jeda panjang.</div>
+                    <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Mode Cepat (Hafidz)</div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.4">Evaluasi langsung tiap segment tanpa jeda panjang.</div>
                 </div>
             </label>
         </div>
@@ -4011,16 +4012,16 @@ button,.btn{font-weight:750 !important;}
             margin-bottom: 14px;
         ">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-                <span style="font-size:22px;line-height:1">⚠️</span>
-                <span style="font-size:16px;font-weight:900;color:#b41414;letter-spacing:0.2px;text-transform:uppercase">Perhatian !</span>
+                <span style="font-size:20px;line-height:1">⚠️</span>
+                <span style="font-size:13px;font-weight:900;color:#b41414;letter-spacing:0.2px;text-transform:uppercase">Perhatian !</span>
             </div>
-            <div style="font-size:15.5px;color:#1a1a1a;line-height:1.85;font-weight:600">
+            <div style="font-size:12.5px;color:#1a1a1a;line-height:1.85;font-weight:500">
                 Mode Tasmi' ini hanya <strong style="color:#b41414">alat bantu sederhana</strong>,
                 masih dalam tahap <strong style="color:#b41414">PENGEMBANGAN</strong>,
                 sistem <strong style="color:#b41414">KOREKSI</strong> hafalan masih sangat
                 <strong style="color:#b41414">LEMAH</strong> —
                 lebih utama setor langsung ke <strong style="color:#1a6b40">Guru / Ustadz</strong>.<br><br>
-                <span style="font-size:16px;font-weight:900;color:#b41414;letter-spacing:0.3px">
+                <span style="font-size:13px;font-weight:900;color:#b41414;letter-spacing:0.3px">
                     🔊 Untuk hasil terbaik, bacalah dengan PELAN dan JELAS !
                 </span>
             </div>
@@ -4077,15 +4078,15 @@ button,.btn{font-weight:750 !important;}
 <!-- PWA Install Banner -->
 <div id="installBanner">
     <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent-green-dk),var(--accent-teal));display:flex;align-items:center;justify-content:center;font-size:22px">🕌</div>
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent-green-dk),var(--accent-teal));display:flex;align-items:center;justify-content:center;font-size:20px">🕌</div>
         <div>
-            <p style="font-weight:700;font-size:16px">Instal ELfashih ke HP</p>
-            <p style="font-size:14px;color:var(--text-muted)">Buka offline tanpa browser</p>
+            <p style="font-weight:700;font-size:13px">Instal ELfashih ke HP</p>
+            <p style="font-size:11px;color:var(--text-muted)">Buka offline tanpa browser</p>
         </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-        <button onclick="installPWA()" style="background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));color:#000;padding:7px 16px;border-radius:50px;font-size:15px;font-weight:700;border:none;cursor:pointer">Instal</button>
-        <button onclick="dismissInstall()" style="color:var(--text-muted);font-size:15px;background:none;border:none;cursor:pointer;padding:7px">Nanti</button>
+        <button onclick="installPWA()" style="background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));color:#000;padding:7px 16px;border-radius:50px;font-size:12px;font-weight:700;border:none;cursor:pointer">Instal</button>
+        <button onclick="dismissInstall()" style="color:var(--text-muted);font-size:12px;background:none;border:none;cursor:pointer;padding:7px">Nanti</button>
     </div>
 </div>
 
@@ -4096,7 +4097,7 @@ button,.btn{font-weight:750 !important;}
             <div class="modal-title"><i class="fa-solid fa-circle-dot" style="color:#ef4444"></i> Rekam Sendiri</div>
             <button class="modal-close" onclick="closeRecordModal()">&times;</button>
         </div>
-        <p style="font-size:15px;color:var(--text-muted);margin-bottom:14px">Rekam bacaanmu, lalu putar untuk dicek sambil melihat mushaf.</p>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Rekam bacaanmu, lalu putar untuk dicek sambil melihat mushaf.</p>
 
         <div class="rec-timer" id="recTimer">0:00</div>
         <div class="rec-waveform" id="recWaveform"></div>
@@ -4172,7 +4173,7 @@ button,.btn{font-weight:750 !important;}
             <div class="modal-title"><i class="fa-solid fa-user-tie" style="color:var(--accent-teal)"></i> Pilih Qari</div>
             <button class="modal-close" onclick="closeQariModal()">&times;</button>
         </div>
-        <p style="font-size:15px;color:var(--text-muted);margin-bottom:16px">Pilih qari (pembaca) yang ingin didengarkan. Perubahan berlaku pada ayat berikutnya.</p>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">Pilih qari (pembaca) yang ingin didengarkan. Perubahan berlaku pada ayat berikutnya.</p>
         <div id="qariList" style="display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow-y:auto;padding-right:4px"></div>
     </div>
 </div>
@@ -4234,7 +4235,7 @@ button,.btn{font-weight:750 !important;}
 
         <!-- Reset -->
         <div style="margin-top:14px;text-align:center">
-            <button onclick="resetProgressHafalan()" style="font-size:14px;color:#ef4444;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);padding:6px 16px;border-radius:50px;cursor:pointer;font-family:var(--ui-font);font-weight:600;">
+            <button onclick="resetProgressHafalan()" style="font-size:11px;color:#ef4444;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);padding:6px 16px;border-radius:50px;cursor:pointer;font-family:var(--ui-font);font-weight:600;">
                 <i class="fa-solid fa-rotate-left"></i> Reset Semua Progress
             </button>
         </div>
@@ -4252,12 +4253,12 @@ button,.btn{font-weight:750 !important;}
         align-items: center; justify-content: center; gap: 2px;
         border: none; background: transparent;
         color: var(--text-muted); cursor: pointer; outline: none;
-        font-family: var(--ui-font); font-size: 13px; font-weight: 600;
+        font-family: var(--ui-font); font-size: 8px; font-weight: 600;
         letter-spacing: 0.1px; transition: color 0.18s;
         -webkit-tap-highlight-color: transparent; padding: 5px 0;
         min-width: 0;
     }
-    .bnav-btn svg, .bnav-btn i { font-size: 18px !important; width: 18px; height: 18px; }
+    .bnav-btn svg, .bnav-btn i { font-size: 16px !important; width: 18px; height: 18px; }
     .bnav-btn.active { color: var(--accent-teal); }
     .bnav-btn:active { opacity: 0.7; }
     .bnav-btn.bnav-play { color: #000; }
@@ -4271,7 +4272,7 @@ button,.btn{font-weight:750 !important;}
         width: 40px; height: 40px; border-radius: 50%;
         background: linear-gradient(135deg, var(--accent-teal), var(--accent-green));
         display: flex; align-items: center; justify-content: center;
-        font-size: 18px !important;
+        font-size: 16px !important;
         box-shadow: 0 2px 14px rgba(14,145,128,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
         transition: all 0.18s;
     }
@@ -4296,18 +4297,18 @@ button,.btn{font-weight:750 !important;}
     }
     #moreDrawer.open { transform: translateY(0); }
     .drawer-handle { width: 36px; height: 4px; border-radius: 2px; background: rgba(14,145,128,0.20); margin: 0 auto 14px; }
-    .drawer-title { font-size: 14px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding: 0 2px; }
+    .drawer-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding: 0 2px; }
     .drawer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .drawer-item {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         gap: 5px; padding: 12px 6px; border-radius: 14px;
         background: linear-gradient(145deg, #ffffff, #f5faf4); border: 1px solid rgba(71,126,16,0.12);
         cursor: pointer; outline: none; font-family: var(--ui-font);
-        font-size: 14px; font-weight: 600; color: var(--text-secondary);
+        font-size: 10px; font-weight: 600; color: var(--text-secondary);
         transition: all 0.18s; -webkit-tap-highlight-color: transparent;
         box-shadow: 0 1px 6px rgba(0,0,0,0.05);
     }
-    .drawer-item svg, .drawer-item i { font-size: 20px !important; width: 22px; height: 22px; }
+    .drawer-item svg, .drawer-item i { font-size: 18px !important; width: 22px; height: 22px; }
     .drawer-item:active { transform: scale(0.95); }
     .drawer-item.active { background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-teal) 100%); border-color: transparent; color: #fff; box-shadow: 0 4px 16px rgba(71,126,16,0.4); }
     .drawer-play-row {
@@ -4317,7 +4318,7 @@ button,.btn{font-weight:750 !important;}
     }
     .dpr-btn {
         display: flex; align-items: center; gap: 5px; padding: 7px 12px;
-        border-radius: 50px; font-size: 14px; font-weight: 600; cursor: pointer;
+        border-radius: 50px; font-size: 11px; font-weight: 600; cursor: pointer;
         transition: all 0.18s; border: 1px solid transparent;
         font-family: var(--ui-font); white-space: nowrap; outline: none;
     }
@@ -4325,7 +4326,7 @@ button,.btn{font-weight:750 !important;}
     .dpr-btn-primary.paused { background: linear-gradient(135deg, var(--accent-gold) 0%, #b87512 100%); border-color: transparent; }
     .dpr-btn-ghost  { background: rgba(71,126,16,0.08); color: var(--text-secondary); border-color: rgba(71,126,16,0.2); }
     .dpr-btn-ghost:active { border-color: rgba(14,145,128,0.4); color: var(--accent-teal); }
-    .dpr-btn-icon   { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; padding: 0; }
+    .dpr-btn-icon   { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; padding: 0; }
 }
 </style>
 
@@ -6173,12 +6174,12 @@ function showLoadError() {
         <div style="text-align:center;padding:40px">
             <i class="fa-solid fa-wifi" style="font-size:48px;color:var(--text-muted);margin-bottom:16px;display:block"></i>
             <p style="font-weight:700;color:var(--text-primary)">Gagal memuat data Qur'an</p>
-            <p style="font-size:16px;margin-top:6px;color:var(--text-muted)">Server data Qur'an mungkin sedang sibuk/lambat,<br>atau periksa koneksi internet Anda</p>
+            <p style="font-size:13px;margin-top:6px;color:var(--text-muted)">Server data Qur'an mungkin sedang sibuk/lambat,<br>atau periksa koneksi internet Anda</p>
             <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-                <button onclick="retryLoadData()" style="background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));color:#000;border:none;padding:10px 24px;border-radius:50px;font-size:16px;font-weight:700;cursor:pointer">
+                <button onclick="retryLoadData()" style="background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));color:#000;border:none;padding:10px 24px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer">
                     <i class="fa-solid fa-rotate-right"></i> Coba Lagi
                 </button>
-                <button onclick="showDashboard()" style="background:transparent;color:var(--text-primary);border:1.5px solid var(--border);padding:10px 24px;border-radius:50px;font-size:16px;font-weight:700;cursor:pointer">Ke Dashboard</button>
+                <button onclick="showDashboard()" style="background:transparent;color:var(--text-primary);border:1.5px solid var(--border);padding:10px 24px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer">Ke Dashboard</button>
             </div>
         </div>`;
 }
@@ -9290,7 +9291,7 @@ function showTasmiDebug(heard, expWords, gotWords, matched, ratio, avgSim, passe
     el.innerHTML = `
         <div style="direction:rtl;text-align:right">
             <span style="color:#888">🎤 Didengar:</span>
-            <span style="color:#333;font-size:14px;font-family:'Amiri Quran',serif"> ${heardClean || '—'}</span>
+            <span style="color:#333;font-size:11px;font-family:'Amiri Quran',serif"> ${heardClean || '—'}</span>
         </div>
         <div style="direction:ltr;text-align:left;margin-top:2px">
             <span style="color:#888">Cocok: </span>
@@ -9860,7 +9861,7 @@ function renderByAyat() {
         const st = getHafalanStatus(s, ay);
         return `<div class="progress-ayah-item">
             <div class="pai-dot ${st}"></div>
-            <div class="pai-label">${a.surah.name} : ${ay} <span style="color:var(--text-muted);font-size:14px"> Hal.${a.page}</span></div>
+            <div class="pai-label">${a.surah.name} : ${ay} <span style="color:var(--text-muted);font-size:10px"> Hal.${a.page}</span></div>
             <button class="pai-btn ${st}" onclick="cycleFromList(${s},${ay},this,'pai-btn','pai-dot')">${HAFALAN_LABELS[st]}</button>
         </div>`;
     }).join('');
@@ -9916,7 +9917,7 @@ function renderByGroup(mode) {
                 </div>
                 <div style="text-align:right">
                     <div class="pgroup-card-pct">${pctDone}%</div>
-                    <div style="font-size:13px;color:var(--text-muted)">${st.total} ayat</div>
+                    <div style="font-size:9px;color:var(--text-muted)">${st.total} ayat</div>
                 </div>
             </div>
             <div class="mini-bar">
@@ -10335,7 +10336,7 @@ function toggleRepeatAyah() {
 function openRepeatAyahPicker() {
     const counts = [2,3,5,7,10];
     const options = counts.map(n =>
-        `<button onclick="setRepeatAyah(${n})" style="flex:1;padding:12px 0;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);font-size:18px;font-weight:700;cursor:pointer;font-family:var(--ui-font);transition:all .2s" onmouseover="this.style.borderColor='var(--accent-teal)'" onmouseout="this.style.borderColor='var(--border)'">${n}×</button>`
+        `<button onclick="setRepeatAyah(${n})" style="flex:1;padding:12px 0;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);font-size:16px;font-weight:700;cursor:pointer;font-family:var(--ui-font);transition:all .2s" onmouseover="this.style.borderColor='var(--accent-teal)'" onmouseout="this.style.borderColor='var(--border)'">${n}×</button>`
     ).join('');
     const panel = document.createElement('div');
     panel.id = 'repeatPicker';
@@ -10343,8 +10344,8 @@ function openRepeatAyahPicker() {
     panel.style.cssText = 'position:fixed;bottom:'+(isMobile?'56px':'0')+';left:0;right:0;background:var(--bg-secondary);border-top:1px solid var(--border);border-radius:var(--radius-xl) var(--radius-xl) 0 0;padding:20px;z-index:450;box-shadow:0 -10px 40px rgba(0,0,0,0.6)';
     panel.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <div style="font-size:16px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px"><i class="fa-solid fa-rotate-right" style="color:var(--accent-teal)"></i> Ulangi tiap ayat berapa kali?</div>
-            <button onclick="document.getElementById('repeatPicker').remove()" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-size:16px">×</button>
+            <div style="font-size:14px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px"><i class="fa-solid fa-rotate-right" style="color:var(--accent-teal)"></i> Ulangi tiap ayat berapa kali?</div>
+            <button onclick="document.getElementById('repeatPicker').remove()" style="width:28px;height:28px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-size:14px">×</button>
         </div>
         <div style="display:flex;gap:8px">${options}</div>
     `;
@@ -10377,7 +10378,7 @@ function renderQariList() {
     const groups = [...new Set(QARI_LIST.map(q => q.style))];
     let html = '';
     groups.forEach(group => {
-        html += `<div style="font-size:14px;font-weight:800;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;padding:6px 2px 4px;">${group === 'Mujawwad' ? '✨ ' : '🎙\uFE0F '}${group}</div>`;
+        html += `<div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;padding:6px 2px 4px;">${group === 'Mujawwad' ? '✨ ' : '🎙\uFE0F '}${group}</div>`;
         QARI_LIST.filter(q => q.style === group).forEach(q => {
             html += `<div class="qari-item ${q.id === selectedQariId ? 'active' : ''}" onclick="selectQari('${q.id}')"><div class="qari-avatar">${q.icon}</div><div class="qari-info"><div class="qari-name">${q.name}</div><div class="qari-style">${q.style}</div></div><i class="fa-solid fa-circle-check qari-check"></i></div>`;
         });
@@ -10905,7 +10906,7 @@ function renderQuizBestScores() {
     const el = document.getElementById('quizBestScoreList');
     if (!el) return;
     if (!scores.length) {
-        el.innerHTML = '<div style="font-size:15px;color:var(--text-muted);text-align:center;padding:12px">Belum ada skor tersimpan</div>';
+        el.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px">Belum ada skor tersimpan</div>';
         return;
     }
     const modeLabel = { sambung:'Sambung Ayat', surah:'Tebak Surah', nomor:'Tebak Nomor', campuran:'Campuran' };
@@ -11196,7 +11197,7 @@ function renderMurojaahCard() {
         <div class="mrj-sess-card">
             <div class="mrj-sess-ayah-info">${surahName} — Ayat ${item.ayah}</div>
             <div class="mrj-sess-arabic" id="mrjSessArabic">
-                ${ayahText || '<span style="color:var(--text-muted);font-size:16px;font-family:var(--ui-font)">Teks tidak tersedia. Buka mushaf terlebih dahulu.</span>'}
+                ${ayahText || '<span style="color:var(--text-muted);font-size:14px;font-family:var(--ui-font)">Teks tidak tersedia. Buka mushaf terlebih dahulu.</span>'}
             </div>
             <button class="mrj-sess-hint-btn" onclick="this.style.display='none';document.getElementById('mrjSessExtra').classList.add('show')">
                 Tunjukkan Nomor Ayat

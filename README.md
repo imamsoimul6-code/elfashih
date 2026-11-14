@@ -1,98 +1,80 @@
-# 🕌 ElFashih — Teman Penghafal Qur'an
+# ElFashih — Teman Penghafal Qur'an
 
-Aplikasi hafalan Al-Quran berbasis web. Mushaf digital Juz 1–30, audio 25+ qari, tasmi' (setor hafalan via suara), murojaah terjadwal, quiz, progress tracker, dan PWA (bisa install ke HP).
+Versi ini menambahkan fondasi backend Flask + database untuk akun, data tersinkron, daftar siswa, rekaman setoran, reset password, dan ekspor daftar siswa.
 
----
+## Penting sebelum dipakai
+Backend API sudah ditambahkan, tetapi antarmuka `templates/index.html` versi lama masih menjalankan proses login/registry dari `localStorage`. Jadi **akun/data lama belum otomatis pindah dan belum otomatis tersinkron ke API**. Jangan menganggap migrasi selesai hanya dengan deploy. Integrasi UI dan migrasi data browser adalah tahap berikutnya.
 
-## ✨ Fitur
+## Deploy di Render
+1. Push folder proyek ini ke GitHub.
+2. Buat Web Service di Render, pilih repo.
+3. Build Command: `pip install -r requirements.txt`
+4. Start Command: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120`
+5. Tambahkan **Render PostgreSQL** lalu hubungkan `DATABASE_URL` ke environment service.
+6. Tambahkan environment variable `SECRET_KEY` dengan nilai acak panjang (minimal 32 karakter).
+7. Deploy. Periksa `https://DOMAIN/api/health` dan pastikan status `ok`.
 
-- **Mushaf & Digital View** — tampilan halaman Quran + tampilan ayat per ayat
-- **Blind Mode** — sembunyikan teks untuk latihan hafalan
-- **Setor Hafalan (Tasmi')** — speech recognition mendengarkan bacaanmu dan menilai otomatis
-- **Loop & Repeat** — ulang ayat/range tertentu N kali
-- **25+ Qari** — Alafasy, Abdul Basit, Sudais, dll
-- **Progress Hafalan** — tandai belum/proses/lancar per ayat
-- **Murojaah Terjadwal** — sistem Leitner (spaced repetition)
-- **Quiz** — sambung ayat, tebak surah, tebak nomor ayat
-- **Jadwal & Notifikasi** — pengingat tadarus/murojaah/hafalan
-- **Rekam Sendiri** — rekam bacaan lalu putar ulang
-- **PWA** — bisa di-install ke home screen, sebagian offline
+SQLite hanya untuk pengembangan lokal. Jangan gunakan SQLite di filesystem ephemeral Render untuk data produksi. Database dibuat otomatis saat aplikasi mulai; untuk skema produksi yang berkembang, siapkan migrasi Alembic/Flask-Migrate sebelum perubahan model berikutnya.
 
----
+## Endpoint API
+Semua endpoint bertanda 🔒 memerlukan header `Authorization: Bearer <token>`.
 
-## 🚀 Deploy ke Railway
+| Metode | Endpoint | Fungsi |
+|---|---|---|
+| POST | `/api/auth/register` | Daftar guru/siswa/personal; password di-hash server (Werkzeug scrypt/PBKDF2 sesuai versi) |
+| POST | `/api/auth/login` | Verifikasi password di server, mengembalikan token |
+| GET | `/api/auth/me` 🔒 | Profil akun aktif |
+| GET | `/api/organizations` | Daftar lembaga |
+| GET | `/api/teachers?organization_id=...` | Daftar guru |
+| GET | `/api/students` 🔒 guru | Daftar siswa milik guru |
+| POST | `/api/students` 🔒 guru | Tambah siswa |
+| PATCH | `/api/students/<id>/teacher` 🔒 guru | Pindahkan siswa dalam lembaga yang sama |
+| POST | `/api/students/<id>/reset-password` 🔒 guru | Reset password siswa |
+| GET/PUT | `/api/sync/<namespace>` 🔒 | Baca/simpan JSON per akun (mis. `hafalan`, `setoran`, `keputusan`, `jadwal`) |
+| POST | `/api/recordings` 🔒 | Upload audio multipart dengan field `audio`; opsional `student_id` |
+| GET | `/api/recordings` 🔒 | Daftar rekaman milik siswa/guru |
+| GET | `/api/recordings/<id>` 🔒 | Putar/unduh audio jika berhak |
+| GET | `/api/reports/students.csv` 🔒 guru | Ekspor daftar siswa, dapat dibuka di Excel |
 
-### 1. Push ke GitHub
-
+### Contoh penggunaan API
+Login:
 ```bash
-git init
-git add .
-git commit -m "initial: ElFashih app"
-git remote add origin https://github.com/USERNAME/elfashih.git
-git push -u origin main
+curl -X POST https://DOMAIN/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Nama Guru","password":"PasswordPanjang","role":"guru"}'
+```
+Simpan progres hafalan:
+```bash
+curl -X PUT https://DOMAIN/api/sync/hafalan \
+  -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" \
+  -d '{"data":{"juz":1,"status":"proses"}}'
+```
+Upload audio:
+```bash
+curl -X POST https://DOMAIN/api/recordings \
+  -H "Authorization: Bearer TOKEN" \
+  -F "audio=@setoran.webm"
 ```
 
-### 2. Deploy di Railway
+## Keamanan dan batasan
+- Password minimal 8 karakter dan hash dibuat di server; jangan kirim hash dari browser.
+- Token ditandatangani server dan berlaku 30 hari. Ganti `SECRET_KEY` akan membatalkan token yang sedang aktif.
+- Batasi ukuran upload melalui `MAX_RECORDING_MB` (default 25 MB).
+- Gunakan HTTPS (Render menyediakan TLS).
+- Endpoint sinkronisasi menyimpan JSON yang dikirim klien; integrasi frontend harus menerapkan aturan konflik versi/waktu dan validasi skema.
+- File rekaman saat ini disimpan sebagai BLOB di PostgreSQL. Untuk skala besar, pindahkan file ke object storage dan simpan URL/metadata di database.
+- Endpoint ekspor saat ini CSV (bisa dibuka Excel), belum membuat format `.xlsx` atau PDF.
+- Reset password oleh guru dibatasi pada siswa yang berada di kelasnya. Pemindahan siswa dibatasi dalam lembaga yang sama; admin lintas-guru perlu ditetapkan secara eksplisit oleh pemilik lembaga.
 
-1. Buka [railway.app](https://railway.app) → **New Project**
-2. Pilih **Deploy from GitHub repo**
-3. Pilih repo `elfashih`
-4. Railway otomatis deteksi Python + `requirements.txt`
-5. Tunggu build selesai → klik **Generate Domain**
-6. App live di `https://elfashih-xxx.up.railway.app` 🎉
-
-> Railway membaca `railway.toml` → menjalankan `gunicorn` otomatis.  
-> `PORT` diset Railway secara otomatis.
-
----
-
-## 💻 Jalankan Lokal
-
+## Menjalankan lokal
 ```bash
-# Install dependencies
+python -m venv .venv
+# Windows: .venv\\Scripts\\activate
+# macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-
-# Jalankan
 python app.py
-# Buka http://localhost:5000
 ```
+Buka `http://localhost:5000`.
 
----
-
-## 📁 Struktur Proyek
-
-```
-elfashih/
-├── app.py                  # Flask app
-├── requirements.txt        # Python dependencies
-├── Procfile                # Untuk Heroku/Railway
-├── railway.toml            # Config Railway
-├── runtime.txt             # Python version
-├── templates/
-│   └── index.html          # App utama (single-page)
-└── static/
-    ├── audio/              # (kosong) audio distream dari everyayah.com
-    └── pwa/
-        ├── manifest.json
-        ├── sw.js
-        ├── icon-192.png
-        ├── icon-512.png
-        └── apple-touch-icon.png
-```
-
----
-
-## 🔧 Catatan Teknis
-
-- **Audio**: distream langsung dari `everyayah.com` — tidak perlu upload file MP3
-- **Data Quran**: dari `api.alquran.cloud` — di-cache di IndexedDB browser
-- **Data user** (progress, jadwal, bookmark): disimpan di `localStorage` browser
-- **Speech Recognition**: Web Speech API (Chrome/Edge di Android/desktop; iOS Safari terbatas)
-- **Tidak butuh database** — semua state di sisi client
-
----
-
-## 📱 Pasang sebagai PWA
-
-Di Chrome/Edge Android: buka URL → menu ⋮ → **"Tambahkan ke layar utama"**  
-Di Safari iOS: buka URL → Share → **"Tambahkan ke Layar Utama"**
+## PWA
+Service worker dinaikkan ke versi `elfashih-v8-server-api`; cache lama dibersihkan saat aktivasi. Respons `/api/` tidak dimasukkan ke cache agar data pribadi tidak tertinggal di perangkat bersama.

@@ -6,10 +6,10 @@
 // Mengubah string ini membuat browser menganggap sw.js "berubah", sehingga
 // siklus install→activate berjalan lagi dan cache lama otomatis dibuang
 // (lihat listener 'activate' di bawah).
-const CACHE_VERSION  = 'elfashih-v4-tajwid';
-const AUDIO_CACHE    = 'elfashih-audio-v4-tajwid';
-const CDN_CACHE      = 'elfashih-cdn-v4-tajwid';
-const API_CACHE      = 'elfashih-api-v4-tajwid';
+const CACHE_VERSION  = 'elfashih-v8-server-api';
+const AUDIO_CACHE    = 'elfashih-audio-v5';
+const CDN_CACHE      = 'elfashih-cdn-v5';
+const API_CACHE      = 'elfashih-api-v5';
 
 // ─── Asset shell yang WAJIB ada saat install ──────────────────────────────────
 // Semua harus berhasil di-cache; kalau satu gagal, install dibatalkan.
@@ -19,6 +19,7 @@ const SHELL_ASSETS = [
   '/manifest.json',
   '/static/pwa/icon-192.png',
   '/static/pwa/icon-512.png',
+  '/static/vendor/quran-madina-html-tajwid.min.js',
 ];
 
 // ─── CDN eksternal yang di-cache saat install ────────────────────────────────
@@ -73,6 +74,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
+
+  // API akun berisi data pribadi: jangan pernah disimpan di cache PWA.
+  if (url.pathname.startsWith('/api/')) return;
 
   // Abaikan request non-GET (POST login, dsb.)
   if (req.method !== 'GET') return;

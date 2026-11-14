@@ -4981,6 +4981,7 @@ function _applyUser(userObj) {
     if (dlbl) {
         dlbl.textContent = userObj.type === 'guest' ? 'Keluar (Tamu)' : 'Keluar';
     }
+    syncStart();   // sinkron hafalan mandiri ke server (hanya akun server)
     // Show welcome tutorial on first login
     setTimeout(() => {
         if (typeof showTutorial === 'function') showTutorial('welcome');
@@ -5022,30 +5023,59 @@ function _patchStorageKeys(prefix) {
     Storage.prototype.getItem = function(key) {
         return _origGet.call(this, nsKey(key));
     };
+    const SYNCED = ['elfashih_hafalan', 'elfashih_leitner', 'elfashih_streak', 'elfashih_quiz_scores', 'elfashih_schedules'];
     Storage.prototype.setItem = function(key, value) {
         const u = window.elfashihUser;
         // Block persistent writes for guests on certain keys
         if (u && u.type === 'guest' && GUEST_BLOCKED.includes(key)) return;
-        return _origSet.call(this, nsKey(key), value);
+        const track = u && window._syncTrack && SYNCED.includes(key);
+        const old = track ? _origGet.call(this, nsKey(key)) : null;
+        const r = _origSet.call(this, nsKey(key), value);
+        if (track) { try { window._syncTrack(key, old, String(value)); } catch (e) {} }
+        return r;
     };
     Storage.prototype.removeItem = function(key) {
-        return _origRem.call(this, nsKey(key));
+        const u = window.elfashihUser;
+        const track = u && window._syncTrack && SYNCED.includes(key);
+        const old = track ? _origGet.call(this, nsKey(key)) : null;
+        const r = _origRem.call(this, nsKey(key));
+        if (track) { try { window._syncTrack(key, old, null); } catch (e) {} }
+        return r;
     };
 })();
 
-// ── Registry lokal (disimpan di perangkat ini) ──────────────
-// Catatan: aplikasi ini belum punya server, jadi akun & daftar lembaga
-// tersimpan di browser perangkat. Semua akses lewat fungsi _reg/_saveReg
-// supaya nanti mudah dialihkan ke API server.
-const REG_KEY = 'elfashih_registry';
-function _reg() {
-    try {
-        const r = JSON.parse(localStorage.getItem(REG_KEY) || 'null');
-        if (r && Array.isArray(r.lembaga) && Array.isArray(r.users)) return r;
-    } catch (e) {}
-    return { v: 1, lembaga: [], users: [] };
+// ── Server API ──────────────────────────────
+// Akun, lembaga, siswa, setoran & keputusan guru disimpan di server (Flask + database).
+// Browser hanya menyimpan token sesi (TOKEN_KEY) dan salinan singkat data pengguna (AUTH_KEY).
+const TOKEN_KEY = 'elfashih_token';
+function _token() { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
+function _setToken(t) { try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+
+async function api(method, path, data) {
+    const opt = { method, headers: {} };
+    const t = _token();
+    if (t) opt.headers['Authorization'] = 'Bearer ' + t;
+    if (data !== undefined) { opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(data); }
+    let res;
+    try { res = await fetch('/api' + path, opt); }
+    catch (e) { const err = new Error('Tidak bisa terhubung ke server. Periksa koneksi internet lalu coba lagi.'); err.offline = true; throw err; }
+    let json = null;
+    try { json = await res.json(); } catch (e) {}
+    if (!res.ok) {
+        const err = new Error((json && json.error) || ('Terjadi kesalahan di server (' + res.status + ').'));
+        err.status = res.status;
+        if (res.status === 401 && t && path.indexOf('/auth/') !== 0) _onSessionExpired();
+        throw err;
+    }
+    return json;
 }
-function _saveReg(r) { localStorage.setItem(REG_KEY, JSON.stringify(r)); }
+function _onSessionExpired() {
+    const u = window.elfashihUser;
+    if (!u || u.type !== 'account' || u.role === 'legacy') return;
+    _doLogout();
+    if (typeof showToast === 'function') showToast('Sesi berakhir. Silakan masuk lagi.');
+}
+
 function _uid() { return 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 function _norm(s) { return String(s || '').trim().replace(/\s+/g, ' '); }
 function _key(s) { return _norm(s).toLowerCase(); }
@@ -5054,39 +5084,165 @@ function _esc(s) {
 }
 const $lg = id => document.getElementById(id);
 
-// Hash password (SHA-256 + salt). Fallback sederhana bila crypto.subtle tidak tersedia (mis. http biasa).
-function _c53(str, seed) {
-    seed = seed || 0;
-    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-    for (let i = 0, ch; i < str.length; i++) {
-        ch = str.charCodeAt(i);
-        h1 = Math.imul(h1 ^ ch, 2654435761);
-        h2 = Math.imul(h2 ^ ch, 1597334677);
+// Data versi lama (sebelum ada server) masih ada di browser ini. Hanya DIBACA untuk pemindahan
+// (uid lama dipertahankan + tombol "Pindahkan ke server" di Panel Guru).
+function _localReg() {
+    try {
+        const r = JSON.parse(localStorage.getItem('elfashih_registry') || 'null');
+        if (r && Array.isArray(r.lembaga) && Array.isArray(r.users)) return r;
+    } catch (e) {}
+    return null;
+}
+function _legacyUid(role, nama, lembagaNama) {
+    const r = _localReg(); if (!r) return undefined;
+    const lem = id => (r.lembaga.find(l => l.id === id) || {}).nama;
+    const u = r.users.find(x => x.role === role && x.hash && _key(x.nama) === _key(nama) &&
+        (role !== 'guru' || _key(lem(x.lembagaId)) === _key(lembagaNama)));
+    return u ? u.uid : undefined;
+}
+
+
+// ── Sinkron hafalan mandiri ke server ───────
+// Hafalan, murojaah (Leitner), streak, skor kuis & jadwal tetap disimpan di localStorage (cepat & bisa offline),
+// lalu disinkronkan ke server di latar belakang. Hafalan/Leitner digabung PER AYAT berdasarkan cap waktu
+// (perubahan terbaru menang), jadi dua HP tidak saling menimpa seluruh data. Perubahan saat offline
+// ditandai "dirty" dan dikirim otomatis begitu koneksi kembali.
+const SYNC_NAMES = ['hafalan', 'leitner', 'streak', 'quiz_scores', 'schedules'];
+const SYNC_MAPS = ['hafalan', 'leitner'];
+const _sync = { applying: false, busy: false, again: false, timer: null, last: 0, started: false };
+
+function _syncOk() {
+    const u = window.elfashihUser;
+    return !!(u && u.type === 'account' && ['personal', 'guru', 'siswa'].indexOf(u.role) >= 0 && _token());
+}
+function _smetaKey() { return 'elfashih_syncmeta_' + (window.elfashihUser ? window.elfashihUser.uid : ''); }
+function _smeta() {
+    let m = null;
+    try { m = JSON.parse(localStorage.getItem(_smetaKey()) || 'null'); } catch (e) {}
+    m = m && typeof m === 'object' ? m : {};
+    m.ts = m.ts || {}; m.keyTs = m.keyTs || {}; m.dirty = m.dirty || {};
+    SYNC_MAPS.forEach(n => { m.ts[n] = m.ts[n] || {}; });
+    return m;
+}
+function _smetaSave(m) { try { localStorage.setItem(_smetaKey(), JSON.stringify(m)); } catch (e) {} }
+function _sparse(raw, fallback) { try { const v = JSON.parse(raw); return v == null ? fallback : v; } catch (e) { return fallback; } }
+function _syncLocal(name) { return localStorage.getItem('elfashih_' + name); }   // sudah ber-namespace per pengguna
+
+// Dipanggil oleh kait localStorage setiap kali kunci tersinkron berubah
+window._syncTrack = function (key, oldRaw, newRaw) {
+    if (_sync.applying || !_syncOk()) return;
+    const name = key.replace(/^elfashih_/, ''), m = _smeta(), now = Date.now();
+    if (SYNC_MAPS.indexOf(name) >= 0) {
+        const o = _sparse(oldRaw, {}), n = _sparse(newRaw, {});
+        const keys = new Set(Object.keys(o).concat(Object.keys(n)));
+        keys.forEach(k => { if (JSON.stringify(o[k]) !== JSON.stringify(n[k])) m.ts[name][k] = now; });
+    } else m.keyTs[name] = now;
+    m.dirty[name] = 1;
+    _smetaSave(m);
+    _syncSchedule(3000);
+};
+
+function _syncSchedule(ms) {
+    if (!_syncOk()) return;
+    clearTimeout(_sync.timer);
+    _sync.timer = setTimeout(() => syncNow(false), ms);
+}
+
+function _syncPayload(m, names) {
+    const keys = {};
+    names.forEach(name => {
+        const raw = _syncLocal(name);
+        if (SYNC_MAPS.indexOf(name) >= 0) {
+            const loc = _sparse(raw, {}), entries = {};
+            Object.keys(loc).forEach(k => { entries[k] = { v: loc[k], ts: m.ts[name][k] || 1 }; });
+            Object.keys(m.ts[name]).forEach(k => { if (!(k in loc)) entries[k] = { v: null, ts: m.ts[name][k] }; });   // tanda hapus
+            if (Object.keys(entries).length) keys[name] = { entries };
+        } else if (raw != null) {
+            const v = _sparse(raw, null);
+            if (v != null) keys[name] = { value: v, ts: m.keyTs[name] || 1 };
+        }
+    });
+    return keys;
+}
+
+function _syncApply(resp, m, sentAt) {
+    let changed = false;
+    _sync.applying = true;
+    try {
+        Object.keys(resp || {}).forEach(name => {
+            if (SYNC_NAMES.indexOf(name) < 0) return;
+            const st = resp[name], lk = 'elfashih_' + name, curRaw = _syncLocal(name);
+            if (SYNC_MAPS.indexOf(name) >= 0) {
+                const loc = _sparse(curRaw, {}), out = {}, ts = {};
+                Object.keys(st.entries || {}).forEach(k => {
+                    const e = st.entries[k]; ts[k] = e.ts;
+                    if (e.v != null) out[k] = e.v;
+                });
+                // perubahan yang terjadi saat permintaan berjalan tidak boleh tertimpa
+                Object.keys(m.ts[name]).forEach(k => {
+                    if (m.ts[name][k] > sentAt) { ts[k] = m.ts[name][k]; if (k in loc) out[k] = loc[k]; else delete out[k]; m.dirty[name] = 1; }
+                });
+                m.ts[name] = ts;
+                const next = JSON.stringify(out);
+                if (next !== JSON.stringify(loc)) { localStorage.setItem(lk, next); changed = true; }
+            } else {
+                if ((m.keyTs[name] || 0) > sentAt) { m.dirty[name] = 1; return; }
+                const next = JSON.stringify(st.value);
+                if (next !== JSON.stringify(_sparse(curRaw, null))) { localStorage.setItem(lk, next); changed = true; }
+                m.keyTs[name] = st.ts;
+            }
+        });
+    } finally { _sync.applying = false; }
+    return changed;
+}
+
+function _syncRefreshUI() {
+    const call = n => { try { if (typeof window[n] === 'function') window[n](); } catch (e) {} };
+    try { if (typeof schedules !== 'undefined') schedules = _sparse(_syncLocal('schedules'), []); } catch (e) {}
+    ['updateDashboard', 'refreshProgressStats', 'updateMurojaahTopBadge', 'updateDashMurojaah', 'renderDashSchedule', 'renderScheduleList', 'updateDashQuizBadge']
+        .forEach(call);
+}
+
+// full=true: kirim semua data & tarik semua kunci (saat masuk / kembali ke aplikasi); false: hanya yang berubah
+async function syncNow(full) {
+    if (!_syncOk()) return;
+    if (_sync.busy) { _sync.again = true; return; }
+    _sync.busy = true;
+    const uid = window.elfashihUser.uid, m = _smeta(), sentAt = Date.now();
+    const names = full ? SYNC_NAMES : SYNC_NAMES.filter(n => m.dirty[n]);
+    if (!names.length) { _sync.busy = false; return; }
+    const keys = _syncPayload(m, names);
+    names.forEach(n => { delete m.dirty[n]; });
+    _smetaSave(m);
+    try {
+        const res = await api('POST', '/sync', { keys, want: full ? SYNC_NAMES : [] });
+        if (!window.elfashihUser || window.elfashihUser.uid !== uid) return;       // pengguna berganti saat berjalan
+        const m2 = _smeta();
+        m2.dirty = Object.assign({}, m2.dirty);
+        const changed = _syncApply(res.keys, m2, sentAt);
+        _smetaSave(m2);
+        _sync.last = Date.now();
+        if (changed) { _syncRefreshUI(); if (typeof showToast === 'function') showToast('☁️ Hafalan disinkronkan dari server'); }
+    } catch (e) {
+        const m3 = _smeta(); names.forEach(n => { m3.dirty[n] = 1; }); _smetaSave(m3);   // coba lagi nanti
+        if (!e.offline) console.warn('[sync]', e.message);
+    } finally {
+        _sync.busy = false;
+        if (_sync.again) { _sync.again = false; _syncSchedule(500); }
     }
-    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
 }
-async function _hashPw(pw, salt, scheme) {
-    const data = salt + '|' + pw;
-    if (scheme !== 'c53' && window.crypto && crypto.subtle) {
-        try {
-            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(data));
-            return 'sha256:' + Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-        } catch (e) {}
-    }
-    return 'c53:' + _c53(data) + _c53(data, 7);
-}
-async function _checkPw(user, pw) {
-    const scheme = String(user.hash).split(':')[0];
-    return (await _hashPw(pw, user.salt, scheme)) === user.hash;
-}
-async function _newUser(reg, props, pass) {
-    const salt = _uid();
-    const user = Object.assign({ uid: _uid() }, props, { salt, hash: await _hashPw(pass, salt), createdAt: Date.now() });
-    reg.users.push(user);
-    _saveReg(reg);
-    return user;
+
+function syncStart() {
+    clearTimeout(_sync.timer);
+    if (!_syncOk()) return;
+    _sync.timer = setTimeout(() => syncNow(true), 900);   // sinkron penuh sesaat setelah masuk
+    if (_sync.started) return;
+    _sync.started = true;
+    window.addEventListener('online', () => { if (_syncOk()) syncNow(false); });
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && _syncOk() && Date.now() - _sync.last > 60000) syncNow(true);
+    });
+    setInterval(() => { if (_syncOk() && document.visibilityState === 'visible') syncNow(false); }, 60000);
 }
 
 // ── State UI login ──────────────────────────
@@ -5099,7 +5255,7 @@ function lgShow(id) {
 function lgGo(id) {
     LG.stack.push(id);
     lgShow(id);
-    if (id === 'lgGuru')  { lgPickerMount('gm'); lgPickerMount('gr'); }
+    if (id === 'lgGuru')  { lgPickerMount('gm'); }   // 'gr' (bergabung ke lembaga) dimuat saat tab itu dipilih
     if (id === 'lgSiswa') { lgPickerMount('s'); }
 }
 function lgBack() {
@@ -5148,6 +5304,8 @@ function lgLembagaMode(m) {
 }
 
 // ── Pemilih lembaga (cari + klik) ───────────
+LG.lbList = {}; LG.siswaList = [];
+const _lbTimer = {}, _lbSeq = {};
 function lgPickerMount(key) {
     const el = $lg('pk_' + key); if (!el) return;
     const sel = LG.pk[key];
@@ -5163,20 +5321,29 @@ function lgPickerMount(key) {
 }
 function lgPickerFilter(key, q) {
     const box = $lg('pkl_' + key); if (!box) return;
-    const reg = _reg(); q = _key(q);
-    const list = reg.lembaga.filter(l => !q || _key([l.nama, l.jenis, l.desa, l.kec, l.kab, l.prov].join(' ')).includes(q)).slice(0, 40);
-    if (!list.length) {
-        box.innerHTML = '<div class="lg-empty">' + (reg.lembaga.length
-            ? 'Lembaga tidak ditemukan.'
-            : 'Belum ada lembaga terdaftar di perangkat ini.<br>Seorang guru perlu mendaftarkan lembaganya lebih dulu.') + '</div>';
-        return;
-    }
-    box.innerHTML = list.map(l =>
-        '<button type="button" class="lg-item" onclick="lgPickerSet(\'' + key + '\',\'' + l.id + '\')"><b>' + _esc(l.nama) + '</b><span>' +
-        _esc(l.jenis) + ' · ' + _esc(lgAddr(l)) + '</span></button>').join('');
+    clearTimeout(_lbTimer[key]);
+    box.innerHTML = '<div class="lg-empty">Memuat daftar lembaga…</div>';
+    _lbTimer[key] = setTimeout(async () => {
+        const seq = _lbSeq[key] = (_lbSeq[key] || 0) + 1;
+        let list;
+        try { list = await api('GET', '/lembaga?q=' + encodeURIComponent(_norm(q))); }
+        catch (e) { const b = $lg('pkl_' + key); if (b && seq === _lbSeq[key]) b.innerHTML = '<div class="lg-empty">' + _esc(e.message) + '</div>'; return; }
+        const cur = $lg('pkl_' + key);
+        if (!cur || seq !== _lbSeq[key]) return;      // hasil basi (ketikan lebih baru sudah dikirim)
+        list.forEach(l => { LG.lbList[l.id] = l; });
+        if (!list.length) {
+            cur.innerHTML = '<div class="lg-empty">' + (_norm(q)
+                ? 'Lembaga tidak ditemukan.'
+                : 'Belum ada lembaga terdaftar.<br>Seorang guru perlu mendaftarkan lembaganya lebih dulu.') + '</div>';
+            return;
+        }
+        cur.innerHTML = list.map(l =>
+            '<button type="button" class="lg-item" onclick="lgPickerSet(\'' + key + '\',\'' + l.id + '\')"><b>' + _esc(l.nama) + '</b><span>' +
+            _esc(l.jenis) + ' · ' + _esc(lgAddr(l)) + '</span></button>').join('');
+    }, q ? 250 : 0);
 }
 function lgPickerSet(key, id) {
-    const l = _reg().lembaga.find(x => x.id === id); if (!l) return;
+    const l = LG.lbList[id]; if (!l) return;
     LG.pk[key] = l; lgPickerMount(key);
     if (key === 's') lgRenderGurus();
     lgClearMsg(key === 'gm' || key === 'gr' ? 'G' : 'S');
@@ -5187,14 +5354,18 @@ function lgPickerClear(key) {
 }
 
 // ── Siswa: pilih guru → pilih nama dari daftar guru ──
-function lgRenderGurus() {
+async function lgRenderGurus() {
     const wrap = $lg('sGuruWrap'), box = $lg('sGurus');
-    const l = LG.pk.s; LG.guru = null; LG.siswa = null;
+    const l = LG.pk.s; LG.guru = null; LG.siswa = null; LG.siswaList = [];
     $lg('sNamaWrap').classList.add('lg-hide'); $lg('sPassWrap').classList.add('lg-hide');
     $lg('sBtn').textContent = 'Masuk sebagai Siswa';
     if (!l) { wrap.classList.add('lg-hide'); return; }
-    const gurus = _reg().users.filter(u => u.role === 'guru' && u.lembagaId === l.id);
     wrap.classList.remove('lg-hide');
+    box.innerHTML = '<div class="lg-empty" style="width:100%">Memuat daftar guru…</div>';
+    let gurus;
+    try { gurus = await api('GET', '/lembaga/' + encodeURIComponent(l.id) + '/guru'); }
+    catch (e) { if (LG.pk.s === l) box.innerHTML = '<div class="lg-empty" style="width:100%">' + _esc(e.message) + '</div>'; return; }
+    if (LG.pk.s !== l) return;                        // lembaga sudah diganti
     box.innerHTML = gurus.length
         ? gurus.map(g => '<button type="button" class="lg-guru" onclick="lgPickGuru(\'' + g.uid + '\',this)">' + _esc(g.nama) + '</button>').join('')
         : '<div class="lg-empty" style="width:100%">Belum ada guru di lembaga ini. Minta gurumu mendaftar lebih dulu.</div>';
@@ -5206,21 +5377,24 @@ function lgPickGuru(uid, btn) {
     lgRenderSiswa();
     lgClearMsg('S');
 }
-function lgRenderSiswa() {
-    const wrap = $lg('sNamaWrap'), box = $lg('sNamaList');
-    const list = _reg().users
-        .filter(u => u.role === 'siswa' && u.lembagaId === LG.pk.s.id && u.guruId === LG.guru)
-        .sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+async function lgRenderSiswa() {
+    const wrap = $lg('sNamaWrap'), box = $lg('sNamaList'), gid = LG.guru;
     wrap.classList.remove('lg-hide');
+    box.innerHTML = '<div class="lg-empty">Memuat daftar siswa…</div>';
+    let list;
+    try { list = await api('GET', '/guru/' + encodeURIComponent(gid) + '/siswa'); }
+    catch (e) { if (LG.guru === gid) box.innerHTML = '<div class="lg-empty">' + _esc(e.message) + '</div>'; return; }
+    if (LG.guru !== gid) return;                      // guru sudah diganti
+    LG.siswaList = list;
     box.innerHTML = list.length
         ? list.map(u => '<button type="button" class="lg-item" onclick="lgPickSiswa(\'' + u.uid + '\')"><b>' + _esc(u.nama) + '</b><span>' +
-            (u.hash ? 'Sudah punya password — masukkan password' : 'Belum punya password — buat saat masuk pertama') + '</span></button>').join('')
+            (u.hasPw ? 'Sudah punya password — masukkan password' : 'Belum punya password — buat saat masuk pertama') + '</span></button>').join('')
         : '<div class="lg-empty">Gurumu belum menambahkan daftar siswa. Minta gurumu menambahkan namamu di Panel Guru.</div>';
 }
 function lgPickSiswa(uid) {
-    const u = _reg().users.find(x => x.uid === uid && x.role === 'siswa'); if (!u) return;
+    const u = LG.siswaList.find(x => x.uid === uid); if (!u) return;
     LG.siswa = uid;
-    const baru = !u.hash;
+    const baru = !u.hasPw;
     $lg('sNamaWrap').classList.add('lg-hide');
     $lg('sPassWrap').classList.remove('lg-hide');
     $lg('sPass2Wrap').classList.toggle('lg-hide', !baru);
@@ -5244,60 +5418,46 @@ function lgUnpickSiswa() {
 // ── Submit ──────────────────────────────────
 async function lgSubmit(g) {
     const btn = $lg(g + 'Btn'); if (!btn || btn.disabled) return;
-    btn.disabled = true;
+    const label = btn.textContent, busy = 'Menghubungi server…';
+    btn.disabled = true; btn.textContent = busy;
     try { await ({ p: _doPersonal, g: _doGuru, s: _doSiswa })[g](); }
-    catch (e) { console.error(e); lgMsg(g.toUpperCase(), 'Terjadi kesalahan. Coba lagi.'); }
-    finally { btn.disabled = false; }
+    catch (e) { console.error(e); lgMsg(g.toUpperCase(), e && e.message ? e.message : 'Terjadi kesalahan. Coba lagi.'); }
+    finally { btn.disabled = false; if (btn.textContent === busy) btn.textContent = label; }
 }
 
 async function _doPersonal() {
     const mode = LG.mode.p, name = _norm($lg('pName').value), pass = $lg('pPass').value;
     if (!name) return lgMsg('P', 'Nama wajib diisi.');
     if (pass.length < 4) return lgMsg('P', 'Password minimal 4 karakter.');
-    const reg = _reg();
-    const found = reg.users.find(u => u.role === 'personal' && _key(u.nama) === _key(name));
-    if (mode === 'daftar') {
-        if (found) return lgMsg('P', 'Nama ini sudah dipakai. Tambahkan nama belakang atau angka, atau pilih "Masuk".');
-        return _startSession(await _newUser(reg, { role: 'personal', nama: name }, pass));
-    }
-    if (!found) return lgMsg('P', 'Akun tidak ditemukan. Cek nama, atau pilih "Buat Akun".');
-    if (!(await _checkPw(found, pass))) return lgMsg('P', 'Password salah.');
-    _startSession(found);
+    _startSession(await api('POST', '/auth/personal', { mode: mode === 'daftar' ? 'daftar' : 'masuk', nama: name, password: pass,
+        legacyUid: mode === 'daftar' ? _legacyUid('personal', name) : undefined }));
 }
 
 async function _doGuru() {
     const mode = LG.mode.g, name = _norm($lg('gName').value), pass = $lg('gPass').value;
     if (!name) return lgMsg('G', 'Nama guru wajib diisi.');
-    const reg = _reg();
     if (mode === 'masuk') {
         const l = LG.pk.gm;
         if (!l) return lgMsg('G', 'Pilih nama lembaga terlebih dahulu.');
         if (!pass) return lgMsg('G', 'Password wajib diisi.');
-        const u = reg.users.find(x => x.role === 'guru' && x.lembagaId === l.id && _key(x.nama) === _key(name));
-        if (!u) return lgMsg('G', 'Guru "' + name + '" tidak ditemukan di ' + l.nama + '.');
-        if (!u.hash) return lgMsg('G', 'Akun guru ini hanya salinan data kelas di perangkat ini. Masuk lewat perangkat guru.');
-        if (!(await _checkPw(u, pass))) return lgMsg('G', 'Password salah.');
-        return _startSession(u);
+        return _startSession(await api('POST', '/auth/guru', { mode: 'masuk', nama: name, password: pass, lembagaId: l.id }));
     }
     if (pass.length < 4) return lgMsg('G', 'Password minimal 4 karakter.');
-    let l, baru = LG.lbMode === 'baru';
+    const baru = LG.lbMode === 'baru';
+    const payload = { mode: 'daftar', nama: name, password: pass };
+    let lembagaNama;
     if (baru) {
         const f = { nama: _norm($lg('gLNama').value), jenis: $lg('gLJenis').value, desa: _norm($lg('gLDesa').value),
                     kec: _norm($lg('gLKec').value), kab: _norm($lg('gLKab').value), prov: _norm($lg('gLProv').value) };
         if (!f.nama || !f.desa || !f.kec || !f.kab || !f.prov)
             return lgMsg('G', 'Lengkapi nama lembaga, desa, kecamatan, kabupaten, dan provinsi.');
-        const sig = o => [o.nama, o.desa, o.kec, o.kab, o.prov].map(_key).join('|');
-        if (reg.lembaga.some(x => sig(x) === sig(f)))
-            return lgMsg('G', 'Lembaga ini sudah terdaftar. Pilih tab "Sudah Terdaftar" untuk bergabung.');
-        l = Object.assign({ id: 'l' + _uid(), createdAt: Date.now() }, f);
+        payload.lembaga = f; lembagaNama = f.nama;
     } else {
-        l = LG.pk.gr;
-        if (!l) return lgMsg('G', 'Pilih lembaga terlebih dahulu.');
+        if (!LG.pk.gr) return lgMsg('G', 'Pilih lembaga terlebih dahulu.');
+        payload.lembagaId = LG.pk.gr.id; lembagaNama = LG.pk.gr.nama;
     }
-    if (reg.users.some(x => x.role === 'guru' && x.lembagaId === l.id && _key(x.nama) === _key(name)))
-        return lgMsg('G', 'Nama guru ini sudah terdaftar di lembaga tersebut. Pilih "Masuk".');
-    if (baru) reg.lembaga.push(l);
-    _startSession(await _newUser(reg, { role: 'guru', nama: name, lembagaId: l.id, admin: baru }, pass));
+    payload.legacyUid = _legacyUid('guru', name, lembagaNama);
+    _startSession(await api('POST', '/auth/guru', payload));
 }
 
 async function _doSiswa() {
@@ -5305,36 +5465,23 @@ async function _doSiswa() {
     if (!LG.pk.s) return lgMsg('S', 'Pilih lembaga terlebih dahulu.');
     if (!LG.guru) return lgMsg('S', 'Klik nama gurumu terlebih dahulu.');
     if (!LG.siswa) return lgMsg('S', 'Klik namamu dari daftar.');
-    const reg = _reg();
-    const u = reg.users.find(x => x.uid === LG.siswa && x.role === 'siswa');
+    const u = LG.siswaList.find(x => x.uid === LG.siswa);
     if (!u) return lgMsg('S', 'Nama tidak ditemukan. Minta guru memeriksa daftar siswa.');
-    if (!u.hash) {   // akun dibuat guru — siswa membuat password pertama kali
+    if (!u.hasPw) {   // akun dibuat guru — siswa membuat password pertama kali
         if (pass.length < 4) return lgMsg('S', 'Password minimal 4 karakter.');
         if (pass !== $lg('sPass2').value) return lgMsg('S', 'Password dan ulangi password tidak sama.');
-        u.salt = _uid(); u.hash = await _hashPw(pass, u.salt); delete u.pending;
-        _saveReg(reg);
-        return _startSession(u);
-    }
-    if (!pass) return lgMsg('S', 'Password wajib diisi.');
-    if (!(await _checkPw(u, pass))) return lgMsg('S', 'Password salah. Lupa password? Minta gurumu mereset di Panel Guru.');
-    _startSession(u);
+    } else if (!pass) return lgMsg('S', 'Password wajib diisi.');
+    _startSession(await api('POST', '/auth/siswa', { uid: u.uid, password: pass }));
 }
 
 // ── Sesi (login otomatis) ───────────────────
-function _startSession(u) {
-    const reg = _reg();
-    const lem  = u.lembagaId ? reg.lembaga.find(l => l.id === u.lembagaId) : null;
-    const guru = u.guruId ? reg.users.find(x => x.uid === u.guruId) : null;
-    const obj = {
-        id: u.uid, uid: u.uid, type: 'account', role: u.role, nama: u.nama,
-        lembagaId: u.lembagaId || null, lembagaNama: lem ? lem.nama : null,
-        guruId: u.guruId || null, guruNama: guru ? guru.nama : null,
-        prefix: 'user_' + u.uid + '_'
-    };
+function _startSession(res) {
+    _setToken(res.token);
+    const obj = res.user;
     _setAuth(obj);
     _applyUser(obj);
     lgReset();
-    gaEvent('login', { method: u.role });
+    gaEvent('login', { method: obj.role });
     // Guru langsung diarahkan ke Panel Guru setelah masuk
     if (obj.role === 'guru') setTimeout(() => { if (typeof HF !== 'undefined') HF.open(); }, 350);
 }
@@ -5357,7 +5504,8 @@ function lgReset() {
     ['p', 'g', 's'].forEach(g => lgTab(g, 'masuk'));
     lgLembagaMode('baru');
     lgRenderGurus();
-    ['gm', 'gr', 's'].forEach(lgPickerMount);
+    // Pemilih lembaga dimuat saat layarnya dibuka (lgGo), bukan setiap halaman dibuka → hemat request ke server
+    ['gm', 'gr', 's'].forEach(k => { const el = $lg('pk_' + k); if (el) el.innerHTML = ''; });
     lgShow('lgStart');
 }
 
@@ -5369,6 +5517,15 @@ function doLoginGuest() {
 }
 
 function logoutUser() {
+    // kirim dulu perubahan hafalan yang belum tersinkron (maks. 3 detik), baru keluar
+    const dirty = _syncOk() && Object.keys(_smeta().dirty).some(n => _smeta().dirty[n]);
+    if (!dirty) return _doLogout();
+    Promise.race([syncNow(false), new Promise(r => setTimeout(r, 3000))]).then(_doLogout, _doLogout);
+}
+function _doLogout() {
+    clearTimeout(_sync.timer);
+    if (_token()) api('POST', '/auth/logout').catch(() => {});   // cabut token di server (best effort)
+    _setToken('');
     localStorage.removeItem(AUTH_KEY);
     window.elfashihUser = null;
     if (typeof hfOnUser === 'function') hfOnUser(null);
@@ -5383,8 +5540,18 @@ function logoutUser() {
 (function() {
     lgReset();
     const saved = _getAuth();
-    if (saved && saved.id && saved.type === 'account') {
+    // Akun server wajib punya token. Sesi lama (versi tanpa server) tidak punya token → minta masuk lagi.
+    const usable = saved && saved.id && saved.type === 'account' && (saved.role === 'legacy' || _token());
+    if (usable) {
         _applyUser(saved);
+        if (saved.role !== 'legacy') {
+            // Segarkan data pengguna dari server; token kedaluwarsa (401) otomatis mengeluarkan pengguna.
+            api('GET', '/me').then(r => {
+                if (r && r.user && window.elfashihUser) { _setAuth(r.user); Object.assign(window.elfashihUser, r.user); }
+            }).catch(() => {});
+        }
+    } else if (saved && saved.role !== 'legacy') {
+        localStorage.removeItem(AUTH_KEY);
     }
     // else: halaman login tetap tampil
 })();
@@ -12046,11 +12213,11 @@ function updateJuzSelectInfo() {
 <script>
 // =============================================
 // PANEL HAFALAN — Guru (kelola & nilai) / Siswa (lihat progres sendiri)
-// Data setoran disimpan di registry lokal (REG_KEY) lewat _reg()/_saveReg(),
-// jadi nanti tinggal dialihkan ke API server bersama data akun.
-//   reg.setoran    : [{ id, siswaUid, guruUid, tgl, jenis:'ziyadah'|'murojaah', pFrom, pTo,
+// Data disimpan di SERVER (lihat api.py); `C` di bawah hanyalah salinan di memori
+// yang dimuat dari GET /api/kelas dan diperbarui setelah tiap perubahan berhasil.
+//   C.setoran      : [{ id, siswaUid, guruUid, tgl, jenis:'ziyadah'|'murojaah', pFrom, pTo,
 //                       surat, ayatFrom, ayatTo, kelancaran:'lancar'|'belum', tajwid, makhraj, catatan, ts }]
-//   reg.keputusan  : { "<siswaUid>:<juz>": { v:'lanjut'|'ulang', tgl, ts } }
+//   C.keputusan    : { "<siswaUid>:<juz>": { v:'lanjut'|'ulang', tgl, ts } }
 // =============================================
 const HF = (function () {
     const KKM = 75;          // nilai tajwid minimal agar juz dinilai layak lanjut
@@ -12073,7 +12240,25 @@ const HF = (function () {
     const S = { view: 'list', uid: null, juz: null, tab: 'juz', q: '' };
 
     // ---------- data ----------
-    function DB() { const r = _reg(); r.setoran = r.setoran || []; r.keputusan = r.keputusan || {}; return r; }
+    let C = { users: [], lembaga: [], setoran: [], keputusan: {} };
+    function DB() { return C; }
+    async function load() {
+        const d = await api('GET', '/kelas');
+        C = { users: d.users || [], lembaga: d.lembaga || [], setoran: d.setoran || [], keputusan: d.keputusan || {} };
+    }
+    function fail(e) { toast('❌ ' + (e && e.message ? e.message : 'Gagal menyimpan. Coba lagi.')); }
+    function loadError(e) {
+        $('hfBody').innerHTML = '<div class="hf-wrap"><div class="hf-empty">⚠️ ' + _esc(e && e.message || 'Gagal memuat data.') +
+            '<br><br><button class="hf-btn sm" onclick="HF.reload()"><i class="fa-solid fa-rotate"></i> Coba lagi</button></div></div>';
+    }
+    function clearM() { Object.keys(M).forEach(k => delete M[k]); Object.keys(Mreq).forEach(k => delete Mreq[k]); }
+    async function reload() {
+        clearM();
+        $('hfBody').innerHTML = '<div class="hf-wrap"><div class="hf-empty">Memuat data dari server…</div></div>';
+        try { await load(); } catch (e) { return loadError(e); }
+        if (S.view !== 'list' && !C.users.some(u => u.uid === S.uid)) { S.view = isGuru() ? 'list' : 'siswa'; S.uid = isSiswa() ? me().uid : null; }
+        render();
+    }
     function students(r) { return r.users.filter(u => u.role === 'siswa' && u.guruId === me().uid).sort((a, b) => a.nama.localeCompare(b.nama, 'id')); }
     function entriesOf(uid, r) {
         return r.setoran.filter(s => s.siswaUid === uid).sort((a, b) => a.tgl < b.tgl ? -1 : a.tgl > b.tgl ? 1 : (a.ts || 0) - (b.ts || 0));
@@ -12127,25 +12312,47 @@ const HF = (function () {
         if (J.mur == null) return 'Belum pernah dimurojaah';
         return a > MUR_WARN ? 'Terakhir murojaah ' + a + ' hari lalu' : null;
     }
-    function mandiri(uid) {
-        const pre = 'user_' + uid + '_';
-        const get = k => { try { return JSON.parse(localStorage.getItem(pre + k) || 'null'); } catch (e) { return null; } };
-        const h = get('elfashih_hafalan'), l = get('elfashih_leitner'), st = get('elfashih_streak');
-        if (!h && !l && !st) return null;
+    const M = {}, Mreq = {};
+    function summarize(h, l, st) {
+        if (!Object.keys(h || {}).length && !Object.keys(l || {}).length && !st) return null;
         let lan = 0, pro = 0; Object.values(h || {}).forEach(v => { if (v === 'lancar') lan++; else if (v === 'proses') pro++; });
         let due = 0; try { due = Object.values(l || {}).filter(e => typeof isDue === 'function' && isDue(e)).length; } catch (e) {}
         return { lan, pro, due, streak: st && st.count || 0 };
+    }
+    function mandiri(uid) {
+        if (isSiswa() && uid === me().uid) {      // data sendiri: dari localStorage (sudah disinkronkan)
+            const get = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+            return summarize(get('elfashih_hafalan'), get('elfashih_leitner'), get('elfashih_streak'));
+        }
+        if (isGuru()) {                            // data siswa: diambil dari server (bisa dari perangkat mana pun)
+            if (!Mreq[uid]) {
+                Mreq[uid] = 1;
+                api('GET', '/siswa/' + encodeURIComponent(uid) + '/mandiri').then(d => {
+                    M[uid] = summarize(d.hafalan, d.leitner, d.streak);
+                    if (S.view === 'siswa' && S.uid === uid) renderSiswa();
+                }).catch(() => { Mreq[uid] = 0; });
+            }
+            return M[uid] || null;
+        }
+        return null;
     }
     const bar = (l, p, t) => '<div class="hf-bar"><i class="l" style="width:' + (l / t * 100) + '%"></i><i class="p" style="width:' + (p / t * 100) + '%"></i></div>';
     const jStatus = J => J.done ? chip('l', '✅ Lancar') : (J.l + J.p > 0 ? chip('p', '🔶 Proses') : chip('b', '⬜ Belum'));
     const kpChip = J => J.kp ? (J.kp.v === 'lanjut' ? chip('t', '➡️ Lanjut') : chip('r', '🔁 Ulang')) : '';
 
     // ---------- shell ----------
-    function open() {
+    async function open() {
         if (!me() || !(isGuru() || isSiswa())) return;
         if (typeof hideDashboard === 'function') hideDashboard();
         S.view = isGuru() ? 'list' : 'siswa'; S.uid = isSiswa() ? me().uid : null; S.tab = 'juz'; S.q = '';
+        clearM();
         $('hfPanel').classList.add('open'); document.body.classList.add('hf-open');
+        setTop(isGuru() ? 'Panel Guru' : 'Progres Hafalan Saya', me().nama + (lembagaNama() ? ' · ' + lembagaNama() : ''));
+        $('hfBack').innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        const who = me().uid;
+        $('hfBody').innerHTML = '<div class="hf-wrap"><div class="hf-empty">Memuat data dari server…<br><span class="hf-sub">Pertama kali bisa sampai 1 menit bila server baru bangun.</span></div></div>';
+        try { await load(); } catch (e) { if (me() && me().uid === who) loadError(e); return; }
+        if (!me() || me().uid !== who) return;            // pengguna sudah keluar / berganti saat memuat
         render();
     }
     function close() {
@@ -12175,7 +12382,7 @@ const HF = (function () {
             const c = compute(u.uid, r);
             const warns = c.juz.slice(1).filter(J => murWarn(J)).length;
             return '<button class="hf-sis" onclick="HF.pick(\'' + u.uid + '\')">' +
-                '<div class="hf-row"><b class="hf-grow">' + _esc(u.nama) + '</b>' + (u.hash ? chip('t', 'Akun aktif') : chip('b', '⏳ Belum buat password')) + '</div>' +
+                '<div class="hf-row"><b class="hf-grow">' + _esc(u.nama) + '</b>' + (u.hasPw ? chip('t', 'Akun aktif') : chip('b', '⏳ Belum buat password')) + '</div>' +
                 '<div style="margin:8px 0 6px">' + bar(c.totL, c.totP, 604) + '</div>' +
                 '<div class="hf-sub">' + c.totL + ' / 604 halaman lancar · ' + c.selesai + ' juz selesai' +
                 (c.pos ? ' · Sekarang: Juz ' + c.pos.juz + ' hal. ' + c.pos.page : '') + '</div>' +
@@ -12183,12 +12390,13 @@ const HF = (function () {
                 (warns ? '<div style="margin-top:6px">' + chip('r', '🔁 ' + warns + ' juz perlu murojaah') + '</div>' : '') +
                 '</button>';
         }).join('');
-        const aktif = list.filter(u => u.hash).length;
+        const aktif = list.filter(u => u.hasPw).length;
         $('hfBody').innerHTML = '<div class="hf-wrap">' +
             '<div class="hf-card"><div class="hf-row">' +
             '<div class="hf-grow"><b style="font-size:15px">' + list.length + ' siswa</b><div class="hf-sub">' + aktif + ' sudah membuat password</div></div>' +
             '<button class="hf-btn sm" onclick="HF.addSiswa()"><i class="fa-solid fa-user-plus"></i> Tambah Siswa</button>' +
-            '<button class="hf-btn sm alt" onclick="HF.backup()"><i class="fa-solid fa-box-archive"></i> Cadangan</button></div>' +
+            '<button class="hf-btn sm alt" onclick="HF.backup()"><i class="fa-solid fa-box-archive"></i> Cadangan</button>' +
+            '<button class="hf-btn sm alt" onclick="HF.reload()" aria-label="Muat ulang" title="Muat ulang dari server"><i class="fa-solid fa-rotate"></i></button></div>' +
             '<div class="hf-sub" style="margin-top:8px">Nama yang kamu tambahkan menjadi akun siswa. Saat masuk, siswa memilih namanya sendiri lalu membuat password sendiri.</div></div>' +
             (list.length > 4 ? '<input class="hf-input" style="margin-bottom:10px" placeholder="Cari nama siswa…" value="' + _esc(S.q) + '" oninput="HF.search(this.value)">' : '') +
             (rows || '<div class="hf-empty">' + (list.length ? 'Tidak ada siswa yang cocok.' : 'Belum ada siswa.<br>Klik <b>Tambah Siswa</b> lalu tempel daftar nama (satu nama per baris).') + '</div>') +
@@ -12215,16 +12423,16 @@ const HF = (function () {
             '<div class="hf-sub">' + (c.pos ? 'Posisi setoran: Juz ' + c.pos.juz + ', halaman ' + c.pos.page : 'Belum ada setoran') + '</div></div>' +
             (g ? '<button class="hf-btn sm" onclick="HF.form({uid:\'' + u.uid + '\'})"><i class="fa-solid fa-plus"></i> Catat Setoran</button>' +
                  '<button class="hf-btn sm alt" onclick="HF.manage(\'' + u.uid + '\')" aria-label="Kelola siswa"><i class="fa-solid fa-ellipsis"></i></button>'
-               : '<button class="hf-btn sm alt" onclick="HF.backup()"><i class="fa-solid fa-file-import"></i> Impor Data</button>') +
+               : '<button class="hf-btn sm alt" onclick="HF.reload()" title="Muat ulang dari server"><i class="fa-solid fa-rotate"></i> Muat ulang</button>') +
             '</div><div style="margin:10px 0 4px">' + bar(c.totL, c.totP, 604) + '</div>' +
             '<div class="hf-stats">' +
             '<div class="hf-stat"><b>' + c.totL + '<small style="font-size:11px;color:var(--text-muted)"> / 604</small></b><span>Halaman lancar</span></div>' +
             '<div class="hf-stat"><b>' + c.selesai + '<small style="font-size:11px;color:var(--text-muted)"> / 30</small></b><span>Juz selesai</span></div>' +
             '<div class="hf-stat"><b>' + (c.avg != null ? c.avg : '—') + '</b><span>Rata-rata tajwid</span></div>' +
             '<div class="hf-stat"><b>' + c.totP + '</b><span>Hal. belum lancar</span></div></div>' +
-            (md ? '<div class="hf-sub" style="margin-top:10px">📱 Hafalan mandiri di aplikasi (perangkat ini): <b>' + md.lan + '</b> ayat lancar, <b>' + md.pro + '</b> proses' +
+            (md ? '<div class="hf-sub" style="margin-top:10px">📱 Hafalan mandiri di aplikasi: <b>' + md.lan + '</b> ayat lancar, <b>' + md.pro + '</b> proses' +
                   (md.due ? ', <b>' + md.due + '</b> ayat jatuh tempo murojaah' : '') + (md.streak ? ' · streak ' + md.streak + ' hari' : '') + '</div>' : '') +
-            (!nTot && !g ? '<div class="hf-warn">Belum ada setoran dari guru di perangkat ini. Jika gurumu memakai perangkat lain, minta file paket data dari guru lalu klik <b>Impor Data</b>.</div>' : '') +
+            (!nTot && !g ? '<div class="hf-warn">Gurumu belum mencatat setoran untukmu. Setoran baru muncul di sini otomatis; klik <b>Muat ulang</b> bila gurumu baru saja mencatatnya.</div>' : '') +
             '</div>' +
             '<div class="hf-tabs">' + tabs.map(t => '<button class="' + (S.tab === t[0] ? 'on' : '') + '" onclick="HF.tab(\'' + t[0] + '\')">' + t[1] + '</button>').join('') + '</div>' + body + '</div>';
     }
@@ -12318,12 +12526,15 @@ const HF = (function () {
             (g ? '<div style="margin-top:12px"><button class="hf-btn sm" onclick="HF.form({uid:\'' + u.uid + '\',juz:' + J.j + '})"><i class="fa-solid fa-plus"></i> Catat setoran Juz ' + J.j + '</button></div>' : '') + '</div>' +
             '<div class="hf-card"><div class="hf-h">Riwayat juz ini</div>' + (ents.length ? ents.map(e => entHtml(e, g)).join('') : '<div class="hf-empty" style="padding:12px">Belum ada setoran.</div>') + '</div></div>';
     }
-    function decide(j, v) {
+    async function decide(j, v) {
         const r = DB(), c = compute(S.uid, r), J = c.juz[j], key = S.uid + ':' + j;
         if (v === 'lanjut' && !J.done && !confirm('Juz ' + j + ' belum 100% lancar (' + J.l + '/' + J.total + ' halaman). Tetap tandai lanjut?')) return;
         if (v === 'lanjut' && J.done && J.avg != null && J.avg < KKM && !confirm('Rata-rata tajwid ' + J.avg + ' di bawah ' + KKM + '. Tetap tandai lanjut?')) return;
-        if (!v) delete r.keputusan[key]; else r.keputusan[key] = { v, tgl: tglNow(), ts: Date.now() };
-        _saveReg(r); toast(v === 'lanjut' ? '➡️ Ditandai lanjut' : v === 'ulang' ? '🔁 Ditandai ulang' : 'Keputusan dibatalkan'); renderJuz();
+        try {
+            const res = await api('PUT', '/keputusan', { siswaUid: S.uid, juz: j, v: v || '', tgl: tglNow() });
+            if (!v) delete C.keputusan[key]; else C.keputusan[key] = res.keputusan;
+        } catch (e) { return fail(e); }
+        toast(v === 'lanjut' ? '➡️ Ditandai lanjut' : v === 'ulang' ? '🔁 Ditandai ulang' : 'Keputusan dibatalkan'); renderJuz();
     }
 
     // ---------- modal ----------
@@ -12363,7 +12574,7 @@ const HF = (function () {
             '<div><label class="hf-label">Nilai makhraj (0–100)</label><input class="hf-input" type="number" inputmode="numeric" min="0" max="100" id="fMak" value="' + (e.makhraj == null ? '' : e.makhraj) + '"></div></div>' +
             '<label class="hf-label">Catatan</label><textarea class="hf-input" id="fCat" rows="2" placeholder="Mis. mad kurang panjang, perhatikan ikhfa…">' + _esc(e.catatan || '') + '</textarea>' +
             '<div class="hf-msg" id="fMsg"></div>' +
-            '<div class="hf-row" style="margin-top:6px"><button class="hf-btn alt grow hf-grow" onclick="HF.closeModal()">Batal</button><button class="hf-btn hf-grow" onclick="HF.saveForm()">Simpan</button></div>');
+            '<div class="hf-row" style="margin-top:6px"><button class="hf-btn alt grow hf-grow" onclick="HF.closeModal()">Batal</button><button class="hf-btn hf-grow" id="fSave" onclick="HF.saveForm()">Simpan</button></div>');
         prev();
     }
     function setKel(v) { F.kel = v; document.querySelectorAll('#fKel button').forEach(b => b.classList.toggle('on', b.classList.contains(v === 'lancar' ? 'l' : 'p'))); }
@@ -12376,7 +12587,7 @@ const HF = (function () {
         const n = Math.abs(b - a) + 1, lo = Math.min(a, b), hi = Math.max(a, b);
         el.textContent = '= ' + n + ' halaman · Juz ' + jOf(lo) + (jOf(hi) !== jOf(lo) ? '–' + jOf(hi) : '');
     }
-    function saveForm() {
+    async function saveForm() {
         const msg = t => { $('fMsg').textContent = t; };
         let a = parseInt($('fFrom').value, 10), b = parseInt($('fTo').value, 10);
         if (!a || !b) return msg('Isi halaman dari dan sampai.');
@@ -12385,19 +12596,24 @@ const HF = (function () {
         const tj = $('fTaj').value, mk = $('fMak').value;
         if ((tj !== '' && (+tj < 0 || +tj > 100)) || (mk !== '' && (+mk < 0 || +mk > 100))) return msg('Nilai harus antara 0 dan 100.');
         const tgl = $('fTgl').value || tglNow(), su = parseInt($('fSurat').value, 10) || null;
-        const r = DB(), me0 = me();
-        const rec = { id: F.id || _uid(), siswaUid: F.uid, guruUid: me0.uid, tgl, jenis: F.jenis, pFrom: a, pTo: b,
+        const rec = { id: F.id || undefined, siswaUid: F.uid, tgl, jenis: F.jenis, pFrom: a, pTo: b,
             surat: su, ayatFrom: numOpt($('fAF').value, 1, 286), ayatTo: numOpt($('fAT').value, 1, 286),
             kelancaran: F.kel, tajwid: tj === '' ? null : parseInt(tj, 10), makhraj: mk === '' ? null : parseInt(mk, 10),
-            catatan: ($('fCat').value || '').trim().slice(0, 500), ts: Date.now() };
-        if (F.id) { const i = r.setoran.findIndex(s => s.id === F.id); if (i >= 0) r.setoran[i] = rec; else r.setoran.push(rec); } else r.setoran.push(rec);
-        _saveReg(r); closeModal(); toast('✅ Setoran tersimpan');
+            catatan: ($('fCat').value || '').trim().slice(0, 500) };
+        const btn = $('fSave'); if (btn) { if (btn.disabled) return; btn.disabled = true; btn.textContent = 'Menyimpan…'; }
+        let saved;
+        try { saved = (await api('POST', '/setoran', rec)).setoran; }
+        catch (e) { if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; } return msg(e.message); }
+        const i = C.setoran.findIndex(x => x.id === saved.id);
+        if (i >= 0) C.setoran[i] = saved; else C.setoran.push(saved);
+        closeModal(); toast('✅ Setoran tersimpan');
         if (S.view === 'juz') renderJuz(); else renderSiswa();
-        if (rec.kelancaran === 'lancar') { const J = compute(F.uid, r).juz; for (let j = jOf(a); j <= jOf(b); j++) if (J[j].done && !J[j].kp) { setTimeout(() => toast('🎉 Juz ' + j + ' sudah 100% lancar — tentukan lanjut/ulang'), 1800); break; } }
+        if (saved.kelancaran === 'lancar') { const J = compute(F.uid, C).juz; for (let j = jOf(a); j <= jOf(b); j++) if (J[j].done && !J[j].kp) { setTimeout(() => toast('🎉 Juz ' + j + ' sudah 100% lancar — tentukan lanjut/ulang'), 1800); break; } }
     }
-    function delEnt(id) {
+    async function delEnt(id) {
         if (!confirm('Hapus setoran ini?')) return;
-        const r = DB(); r.setoran = r.setoran.filter(s => s.id !== id); _saveReg(r); toast('Setoran dihapus');
+        try { await api('DELETE', '/setoran/' + encodeURIComponent(id)); } catch (e) { return fail(e); }
+        C.setoran = C.setoran.filter(s => s.id !== id); toast('Setoran dihapus');
         if (S.view === 'juz') renderJuz(); else renderSiswa();
     }
 
@@ -12405,91 +12621,122 @@ const HF = (function () {
     function addSiswa() {
         openModal('<h3>Tambah Siswa</h3><div class="hf-sub">Tulis satu nama per baris (boleh tempel dari Excel/WhatsApp). Nama ini menjadi akun siswa; siswa memilih namanya sendiri saat masuk lalu membuat password sendiri.</div>' +
             '<textarea class="hf-input" id="aNames" rows="9" style="margin-top:10px" placeholder="Ahmad Fauzi&#10;Siti Aisyah&#10;Muhammad Rizki"></textarea><div class="hf-msg" id="aMsg"></div>' +
-            '<div class="hf-row"><button class="hf-btn alt hf-grow" onclick="HF.closeModal()">Batal</button><button class="hf-btn hf-grow" onclick="HF.saveSiswa()">Tambahkan</button></div>');
+            '<div class="hf-row"><button class="hf-btn alt hf-grow" onclick="HF.closeModal()">Batal</button><button class="hf-btn hf-grow" id="aSave" onclick="HF.saveSiswa()">Tambahkan</button></div>');
     }
-    function saveSiswa() {
+    async function saveSiswa() {
         const raw = $('aNames').value.split(/[\n;]+/).map(s => _norm(s.replace(/^\s*\d+\s*[.)\-]\s*/, ''))).filter(Boolean);
         if (!raw.length) { $('aMsg').textContent = 'Isi minimal satu nama.'; return; }
-        const r = DB(), m = me(); let ok = 0, skip = 0;
-        const have = new Set(r.users.filter(u => u.role === 'siswa' && u.guruId === m.uid).map(u => _key(u.nama)));
-        raw.forEach(n => {
-            if (have.has(_key(n))) { skip++; return; }
-            have.add(_key(n)); ok++;
-            r.users.push({ uid: _uid(), role: 'siswa', nama: n.slice(0, 80), lembagaId: m.lembagaId, guruId: m.uid, pending: true, createdAt: Date.now() });
-        });
-        _saveReg(r); closeModal(); toast('✅ ' + ok + ' siswa ditambahkan' + (skip ? ', ' + skip + ' dilewati (sudah ada)' : '')); renderList();
+        const btn = $('aSave'); if (btn.disabled) return; btn.disabled = true; btn.textContent = 'Menyimpan…';
+        let res;
+        try { res = await api('POST', '/siswa', { names: raw }); }
+        catch (e) { btn.disabled = false; btn.textContent = 'Tambahkan'; $('aMsg').textContent = e.message; return; }
+        C.users = C.users.concat(res.users || []);
+        closeModal(); toast('✅ ' + res.added + ' siswa ditambahkan' + (res.skipped ? ', ' + res.skipped + ' dilewati (sudah ada)' : '')); renderList();
     }
     function manage(uid) {
         const r = DB(), u = r.users.find(x => x.uid === uid); if (!u) return;
-        openModal('<h3>Kelola Siswa</h3><div class="hf-sub">' + _esc(u.nama) + ' · ' + (u.hash ? 'sudah punya password' : 'belum membuat password') + '</div>' +
+        openModal('<h3>Kelola Siswa</h3><div class="hf-sub">' + _esc(u.nama) + ' · ' + (u.hasPw ? 'sudah punya password' : 'belum membuat password') + '</div>' +
             '<label class="hf-label">Ubah nama</label><input class="hf-input" id="mNama" value="' + _esc(u.nama) + '"><div class="hf-msg" id="mMsg"></div>' +
             '<div class="hf-row"><button class="hf-btn hf-grow" onclick="HF.rename(\'' + uid + '\')">Simpan nama</button></div>' +
-            '<div class="hf-row" style="margin-top:10px">' + (u.hash ? '<button class="hf-btn alt hf-grow" onclick="HF.resetPw(\'' + uid + '\')">🔑 Reset password</button>' : '') +
+            '<div class="hf-row" style="margin-top:10px">' + (u.hasPw ? '<button class="hf-btn alt hf-grow" onclick="HF.resetPw(\'' + uid + '\')">🔑 Reset password</button>' : '') +
             '<button class="hf-btn warn hf-grow" onclick="HF.delSiswa(\'' + uid + '\')">🗑️ Hapus siswa</button></div>' +
             '<div class="hf-row" style="margin-top:12px"><button class="hf-btn alt hf-grow" onclick="HF.closeModal()">Tutup</button></div>');
     }
-    function rename(uid) {
+    async function rename(uid) {
         const n = _norm($('mNama').value); if (!n) { $('mMsg').textContent = 'Nama tidak boleh kosong.'; return; }
-        const r = DB(), u = r.users.find(x => x.uid === uid);
-        if (r.users.some(x => x.role === 'siswa' && x.guruId === u.guruId && x.uid !== uid && _key(x.nama) === _key(n))) { $('mMsg').textContent = 'Nama itu sudah dipakai siswa lain.'; return; }
-        u.nama = n.slice(0, 80); _saveReg(r); closeModal(); toast('Nama diubah'); renderSiswa();
+        try {
+            const res = await api('PATCH', '/siswa/' + encodeURIComponent(uid), { nama: n });
+            const i = C.users.findIndex(x => x.uid === uid); if (i >= 0) C.users[i] = res.user;
+        } catch (e) { $('mMsg').textContent = e.message; return; }
+        closeModal(); toast('Nama diubah'); renderSiswa();
     }
-    function resetPw(uid) {
+    async function resetPw(uid) {
         if (!confirm('Reset password siswa ini? Siswa akan diminta membuat password baru saat masuk.')) return;
-        const r = DB(), u = r.users.find(x => x.uid === uid); delete u.hash; delete u.salt; u.pending = true; _saveReg(r); closeModal(); toast('🔑 Password direset'); renderSiswa();
+        try {
+            const res = await api('POST', '/siswa/' + encodeURIComponent(uid) + '/reset-password');
+            const i = C.users.findIndex(x => x.uid === uid); if (i >= 0) C.users[i] = res.user;
+        } catch (e) { return fail(e); }
+        closeModal(); toast('🔑 Password direset'); renderSiswa();
     }
-    function delSiswa(uid) {
+    async function delSiswa(uid) {
         if (!confirm('Hapus siswa ini beserta seluruh riwayat setoran dan keputusannya? Tindakan ini tidak bisa dibatalkan.')) return;
-        const r = DB(); r.users = r.users.filter(x => x.uid !== uid); r.setoran = r.setoran.filter(s => s.siswaUid !== uid);
-        Object.keys(r.keputusan).forEach(k => { if (k.indexOf(uid + ':') === 0) delete r.keputusan[k]; });
-        _saveReg(r); closeModal(); toast('Siswa dihapus'); S.view = 'list'; S.uid = null; render();
+        try { await api('DELETE', '/siswa/' + encodeURIComponent(uid)); } catch (e) { return fail(e); }
+        C.users = C.users.filter(x => x.uid !== uid); C.setoran = C.setoran.filter(s => s.siswaUid !== uid);
+        Object.keys(C.keputusan).forEach(k => { if (k.indexOf(uid + ':') === 0) delete C.keputusan[k]; });
+        closeModal(); toast('Siswa dihapus'); S.view = 'list'; S.uid = null; render();
     }
 
-    // ---------- cadangan / bagikan / impor ----------
+    // ---------- cadangan & pemindahan data lama ----------
+    function packFrom(users, setoran, keputusan, guruUids) {
+        const siswa = users.filter(u => u.role === 'siswa' && guruUids.indexOf(u.guruId) >= 0).map(u => ({ uid: u.uid, nama: u.nama }));
+        const ids = new Set(siswa.map(x => x.uid));
+        return { siswa, setoran: (setoran || []).filter(x => ids.has(x.siswaUid)),
+                 keputusan: Object.fromEntries(Object.entries(keputusan || {}).filter(([k]) => ids.has(k.split(':')[0]))) };
+    }
+    // Data versi lama (tanpa server) yang masih tersimpan di browser ini, milik guru yang sedang masuk
+    function localPack() {
+        const r = _localReg(), m = me(); if (!r || !m) return null;
+        const lemOf = id => (r.lembaga.find(l => l.id === id) || {}).nama;
+        const gurus = r.users.filter(u => u.role === 'guru' && _key(u.nama) === _key(m.nama) && _key(lemOf(u.lembagaId)) === _key(m.lembagaNama)).map(u => u.uid);
+        if (!gurus.length) return null;
+        const p = packFrom(r.users, r.setoran, r.keputusan, gurus);
+        return p.siswa.length || p.setoran.length ? p : null;
+    }
     function backup() {
-        const g = isGuru();
-        openModal('<h3>' + (g ? 'Cadangan & Bagikan Data' : 'Impor Data dari Guru') + '</h3>' +
-            '<div class="hf-sub">Aplikasi ini belum memakai server: data akun & setoran tersimpan di browser perangkat ini. Gunakan fitur ini untuk memindahkan data antar perangkat atau mencadangkannya.</div>' +
-            (g ? '<div class="hf-card" style="margin-top:12px"><b style="font-size:13px">📦 Paket untuk siswa</b><div class="hf-sub" style="margin:4px 0 8px">Berisi daftar siswa & setoran tanpa password. Kirim ke siswa lewat WhatsApp; siswa mengimpornya di perangkat mereka.</div><button class="hf-btn sm" onclick="HF.exportData(false)">Unduh paket siswa</button></div>' +
-                 '<div class="hf-card"><b style="font-size:13px">💾 Cadangan lengkap (pribadi)</b><div class="hf-sub" style="margin:4px 0 8px">Termasuk akun guru & password terenkripsi. Simpan sendiri, jangan dibagikan.</div><button class="hf-btn sm alt" onclick="HF.exportData(true)">Unduh cadangan lengkap</button></div>' : '') +
-            '<div class="hf-card" style="margin-top:12px"><b style="font-size:13px">📥 Impor file</b><div class="hf-sub" style="margin:4px 0 8px">Data digabungkan dengan yang sudah ada; tidak ada yang dihapus.</div><input type="file" accept="application/json,.json" id="hfFile" onchange="HF.importData(this)"></div>' +
+        if (!isGuru()) return;
+        const lp = localPack();
+        openModal('<h3>Cadangan & Pemindahan Data</h3>' +
+            '<div class="hf-sub">Data kelas tersimpan di server dan bisa dibuka dari perangkat mana pun dengan akun gurumu. Cadangan di bawah ini bersifat tambahan.</div>' +
+            '<div class="hf-card" style="margin-top:12px"><b style="font-size:13px">💾 Unduh cadangan</b><div class="hf-sub" style="margin:4px 0 8px">Salinan daftar siswa, setoran, dan keputusan (tanpa password) dalam satu file.</div><button class="hf-btn sm" onclick="HF.exportData()">Unduh cadangan</button></div>' +
+            (lp ? '<div class="hf-card"><b style="font-size:13px">📱 Data lama di perangkat ini</b><div class="hf-sub" style="margin:4px 0 8px">Ditemukan ' + lp.siswa.length + ' siswa dan ' + lp.setoran.length + ' setoran dari versi sebelum ada server. Pindahkan ke server supaya aman dan bisa dibuka dari perangkat lain.</div><button class="hf-btn sm" id="bMig" onclick="HF.migrateLocal()">Pindahkan ke server</button></div>' : '') +
+            '<div class="hf-card"><b style="font-size:13px">📥 Impor file</b><div class="hf-sub" style="margin:4px 0 8px">Untuk file cadangan (versi baru) atau file paket data lama. Data digabungkan dengan yang sudah ada; tidak ada yang dihapus.</div><input type="file" accept="application/json,.json" id="hfFile" onchange="HF.importData(this)"></div>' +
             '<div class="hf-msg" id="bMsg"></div><div class="hf-row"><button class="hf-btn alt hf-grow" onclick="HF.closeModal()">Tutup</button></div>');
     }
-    function exportData(full) {
-        const r = DB(), m = me(); let users = r.users.filter(u => u.lembagaId === m.lembagaId && (u.role === 'guru' || u.role === 'siswa'));
-        const sisUids = new Set(users.filter(u => u.role === 'siswa').map(u => u.uid));
-        if (!full) users = users.map(u => { const c = { uid: u.uid, role: u.role, nama: u.nama, lembagaId: u.lembagaId }; if (u.guruId) c.guruId = u.guruId; if (u.role === 'siswa') c.pending = true; return c; });
-        const pack = { app: 'elfashih-kelas', v: 1, full: !!full, at: new Date().toISOString(),
-            lembaga: r.lembaga.filter(l => l.id === m.lembagaId), users,
-            setoran: r.setoran.filter(s => sisUids.has(s.siswaUid)),
-            keputusan: Object.fromEntries(Object.entries(r.keputusan).filter(([k]) => sisUids.has(k.split(':')[0]))) };
+    async function exportData() {
+        let pack;
+        try { pack = await api('GET', '/export'); } catch (e) { return fail(e); }
         const blob = new Blob([JSON.stringify(pack)], { type: 'application/json' }), a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'elfashih-' + (full ? 'cadangan' : 'paket-siswa') + '-' + tglNow() + '.json';
+        a.download = 'elfashih-cadangan-' + tglNow() + '.json';
         document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
         toast('📦 File diunduh');
+    }
+    async function sendImport(pack, msg) {
+        try {
+            const res = await api('POST', '/import', pack);
+            await load();
+            closeModal(); toast('✅ Dipindahkan: ' + res.siswa + ' siswa baru, ' + res.setoran + ' setoran, ' + res.keputusan + ' keputusan'); render();
+        } catch (e) { msg(e.message); }
+    }
+    async function migrateLocal() {
+        const lp = localPack(), msg = t => { $('bMsg').textContent = t; };
+        if (!lp) return msg('Tidak ada data lama untuk dipindahkan.');
+        const b = $('bMig'); if (b) { b.disabled = true; b.textContent = 'Memindahkan…'; }
+        await sendImport(lp, t => { msg(t); if (b) { b.disabled = false; b.textContent = 'Pindahkan ke server'; } });
     }
     function importData(inp) {
         const f = inp.files && inp.files[0]; if (!f) return; const msg = t => { $('bMsg').textContent = t; };
         const rd = new FileReader();
         rd.onload = () => {
             let d; try { d = JSON.parse(rd.result); } catch (e) { return msg('File bukan JSON yang valid.'); }
-            if (!d || d.app !== 'elfashih-kelas' || !Array.isArray(d.users) || !Array.isArray(d.setoran)) return msg('Ini bukan file data kelas elFashih.');
-            const r = DB(); let nu = 0, ns = 0;
-            (d.lembaga || []).forEach(l => { if (!r.lembaga.some(x => x.id === l.id)) r.lembaga.push(l); });
-            d.users.forEach(u => { if (u && u.uid && !r.users.some(x => x.uid === u.uid)) { r.users.push(u); nu++; } });
-            d.setoran.forEach(s => {
-                if (!s || !s.id) return; const i = r.setoran.findIndex(x => x.id === s.id);
-                if (i < 0) { r.setoran.push(s); ns++; } else if ((s.ts || 0) > (r.setoran[i].ts || 0)) { r.setoran[i] = s; ns++; }
-            });
-            Object.entries(d.keputusan || {}).forEach(([k, v]) => { const o = r.keputusan[k]; if (!o || (v.ts || 0) > (o.ts || 0)) r.keputusan[k] = v; });
-            _saveReg(r); closeModal(); toast('✅ Diimpor: ' + nu + ' akun, ' + ns + ' setoran'); render();
+            if (!d || d.app !== 'elfashih-kelas') return msg('Ini bukan file data kelas elFashih.');
+            let pack;
+            if (Array.isArray(d.siswa)) pack = { siswa: d.siswa, setoran: d.setoran || [], keputusan: d.keputusan || {} };      // cadangan versi baru
+            else if (Array.isArray(d.users) && Array.isArray(d.setoran)) {                                                     // paket versi lama
+                const gurus = d.users.filter(u => u.role === 'guru' && _key(u.nama) === _key(me().nama)).map(u => u.uid);
+                if (!gurus.length) return msg('File ini tidak berisi data untuk guru "' + me().nama + '".');
+                pack = packFrom(d.users, d.setoran, d.keputusan, gurus);
+            } else return msg('Format file tidak dikenali.');
+            if (!pack.siswa.length) return msg('File ini tidak berisi siswa untuk kelasmu.');
+            sendImport(pack, msg);
         };
         rd.readAsText(f);
     }
 
     // ---------- tombol di dashboard / drawer ----------
     function onUser(u) {
+        C = { users: [], lembaga: [], setoran: [], keputusan: {} };       // jangan bawa data pengguna sebelumnya
+        clearM();
         const ok = !!u && (u.role === 'guru' || u.role === 'siswa');
         const card = $('hfDashCard'), dr = $('ditemHf');
         if (card) {
@@ -12504,7 +12751,7 @@ const HF = (function () {
     }
 
     return { open, close, back, pick, search, tab, openJuz, pageTap, decide, form, setKel, setJenis, fillJuz, fillSurat, prev, saveForm, delEnt,
-             addSiswa, saveSiswa, manage, rename, resetPw, delSiswa, backup, exportData, importData, closeModal, onUser,
+             addSiswa, saveSiswa, manage, rename, resetPw, delSiswa, backup, exportData, importData, migrateLocal, reload, closeModal, onUser,
              // untuk pengujian
              _compute: compute, _jOf: jOf, _jS: jS, _jE: jE };
 })();

@@ -6,10 +6,10 @@
 // Mengubah string ini membuat browser menganggap sw.js "berubah", sehingga
 // siklus install→activate berjalan lagi dan cache lama otomatis dibuang
 // (lihat listener 'activate' di bawah).
-const CACHE_VERSION  = 'elfashih-v7-script-position-fix';
+const CACHE_VERSION  = 'elfashih-v8-api-server';
 const AUDIO_CACHE    = 'elfashih-audio-v5';
 const CDN_CACHE      = 'elfashih-cdn-v5';
-const API_CACHE      = 'elfashih-api-v5';
+const API_CACHE      = 'elfashih-api-v5-v8-api-server';
 
 // ─── Asset shell yang WAJIB ada saat install ──────────────────────────────────
 // Semua harus berhasil di-cache; kalau satu gagal, install dibatalkan.
@@ -80,6 +80,10 @@ self.addEventListener('fetch', (event) => {
 
   // Abaikan chrome-extension dan sejenisnya
   if (!url.protocol.startsWith('http')) return;
+
+  // API server (login, data kelas, setoran) — JANGAN pernah di-cache oleh service worker.
+  // Data ini milik pengguna tertentu dan harus selalu segar; biarkan langsung ke jaringan.
+  if (url.origin === self.location.origin && url.pathname.startsWith('/api/')) return;
 
   // 1. Audio MP3 — cache-first (hemat bandwidth, offline setelah pertama putar)
   if (url.pathname.endsWith('.mp3')) {

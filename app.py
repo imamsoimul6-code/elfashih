@@ -1,7 +1,49 @@
-from flask import Flask, render_template, send_from_directory, jsonify, Response
-import os, json, urllib.request, urllib.error
+from flask import Flask, render_template, send_from_directory, jsonify, Response, request
+from sqlalchemy.exc import SQLAlchemyError
+import os, json, time, urllib.request, urllib.error
+
+from models import db, database_url
+from api import api
 
 app = Flask(__name__)
+app.config.update(
+    SQLALCHEMY_DATABASE_URI=database_url(),
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    # Neon/Render menutup koneksi yang menganggur; pre_ping + recycle mencegah error "connection closed"
+    SQLALCHEMY_ENGINE_OPTIONS={'pool_pre_ping': True, 'pool_recycle': 280},
+    MAX_CONTENT_LENGTH=8 * 1024 * 1024,
+)
+db.init_app(app)
+app.register_blueprint(api)
+
+
+def init_db(retries=5):
+    # Dua worker gunicorn bisa membuat tabel bersamaan; kalau salah satu kalah balapan, coba lagi.
+    for i in range(retries):
+        try:
+            with app.app_context():
+                db.create_all()
+            return
+        except SQLAlchemyError as e:
+            if i == retries - 1:
+                raise
+            time.sleep(1 + i)
+
+
+init_db()
+
+
+@app.errorhandler(404)
+@app.errorhandler(405)
+@app.errorhandler(413)
+@app.errorhandler(500)
+def api_errors(e):
+    # Untuk /api selalu balas JSON (bukan halaman HTML error)
+    if request.path.startswith('/api/'):
+        code = getattr(e, 'code', 500) or 500
+        msg = {404: 'Tidak ditemukan.', 405: 'Metode tidak diizinkan.', 413: 'Data terlalu besar.'}.get(code, 'Terjadi kesalahan di server.')
+        return jsonify({'error': msg}), code
+    return e
 
 QURAN_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'static', 'quran')
 os.makedirs(QURAN_CACHE_DIR, exist_ok=True)

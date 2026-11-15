@@ -7,17 +7,20 @@ Password di-hash di server (werkzeug scrypt); browser tidak lagi menyimpan hash 
 """
 import datetime
 import json
+import os
 import re
 import secrets
+import time
 from functools import wraps
 
-from flask import Blueprint, g, jsonify, request
-from sqlalchemy import or_
+from flask import Blueprint, current_app, g, jsonify, request
+from sqlalchemy import func, or_
+from sqlalchemy.orm import defer
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models import (SESSION_DAYS, AuthSession, Keputusan, Lembaga, Setoran, User, UserData, db,
-                    hash_token, key, new_id, norm, now_ms)
+from models import (SESSION_DAYS, AuthSession, Keputusan, Lembaga, Rekaman, Setoran, User, UserData, db,
+                    hash_token, key, new_code, new_id, norm, norm_code, now_ms)
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -33,6 +36,36 @@ class ApiError(Exception):
     def __init__(self, code, msg):
         super().__init__(msg)
         self.code, self.msg = code, msg
+
+
+# Pembatas percobaan salah per IP (di memori per worker; cukup untuk meredam tebak-tebakan massal).
+# Yang dihitung hanya percobaan GAGAL, jadi satu sekolah (satu IP) yang login serentak tidak terkena.
+_FAILS = {}
+FAIL_LIMIT, FAIL_WINDOW = 30, 10 * 60
+
+
+def _ip():
+    return request.remote_addr or "?"
+
+
+def guard_auth(f):
+    @wraps(f)
+    def wrapper(*a, **kw):
+        now, ip = time.time(), _ip()
+        if len(_FAILS) > 5000:
+            for k in [k for k, v in _FAILS.items() if not v or v[-1] < now - FAIL_WINDOW]:
+                _FAILS.pop(k, None)
+        hits = [t for t in _FAILS.get(ip, []) if t > now - FAIL_WINDOW]
+        _FAILS[ip] = hits
+        if len(hits) >= FAIL_LIMIT:
+            raise ApiError(429, "Terlalu banyak percobaan gagal dari jaringan ini. Coba lagi beberapa menit lagi.")
+        try:
+            return f(*a, **kw)
+        except ApiError as e:
+            if e.code in (401, 404):
+                _FAILS.setdefault(ip, []).append(now)
+            raise
+    return wrapper
 
 
 @api.errorhandler(ApiError)
@@ -179,6 +212,7 @@ def delete_user_data(uid):
     Keputusan.query.filter_by(siswa_uid=uid).delete()
     AuthSession.query.filter_by(uid=uid).delete()
     UserData.query.filter_by(uid=uid).delete()
+    Rekaman.query.filter_by(siswa_uid=uid).delete()
 
 
 # ───────────────────────── data publik (layar login) ─────────────────────────
@@ -214,6 +248,7 @@ def guru_siswa(gid):
 
 # ───────────────────────── autentikasi ─────────────────────────
 @api.post("/auth/personal")
+@guard_auth
 def auth_personal():
     d = body()
     nama, pw = clean_nama(d.get("nama")), d.get("password")
@@ -234,6 +269,7 @@ def auth_personal():
 
 
 @api.post("/auth/guru")
+@guard_auth
 def auth_guru():
     d = body()
     nama, pw = clean_nama(d.get("nama"), "Nama guru"), d.get("password")
@@ -278,6 +314,7 @@ def auth_guru():
 
 
 @api.post("/auth/siswa")
+@guard_auth
 def auth_siswa():
     d = body()
     u = db.session.get(User, str(d.get("uid") or ""))
@@ -285,8 +322,19 @@ def auth_siswa():
         raise ApiError(404, "Nama tidak ditemukan. Minta guru memeriksa daftar siswa.")
     pw = d.get("password")
     if not u.pw_hash:                        # akun dibuat guru; siswa membuat password pertama kali
+        if not u.activation_code:
+            raise ApiError(403, "Akun ini belum punya kode aktivasi. Minta gurumu membuka Panel Guru untuk menampilkannya.")
+        t = now_ms()
+        if u.locked_until and u.locked_until > t:
+            raise ApiError(429, "Terlalu banyak percobaan salah. Coba lagi beberapa menit lagi.")
+        if norm_code(d.get("code")) != u.activation_code:
+            u.fails = (u.fails or 0) + 1
+            if u.fails >= MAX_FAILS:
+                u.fails, u.locked_until = 0, t + LOCK_MS
+            db.session.commit()
+            raise ApiError(401, "Kode aktivasi salah. Minta kode yang benar dari gurumu.")
         u.pw_hash = generate_password_hash(clean_pw(pw))
-        u.fails, u.locked_until = 0, 0
+        u.activation_code, u.fails, u.locked_until = None, 0, 0
         db.session.commit()
         return login_response(u)
     if not pw:
@@ -308,6 +356,26 @@ def logout():
     return jsonify({"ok": True})
 
 
+@api.post("/me/password")
+@auth("personal", "guru", "siswa")
+def change_password():
+    d = body()
+    old = d.get("old")
+    try:
+        check_login(g.user, old)
+    except ApiError as e:
+        if e.code == 401:       # bukan 401 agar front-end tidak mengira sesi berakhir
+            raise ApiError(400, "Password lama salah.")
+        raise
+    new = clean_pw(d.get("new"))
+    if new == old:
+        raise ApiError(400, "Password baru harus berbeda dari yang lama.")
+    g.user.pw_hash = generate_password_hash(new)
+    AuthSession.query.filter(AuthSession.uid == g.user.uid, AuthSession.token_hash != g.token_hash).delete()
+    db.session.commit()                                  # perangkat lain harus masuk lagi dengan password baru
+    return jsonify({"ok": True})
+
+
 @api.get("/me")
 @auth()
 def me():
@@ -322,11 +390,22 @@ def kelas_payload(u):
         siswa = [u]
     else:
         raise ApiError(403, "Akun pribadi tidak punya data kelas.")
+    if u.role == "guru":
+        missing = [s for s in siswa if not s.pw_hash and not s.activation_code]
+        for s in missing:                                  # siswa lama/hasil migrasi yang belum punya kode
+            s.activation_code = new_code()
+        if missing:
+            db.session.commit()
     uids = [s.uid for s in siswa]
     setoran = Setoran.query.filter(Setoran.siswa_uid.in_(uids)).all() if uids else []
     keputusan = Keputusan.query.filter(Keputusan.siswa_uid.in_(uids)).all() if uids else []
     lem = db.session.get(Lembaga, u.lembaga_id) if u.lembaga_id else None
-    return {"users": [s.public() for s in siswa],
+    baru = {}
+    if u.role == "guru" and uids:
+        rows = (db.session.query(Rekaman.siswa_uid, func.count(Rekaman.id))
+                .filter(Rekaman.siswa_uid.in_(uids), Rekaman.heard.is_(False)).group_by(Rekaman.siswa_uid).all())
+        baru = {uid: n for uid, n in rows}
+    return {"rekamanBaru": baru, "users": [s.public(with_code=(u.role == "guru")) for s in siswa],
             "lembaga": [lem.to_dict()] if lem else [],
             "setoran": [s.to_dict() for s in setoran],
             "keputusan": {"%s:%d" % (k.siswa_uid, k.juz): {"v": k.v, "tgl": k.tgl, "ts": k.ts} for k in keputusan}}
@@ -356,12 +435,12 @@ def siswa_add():
             continue
         have.add(key(n))
         u = User(uid=new_id(), role="siswa", nama=n, lembaga_id=g.user.lembaga_id, guru_id=g.user.uid,
-                 scope_key=User.make_scope("siswa", n, guru_id=g.user.uid))
+                 scope_key=User.make_scope("siswa", n, guru_id=g.user.uid), activation_code=new_code())
         db.session.add(u)
         added.append(u)
         ok += 1
     commit_or_conflict("Ada nama yang sudah terdaftar. Coba lagi.")
-    return jsonify({"added": ok, "skipped": skip, "users": [u.public() for u in added]})
+    return jsonify({"added": ok, "skipped": skip, "users": [u.public(with_code=True) for u in added]})
 
 
 @api.patch("/siswa/<uid>")
@@ -374,7 +453,7 @@ def siswa_rename(uid):
         raise ApiError(409, "Nama itu sudah dipakai siswa lain.")
     s.nama, s.scope_key = n, User.make_scope("siswa", n, guru_id=g.user.uid)
     commit_or_conflict("Nama itu sudah dipakai siswa lain.")
-    return jsonify({"user": s.public()})
+    return jsonify({"user": s.public(with_code=True)})
 
 
 @api.post("/siswa/<uid>/reset-password")
@@ -382,9 +461,10 @@ def siswa_rename(uid):
 def siswa_reset(uid):
     s = own_siswa(uid)
     s.pw_hash, s.fails, s.locked_until = None, 0, 0
+    s.activation_code = new_code()                       # siswa harus memasukkan kode baru dari guru
     AuthSession.query.filter_by(uid=s.uid).delete()      # keluarkan siswa dari semua perangkat
     db.session.commit()
-    return jsonify({"user": s.public()})
+    return jsonify({"user": s.public(with_code=True)})
 
 
 @api.delete("/siswa/<uid>")
@@ -522,7 +602,7 @@ def import_pack():
         u = existing.get(key(nama))
         if not u:
             u = User(uid=pick_uid(it.get("uid")), role="siswa", nama=nama, lembaga_id=g.user.lembaga_id, guru_id=gid,
-                     scope_key=User.make_scope("siswa", nama, guru_id=gid))
+                     scope_key=User.make_scope("siswa", nama, guru_id=gid), activation_code=new_code())
             db.session.add(u)
             db.session.flush()
             existing[key(nama)] = u
@@ -708,3 +788,110 @@ def siswa_mandiri(uid):
     if row:
         res["streak"] = json.loads(row.value)
     return jsonify(res)
+
+
+# ───────────────────────── rekaman bacaan siswa → guru ─────────────────────────
+REC_MAX_BYTES = int(os.environ.get("REC_MAX_BYTES", 3 * 1024 * 1024))       # per rekaman (~10 menit pada 32 kbps)
+REC_MAX_PER_SISWA = int(os.environ.get("REC_MAX_PER_SISWA", 10))            # database gratis terbatas: jaga ukuran
+REC_KEEP_DAYS = int(os.environ.get("REC_KEEP_DAYS", 60))                    # rekaman otomatis dihapus setelah ini
+REC_MAX_MS = 10 * 60 * 1000
+_MIME = re.compile(r"audio/(webm|ogg|mp4|mpeg|aac|wav|x-m4a)")
+
+
+def rec_access(rid, write=False):
+    """Rekaman milik siswa yang sedang masuk, atau milik siswa dari guru yang sedang masuk."""
+    r = db.session.get(Rekaman, rid)
+    if not r:
+        raise ApiError(404, "Rekaman tidak ditemukan.")
+    u = g.user
+    if u.role == "siswa" and r.siswa_uid == u.uid:
+        return r
+    if u.role == "guru":
+        s = db.session.get(User, r.siswa_uid)
+        if s and s.guru_id == u.uid:
+            return r
+    raise ApiError(404, "Rekaman tidak ditemukan.")
+
+
+def rec_list(uid):
+    rows = (Rekaman.query.options(defer(Rekaman.data)).filter_by(siswa_uid=uid)
+            .order_by(Rekaman.created_at.desc()).all())
+    return [r.to_dict() for r in rows]
+
+
+@api.post("/rekaman")
+@auth("siswa")
+def rekaman_upload():
+    """Body = byte audio mentah; metadata di header X-Rekaman-Meta (JSON, di-URL-encode)."""
+    data = request.get_data(cache=False)
+    if not data or len(data) < 500:
+        raise ApiError(400, "Rekaman kosong atau terlalu pendek.")
+    if len(data) > REC_MAX_BYTES:
+        raise ApiError(413, "Rekaman terlalu besar (maks. %d MB). Rekam lebih singkat." % (REC_MAX_BYTES // 1048576))
+    mime = (request.content_type or "").split(";")[0].strip().lower()
+    if not _MIME.fullmatch(mime):
+        raise ApiError(400, "Format audio tidak didukung.")
+    try:
+        from urllib.parse import unquote
+        meta = json.loads(unquote(request.headers.get("X-Rekaman-Meta", "{}")))
+        if not isinstance(meta, dict):
+            raise ValueError
+    except ValueError:
+        raise ApiError(400, "Data rekaman tidak valid.")
+    uid = g.user.uid
+    cutoff = now_ms() - REC_KEEP_DAYS * 86400 * 1000
+    Rekaman.query.filter(Rekaman.siswa_uid == uid, Rekaman.created_at < cutoff).delete()
+    if Rekaman.query.filter_by(siswa_uid=uid).count() >= REC_MAX_PER_SISWA:
+        raise ApiError(409, "Sudah ada %d rekaman terkirim. Hapus yang lama dulu sebelum mengirim yang baru." % REC_MAX_PER_SISWA)
+    r = Rekaman(id=new_id("r"), siswa_uid=uid, label=norm(meta.get("label"))[:80], ayah=norm(meta.get("ayah"))[:80],
+                dur_ms=max(0, min(int(to_int(meta.get("durMs"), 0, REC_MAX_MS * 2, "Durasi") or 0), REC_MAX_MS * 2)),
+                mime=mime, size=len(data), data=data)
+    db.session.add(r)
+    db.session.commit()
+    return jsonify({"rekaman": r.to_dict()})
+
+
+@api.get("/rekaman")
+@auth("siswa")
+def rekaman_mine():
+    return jsonify({"rekaman": rec_list(g.user.uid)})
+
+
+@api.get("/siswa/<uid>/rekaman")
+@auth("guru")
+def rekaman_siswa(uid):
+    return jsonify({"rekaman": rec_list(own_siswa(uid).uid)})
+
+
+@api.get("/rekaman/<rid>/audio")
+@auth("siswa", "guru")
+def rekaman_audio(rid):
+    r = rec_access(rid)
+    resp = current_app.response_class(r.data, mimetype=r.mime)
+    resp.headers["Content-Length"] = str(r.size)
+    resp.headers["Cache-Control"] = "private, no-store"
+    return resp
+
+
+@api.patch("/rekaman/<rid>")
+@auth("guru")
+def rekaman_tanggapi(rid):
+    """Guru menandai sudah didengar dan/atau memberi komentar."""
+    r = rec_access(rid)
+    d = body()
+    if "komentar" in d:
+        r.komentar = str(d.get("komentar") or "").strip()[:400]
+        r.heard = True
+    if d.get("heard"):
+        r.heard = True
+    db.session.commit()
+    return jsonify({"rekaman": r.to_dict()})
+
+
+@api.delete("/rekaman/<rid>")
+@auth("siswa", "guru")
+def rekaman_hapus(rid):
+    r = rec_access(rid)
+    db.session.delete(r)
+    db.session.commit()
+    return jsonify({"ok": True})

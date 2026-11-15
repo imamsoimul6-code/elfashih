@@ -1,11 +1,15 @@
 from flask import Flask, render_template, send_from_directory, jsonify, Response, request
+from sqlalchemy import inspect, text
 from sqlalchemy.exc import SQLAlchemyError
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os, json, time, urllib.request, urllib.error
 
 from models import db, database_url
 from api import api
 
 app = Flask(__name__)
+# Di Render ada 1 proxy di depan app: percaya X-Forwarded-For/Proto dari satu lapis itu (untuk IP asli & https)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 app.config.update(
     SQLALCHEMY_DATABASE_URI=database_url(),
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
@@ -17,12 +21,21 @@ db.init_app(app)
 app.register_blueprint(api)
 
 
+def migrate_db():
+    # db.create_all() tidak menambah kolom pada tabel yang sudah ada; tambahkan manual bila database lama belum punya.
+    cols = {c['name'] for c in inspect(db.engine).get_columns('users')}
+    if 'activation_code' not in cols:
+        with db.engine.begin() as con:
+            con.execute(text('ALTER TABLE users ADD COLUMN activation_code VARCHAR(12)'))
+
+
 def init_db(retries=5):
     # Dua worker gunicorn bisa membuat tabel bersamaan; kalau salah satu kalah balapan, coba lagi.
     for i in range(retries):
         try:
             with app.app_context():
                 db.create_all()
+                migrate_db()
             return
         except SQLAlchemyError as e:
             if i == retries - 1:
@@ -31,6 +44,16 @@ def init_db(retries=5):
 
 
 init_db()
+
+
+@app.after_request
+def security_headers(resp):
+    resp.headers.setdefault('X-Content-Type-Options', 'nosniff')
+    resp.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
+    resp.headers.setdefault('X-Frame-Options', 'SAMEORIGIN')
+    if request.headers.get('X-Forwarded-Proto', request.scheme) == 'https':
+        resp.headers.setdefault('Strict-Transport-Security', 'max-age=15552000')
+    return resp
 
 
 @app.errorhandler(404)

@@ -18,6 +18,17 @@ db = SQLAlchemy()
 SESSION_DAYS = 180
 
 
+_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"      # tanpa huruf/angka yang mirip (0 O 1 I L)
+
+
+def new_code():
+    return "".join(secrets.choice(_CODE_ALPHABET) for _ in range(6))
+
+
+def norm_code(s):
+    return re.sub(r"[^A-Z0-9]", "", str(s or "").upper())
+
+
 def now_ms():
     return int(time.time() * 1000)
 
@@ -79,6 +90,7 @@ class User(db.Model):
     guru_id = db.Column(db.String(32), index=True)
     admin = db.Column(db.Boolean, nullable=False, default=False)
     pw_hash = db.Column(db.String(300))                             # NULL = siswa belum buat password
+    activation_code = db.Column(db.String(12))                      # kode sekali pakai agar hanya siswa asli yang bisa membuat password
     fails = db.Column(db.Integer, nullable=False, default=0)
     locked_until = db.Column(db.BigInteger, nullable=False, default=0)
     created_at = db.Column(db.BigInteger, nullable=False, default=now_ms)
@@ -91,14 +103,16 @@ class User(db.Model):
             return "s|%s|%s" % (guru_id, key(nama))
         return "p|%s" % key(nama)
 
-    def public(self):
-        """Data dasar untuk daftar nama di layar login & Panel Guru."""
+    def public(self, with_code=False):
+        """Data dasar untuk daftar nama di layar login & Panel Guru (kode aktivasi hanya untuk guru)."""
         d = {"uid": self.uid, "role": self.role, "nama": self.nama,
              "lembagaId": self.lembaga_id, "hasPw": bool(self.pw_hash)}
         if self.guru_id:
             d["guruId"] = self.guru_id
         if not self.pw_hash:
             d["pending"] = True
+            if with_code:
+                d["code"] = self.activation_code
         return d
 
 
@@ -155,6 +169,27 @@ class UserData(db.Model):
     key = db.Column(db.String(30), primary_key=True)
     value = db.Column(db.Text, nullable=False)
     ts = db.Column(db.BigInteger, nullable=False, default=0)
+
+
+class Rekaman(db.Model):
+    """Rekaman bacaan siswa yang dikirim ke gurunya. Audio disimpan di database (disk Render tidak permanen)."""
+    __tablename__ = "rekaman"
+    id = db.Column(db.String(32), primary_key=True)
+    siswa_uid = db.Column(db.String(32), nullable=False, index=True)
+    label = db.Column(db.String(80), nullable=False, default="")
+    ayah = db.Column(db.String(80), nullable=False, default="")
+    dur_ms = db.Column(db.Integer, nullable=False, default=0)
+    mime = db.Column(db.String(40), nullable=False)
+    size = db.Column(db.Integer, nullable=False)
+    data = db.Column(db.LargeBinary, nullable=False)
+    komentar = db.Column(db.String(400), nullable=False, default="")      # umpan balik guru
+    heard = db.Column(db.Boolean, nullable=False, default=False)          # sudah diputar/ditanggapi guru
+    created_at = db.Column(db.BigInteger, nullable=False, default=now_ms)
+
+    def to_dict(self):
+        return {"id": self.id, "siswaUid": self.siswa_uid, "label": self.label, "ayah": self.ayah, "durMs": self.dur_ms,
+                "mime": self.mime, "size": self.size, "komentar": self.komentar, "heard": bool(self.heard),
+                "createdAt": self.created_at}
 
 
 def hash_token(token):
